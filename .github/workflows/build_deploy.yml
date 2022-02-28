@@ -9,8 +9,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build_and_deploy:
-    name: build
+  build:
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
