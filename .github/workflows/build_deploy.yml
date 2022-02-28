@@ -31,8 +31,11 @@ jobs:
       - name: Build web application
         run: flutter build web --web-renderer auto
 
-      - name: Build web application
-        run: flutter build web --web-renderer auto
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: web
+          path: build
 
   deploy:
     name: Deploy
