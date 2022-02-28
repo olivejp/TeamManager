@@ -22,8 +22,8 @@ jobs:
 
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: '2.5.0-5.3.pre'
-          channel: beta
+          flutter-version: '2.10.2'
+          channel: stable
 
       - name: Get dependencies
         run: flutter pub get
