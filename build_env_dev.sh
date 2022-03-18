@@ -1,0 +1,1 @@
+flutter pub run environment_config:generate --serverUrl=http://localhost:8081
