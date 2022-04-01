@@ -22,7 +22,7 @@ class TeamateUpdateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final TeamateCreationNotifier creationNotifier = Provider.of(context, listen: false);
     final TeamateUpdateNotifier notifier = Provider.of(context);
-    final DateFormat format = DateFormat("dd-MM-yyyy");
+    final DateFormat format = DateFormat("dd-MMM-yyyy");
 
     nomController.text = notifier.teamate?.nom ?? '';
     prenomController.text = notifier.teamate?.prenom ?? '';
@@ -58,7 +58,7 @@ class TeamateUpdateWidget extends StatelessWidget {
                 onChanged: notifier.setNom,
                 style: GoogleFonts.roboto(fontSize: 15),
                 decoration: InputDecoration(
-                  label: Text('Nom'),
+                  label: const Text('Nom'),
                   hintText: 'Nom',
                   hintStyle: GoogleFonts.roboto(fontSize: 15),
                 ),
@@ -106,7 +106,7 @@ class TeamateUpdateWidget extends StatelessWidget {
               dataSource: dataSource,
               textField: 'nom',
               valueField: 'id',
-              leading: Icon(Icons.bookmark),
+              leading: const Icon(Icons.bookmark),
               okButtonLabel: 'OK',
               cancelButtonLabel: 'Annuler',
               hintWidget: const Text('Choisissez les compétences'),

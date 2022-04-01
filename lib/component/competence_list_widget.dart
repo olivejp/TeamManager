@@ -29,11 +29,7 @@ class CompetenceTile extends StatelessWidget {
       child: ListTile(
         title: Text(competence.nom ?? ''),
         trailing: IconButton(
-          onPressed: () {
-            if (competence.id != null) {
-              context.read<TeamateCreationNotifier>().delete(competence.id!);
-            }
-          },
+          onPressed: () {},
           icon: const Icon(Icons.delete),
         ),
       ),

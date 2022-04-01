@@ -7,19 +7,18 @@ import 'package:team_manager/service/service_teamate.dart';
 import '../domain/competence.dart';
 
 class TeamateUpdateNotifier extends ChangeNotifier {
-  final String id;
   final ServiceTeamate _serviceTeamate = GetIt.I.get();
   final CompetenceService competenceService = GetIt.I.get<CompetenceService>();
   Teamate? teamate;
   List<Competence> listCompetence = [];
 
-  TeamateUpdateNotifier(this.id) {
-    getAllCompetence().then(
-      (_) => _serviceTeamate.read(int.parse(id)).then((value) {
-        teamate = value;
-        notifyListeners();
-      }),
-    );
+  TeamateUpdateNotifier() {
+    getAllCompetence().then((_) {});
+  }
+
+  setTeamate(Teamate? newTeamate) {
+    teamate = newTeamate;
+    notifyListeners();
   }
 
   setNom(String? newName) {

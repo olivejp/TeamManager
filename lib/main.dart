@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/notifier/competence_creation_notifier.dart';
+import 'package:team_manager/notifier/main_navigation_notifier.dart';
 import 'package:team_manager/notifier/teamate_creation_notifier.dart';
-import 'package:team_manager/page/competence_page.dart';
-import 'package:team_manager/page/error_router_page.dart';
+import 'package:team_manager/notifier/teamate_update_notifier.dart';
+import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
 import 'package:team_manager/page/home_page.dart';
-import 'package:team_manager/page/planning_page.dart';
-import 'package:team_manager/page/team_creation_page.dart';
-import 'package:team_manager/page/team_update_page.dart';
 import 'package:team_manager/service/service_competence.dart';
 import 'package:team_manager/service/service_teamate.dart';
 
@@ -26,65 +24,43 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GoRouter _router = GoRouter(
-      routes: [
-        GoRoute(
-            path: '/',
-            pageBuilder: (_, state) => MaterialPage(
-                  key: state.pageKey,
-                  child: const HomePage(),
-                ),
-            routes: [
-              GoRoute(
-                path: 'planning',
-                pageBuilder: (_, state) => MaterialPage(
-                  key: state.pageKey,
-                  child: const PlanningPage(),
-                ),
-              ),
-              GoRoute(
-                path: 'competence',
-                pageBuilder: (_, state) => MaterialPage(
-                  key: state.pageKey,
-                  child: const CompetencePage(),
-                ),
-              ),
-              GoRoute(
-                  path: 'resources',
-                  pageBuilder: (_, state) => MaterialPage(
-                        key: state.pageKey,
-                        child: const TeamCreationPage(),
-                      ),
-                  routes: [
-                    GoRoute(
-                      path: 'update/:id',
-                      pageBuilder: (_, state) => MaterialPage(
-                        key: state.pageKey,
-                        child: TeamUpdatePage(id: state.params['id'] as String),
-                      ),
-                    ),
-                  ])
-            ])
-      ],
-      initialLocation: '/',
-      errorPageBuilder: (context, state) => MaterialPage(
-        key: state.pageKey,
-        child: const ErrorRouterPage(),
-      ),
-    );
-
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (context) => MainNavigationNotifier()),
         ChangeNotifierProvider(create: (context) => TeamateCreationNotifier()),
+        ChangeNotifierProvider(create: (context) => TeamateUpdateNotifier()),
+        ChangeNotifierProvider(create: (context) => TeamateVisualizeNotifier()),
         ChangeNotifierProvider(create: (context) => CompetenceCreationNotifier()),
       ],
-      child: MaterialApp.router(
+      child: MaterialApp(
         title: 'Team Manager',
         theme: ThemeData(
-          primarySwatch: Colors.red,
+          scaffoldBackgroundColor: const Color(0xff1d1b26),
+          primarySwatch: Colors.grey,
+          textTheme: TextTheme(
+            caption: GoogleFonts.nunito(
+              color: Colors.grey,
+              fontSize: 16,
+            ),
+            subtitle1: GoogleFonts.nunito(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+            bodyText1: GoogleFonts.nunito(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold
+            ),
+            bodyText2: GoogleFonts.nunito(
+              color: Colors.white,
+              fontSize: 15,
+            ),
+          ),
+          iconTheme: const IconThemeData(
+            color: Colors.white,
+          ),
         ),
-        routerDelegate: _router.routerDelegate,
-        routeInformationParser: _router.routeInformationParser,
+        home: const HomePage(),
       ),
     );
   }

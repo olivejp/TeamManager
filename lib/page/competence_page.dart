@@ -14,9 +14,9 @@ class CompetencePage extends StatelessWidget {
       body: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
-        children: [
+        children: const [
           CompetenceCreationWidget(),
-          const CompetenceListWidget(),
+          CompetenceListWidget(),
         ],
       ),
     );

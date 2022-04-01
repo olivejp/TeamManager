@@ -14,7 +14,7 @@ import 'interface_service.dart';
 abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements InterfaceService<T, U> {
 
   AbstractHttpService({required this.path, this.useHttps = false, this.interceptor, this.defaultHeaders}) {
-    if (EnvironmentConfig.serverUrl == null || EnvironmentConfig.serverUrl.isEmpty == true) {
+    if (EnvironmentConfig.serverUrl.isEmpty == true) {
 
     }
   }

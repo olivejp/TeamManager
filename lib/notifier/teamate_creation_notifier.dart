@@ -10,13 +10,18 @@ class TeamateCreationNotifier extends ChangeNotifier {
   ServiceTeamate teamateService = GetIt.I.get<ServiceTeamate>();
 
   List<Teamate> listTeamate = [];
-
+  Teamate? teamateToUpdate;
 
   String? nom;
   String? prenom;
 
   TeamateCreationNotifier() {
     refresh();
+  }
+
+  void setNewTeamateToUpdate(Teamate? newTeamate) {
+    teamateToUpdate = newTeamate;
+    notifyListeners();
   }
 
   void reset(TextEditingController? nomController, TextEditingController? prenomController) {

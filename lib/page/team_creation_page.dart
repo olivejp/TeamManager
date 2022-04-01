@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:team_manager/component/team_creation_widget.dart';
 import 'package:team_manager/component/team_list_widget.dart';
+import 'package:team_manager/component/team_visualization_widget.dart';
 
-class TeamCreationPage extends StatelessWidget {
-  const TeamCreationPage({Key? key}) : super(key: key);
+class TeamVisualizationPage extends StatelessWidget {
+  const TeamVisualizationPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Team Manager'),
-      ),
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          TeamateCreationWidget(),
-          const TeamateListWidget(),
-        ],
-      ),
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Expanded(
+              flex: 1,
+              child: TeamateListWidget(),
+            ),
+            Flexible(
+              flex: 2,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: TeamateDetailWidget(),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

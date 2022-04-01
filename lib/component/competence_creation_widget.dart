@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:team_manager/notifier/competence_creation_notifier.dart';
 
 class CompetenceCreationWidget extends StatelessWidget {
-  CompetenceCreationWidget({Key? key}) : super(key: key);
+  const CompetenceCreationWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,12 +15,10 @@ class CompetenceCreationWidget extends StatelessWidget {
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
     void onSuccess(String message) {
-      print('OnSuccess has been called');
       notifier.reset(nomController);
     }
 
     void onFailure(String message) {
-      print('OnFailure has been called');
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -30,7 +28,6 @@ class CompetenceCreationWidget extends StatelessWidget {
     }
 
     void save() {
-      print('Save has been called');
       if (_formKey.currentState?.validate() == true) {
         notifier
             .create(_formKey)
