@@ -11,15 +11,15 @@ class TeamVisualizationPage extends StatelessWidget {
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Expanded(
+          children: [
+            const Expanded(
               flex: 1,
               child: TeamateListWidget(),
             ),
             Flexible(
               flex: 2,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: TeamateDetailWidget(),
               ),
             ),

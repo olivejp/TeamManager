@@ -129,6 +129,7 @@ class LayoutHomeWidget extends StatelessWidget {
                               color: Colors.blue,
                               borderRadius: BorderRadius.circular(5),
                             ),
+                            padding: const EdgeInsets.all(8),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [

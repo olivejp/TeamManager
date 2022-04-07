@@ -1,78 +1,141 @@
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
 
+import '../domain/teamate.dart';
+
 class TeamateDetailWidget extends StatelessWidget {
-  const TeamateDetailWidget({Key? key}) : super(key: key);
+  TeamateDetailWidget({Key? key}) : super(key: key);
+
+  final DateFormat dateFormat = DateFormat("dd-MMM-yyyy");
+  final TextEditingController lastnameController = TextEditingController();
+  final TextEditingController firstnameController = TextEditingController();
+  final TextEditingController birthdateController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController nomController = TextEditingController();
-    final TextEditingController prenomController = TextEditingController();
-    final TextEditingController dateNaissanceController = TextEditingController();
-    final DateFormat format = DateFormat("dd-MMM-yyyy");
-
     return Consumer<TeamateVisualizeNotifier>(
       builder: (context, notifier, child) {
         if (notifier.teamateToVisualize != null) {
-          if (notifier.teamateToVisualize?.nom != null) {
-            nomController.text = notifier.teamateToVisualize?.nom ?? '';
-          }
-          if (notifier.teamateToVisualize?.prenom != null) {
-            prenomController.text = notifier.teamateToVisualize?.prenom ?? '';
-          }
-
-          String dateNaissanceFormatted = (notifier.teamateToVisualize?.dateNaissance?.toString() != null)
-              ? format.format(notifier.teamateToVisualize!.dateNaissance!)
-              : '';
-          dateNaissanceController.text = dateNaissanceFormatted;
-
-          return child!;
+          initializeControllers(notifier.teamateToVisualize!, dateFormat);
+        } else {
+          return Container();
         }
-        return Container();
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xff454457),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    notifier.isReadOnly
+                        ? IconButton(
+                            tooltip: "update".i18n(),
+                            onPressed: notifier.changeReadOnly,
+                            icon: const Icon(Icons.create),
+                          )
+                        : IconButton(
+                            tooltip: "save".i18n(),
+                            onPressed: () => notifier.save(_formKey).then((value) {
+                              context.read<TeamateVisualizeNotifier>();
+                            }),
+                            icon: const Icon(Icons.save_alt_rounded),
+                          ),
+                  ],
+                ),
+                TextFormField(
+                  readOnly: notifier.isReadOnly,
+                  onChanged: notifier.setLastname,
+                  controller: lastnameController,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText2
+                      ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
+                  decoration: InputDecoration(
+                    label: Text('lastname'.i18n()),
+                    labelStyle: Theme.of(context).textTheme.caption,
+                  ),
+                  validator: (String? value) {
+                    return (value == null || value.isEmpty) ? 'Le nom est obligatoire' : null;
+                  },
+                ),
+                TextFormField(
+                  readOnly: notifier.isReadOnly,
+                  onChanged: notifier.setFirstname,
+                  controller: firstnameController,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText2
+                      ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
+                  decoration: InputDecoration(
+                    label: Text('firstname'.i18n()),
+                    labelStyle: Theme.of(context).textTheme.caption,
+                  ),
+                  validator: (String? value) {
+                    return (value == null || value.isEmpty) ? 'Le prénom est obligatoire' : null;
+                  },
+                ),
+                DateTimeField(
+                  onChanged: notifier.setBirthdate,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  resetIcon: notifier.isReadOnly ? null : const Icon(Icons.refresh),
+                  readOnly: notifier.isReadOnly,
+                  controller: birthdateController,
+                  format: dateFormat,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText2
+                      ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
+                  decoration: InputDecoration(
+                    label: Text("birth_date".i18n()),
+                    labelStyle: Theme.of(context).textTheme.caption,
+                  ),
+                  onShowPicker: (context, currentValue) {
+                    if (!notifier.isReadOnly) {
+                      return showDatePicker(
+                        context: context,
+                        helpText: "choose-birthdate".i18n(),
+                        confirmText: "choose".i18n(),
+                        cancelText: "cancel".i18n(),
+                        locale: const Locale("fr", "FR"),
+                        firstDate: DateTime(1900),
+                        initialDate: currentValue ?? DateTime.now(),
+                        lastDate: DateTime(2100),
+                      );
+                    }
+                    return Future.value();
+                  },
+                  validator: (DateTime? value) {
+                    if (value == null) {
+                      return 'La date de naissance est obligatoire.';
+                    }
+                    if (value.isAfter(DateTime.now())) {
+                      return 'La date de naissance ne peut être après la date du jour.';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
       },
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xff454457),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(
-          children: <Widget>[
-            TextFormField(
-              readOnly: true,
-              controller: nomController,
-              style: Theme.of(context).textTheme.bodyText2,
-              decoration: InputDecoration(
-                label: const Text('Nom'),
-                labelStyle: Theme.of(context).textTheme.caption,
-              ),
-            ),
-            TextFormField(
-              readOnly: true,
-              controller: prenomController,
-              style: Theme.of(context).textTheme.bodyText2,
-              decoration: InputDecoration(
-                label: const Text('Prénom'),
-                labelStyle: Theme.of(context).textTheme.caption,
-              ),
-            ),
-            DateTimeField(
-              resetIcon: null,
-              readOnly: true,
-              controller: dateNaissanceController,
-              format: format,
-              decoration: InputDecoration(
-                label: const Text('Date de naissance'),
-                labelStyle: Theme.of(context).textTheme.caption,
-              ),
-              onShowPicker: (BuildContext context, DateTime? currentValue) => Future.value(),
-            ),
-          ],
-        ),
-      ),
     );
+  }
+
+  void initializeControllers(Teamate teamate, DateFormat format) {
+    lastnameController.text = teamate.nom ?? '';
+    firstnameController.text = teamate.prenom ?? '';
+    birthdateController.text = (teamate.dateNaissance?.toString() != null) ? format.format(teamate.dateNaissance!) : '';
   }
 }

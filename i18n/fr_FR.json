@@ -1,0 +1,11 @@
+{
+  "welcome": "Bienvenue %s",
+  "birth_date": "Date de naissance",
+  "update": "Modifier",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "choose": "Choisir",
+  "choose-birthdate": "Sélectionner la date de naissance",
+  "firstname": "Prénom",
+  "lastname": "Nom"
+}

@@ -31,7 +31,7 @@ class TeamateListWidget extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyText1,
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => context.read<TeamateVisualizeNotifier>().changeToCreationMode(),
                     icon: const Icon(Icons.add),
                   )
                 ],

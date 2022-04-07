@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:team_manager/notifier/teamate_creation_notifier.dart';
 
 import '../domain/competence.dart';
 import '../notifier/competence_creation_notifier.dart';

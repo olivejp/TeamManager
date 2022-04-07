@@ -1,0 +1,11 @@
+{
+  "welcome": "Welcome %s",
+  "birth_date": "Birth date",
+  "update": "Update",
+  "save": "Save",
+  "cancel": "Cancer",
+  "choose": "Choose",
+  "choose-birthdate": "Choose the birth date",
+  "firstname": "Firstname",
+  "lastname": "Lastname"
+}

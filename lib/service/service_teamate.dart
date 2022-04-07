@@ -7,7 +7,7 @@ import 'interface_interceptor.dart';
 class ServiceTeamate extends AbstractHttpService<Teamate, int> {
   ServiceTeamate({InterfaceInterceptor? interceptor})
       : super(path: '/teamate', interceptor: interceptor, defaultHeaders: {
-          HttpHeaders.contentTypeHeader: 'application/json'
+          HttpHeaders.contentTypeHeader: 'application/json',
         });
 
   @override
