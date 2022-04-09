@@ -33,8 +33,6 @@ class CompetenceCreationWidget extends StatelessWidget {
             .create(_formKey)
             .then((value) => onSuccess('OK'))
             .onError((error, stackTrace) => onFailure(error.toString()));
-      } else {
-        print('Le formulaire est invalide.');
       }
     }
 

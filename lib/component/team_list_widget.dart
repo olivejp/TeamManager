@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/domain/teamate.dart';
+import 'package:team_manager/notifier/teamate_refresh_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
+
+import '../domain/view_dialog_action.dart';
 
 class TeamateListWidget extends StatelessWidget {
   const TeamateListWidget({Key? key}) : super(key: key);
@@ -31,6 +35,7 @@ class TeamateListWidget extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyText1,
                   ),
                   IconButton(
+                    tooltip: "add".i18n(),
                     onPressed: () => context.read<TeamateVisualizeNotifier>().changeToCreationMode(),
                     icon: const Icon(Icons.add),
                   )
@@ -38,23 +43,25 @@ class TeamateListWidget extends StatelessWidget {
               ),
             ),
           ),
-          FutureBuilder<List<Teamate>>(
-            future: context.read<TeamateVisualizeNotifier>().getListTeamate(),
-            builder: (context, snapshotListTeamate) {
-              if (snapshotListTeamate.hasData) {
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: snapshotListTeamate.data!.length,
-                  itemBuilder: (context, index) => TeamateTile(
-                    teamate: snapshotListTeamate.data!.elementAt(index),
-                  ),
+          Consumer<TeamateRefreshNotifier>(
+            builder: (_, value, __) => FutureBuilder<List<Teamate>>(
+              future: context.read<TeamateVisualizeNotifier>().getListTeamate(),
+              builder: (context, snapshotListTeamate) {
+                if (snapshotListTeamate.hasData) {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: snapshotListTeamate.data!.length,
+                    itemBuilder: (context, index) => TeamateTile(
+                      teamate: snapshotListTeamate.data!.elementAt(index),
+                    ),
+                  );
+                }
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: CircularProgressIndicator(),
                 );
-              }
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: CircularProgressIndicator(),
-              );
-            },
+              },
+            ),
           ),
         ],
       ),
@@ -70,12 +77,44 @@ class TeamateTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => context.read<TeamateVisualizeNotifier>().setNewTeamateToVisualize(teamate.id),
+      onTap: () {
+        if (teamate.id != null) {
+          context.read<TeamateVisualizeNotifier>().setNewTeamateToVisualize(teamate.id);
+        }
+      },
       title: Text((teamate.nom ?? '') + ' ' + (teamate.prenom ?? '')),
       trailing: IconButton(
-        onPressed: () {
-          if (teamate.id != null) {
-            context.read<TeamateVisualizeNotifier>().delete(teamate.id!);
+        tooltip: 'delete'.i18n(),
+        onPressed: () async {
+          final action = await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Text('delete_teamate'.i18n()),
+              actions: [
+                TextButton.icon(
+                  onPressed: () => Navigator.of(context).pop(ViewDialogsAction.yes),
+                  icon: const Icon(Icons.check_rounded),
+                  label: Text('yes'.i18n()),
+                ),
+                TextButton.icon(
+                  onPressed: () => Navigator.of(context).pop(ViewDialogsAction.no),
+                  icon: const Icon(Icons.cancel_rounded),
+                  label: Text('no'.i18n()),
+                ),
+              ],
+            ),
+          );
+
+          if (action == ViewDialogsAction.yes) {
+            if (teamate.id != null) {
+              context.read<TeamateVisualizeNotifier>().delete(teamate.id!).then((value) {
+                context.read<TeamateRefreshNotifier>().refresh();
+                context.read<TeamateVisualizeNotifier>().changeToCreationMode();
+              });
+            }
           }
         },
         icon: const Icon(

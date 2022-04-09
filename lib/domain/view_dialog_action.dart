@@ -1,0 +1,4 @@
+enum ViewDialogsAction {
+  yes,
+  no
+}

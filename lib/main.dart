@@ -7,12 +7,13 @@ import 'package:provider/provider.dart';
 import 'package:team_manager/notifier/competence_creation_notifier.dart';
 import 'package:team_manager/notifier/main_navigation_notifier.dart';
 import 'package:team_manager/notifier/teamate_creation_notifier.dart';
-import 'package:team_manager/notifier/teamate_update_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
 import 'package:team_manager/page/home_page.dart';
 import 'package:team_manager/service/http_interceptor.dart';
 import 'package:team_manager/service/service_competence.dart';
 import 'package:team_manager/service/service_teamate.dart';
+
+import 'notifier/teamate_refresh_notifier.dart';
 
 void main() {
   GetIt.I.registerSingleton(HttpInterceptor());
@@ -40,9 +41,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => MainNavigationNotifier()),
         ChangeNotifierProvider(create: (context) => TeamateCreationNotifier()),
-        ChangeNotifierProvider(create: (context) => TeamateUpdateNotifier()),
         ChangeNotifierProvider(create: (context) => TeamateVisualizeNotifier()),
         ChangeNotifierProvider(create: (context) => CompetenceCreationNotifier()),
+        ChangeNotifierProvider(create: (context) => TeamateRefreshNotifier()),
       ],
       child: MaterialApp(
         title: 'Team Manager',

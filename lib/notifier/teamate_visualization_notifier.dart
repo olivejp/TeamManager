@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 
@@ -46,7 +48,7 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
         });
       }
     }
-    return Future.error('No teammate in the update page.');
+    return Future.error('There is errors on this page.');
   }
 
   void setNewTeamateToVisualize(int? idTeamate) {

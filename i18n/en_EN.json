@@ -3,9 +3,14 @@
   "birth_date": "Birth date",
   "update": "Update",
   "save": "Save",
-  "cancel": "Cancer",
+  "cancel": "Cancel",
+  "delete": "Delete",
   "choose": "Choose",
   "choose-birthdate": "Choose the birth date",
   "firstname": "Firstname",
-  "lastname": "Lastname"
+  "lastname": "Lastname",
+  "add": "Add",
+  "delete_teamate": "Delete a teamate ?",
+  "yes": "Yes",
+  "no": "No"
 }

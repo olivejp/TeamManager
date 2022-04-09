@@ -4,8 +4,13 @@
   "update": "Modifier",
   "save": "Enregistrer",
   "cancel": "Annuler",
+  "delete": "Supprimer",
   "choose": "Choisir",
   "choose-birthdate": "Sélectionner la date de naissance",
   "firstname": "Prénom",
-  "lastname": "Nom"
+  "lastname": "Nom",
+  "add": "Ajouter",
+  "delete_teamate": "Supprimer un équipier ?",
+  "yes": "Oui",
+  "no": "Non"
 }

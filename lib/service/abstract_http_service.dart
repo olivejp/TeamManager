@@ -153,7 +153,7 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
   }
 
   _decodeResponseBodyWithJsonPath(http.Response response, List<String>? jsonRoot) {
-    dynamic body = jsonDecode(response.body);
+    dynamic body = jsonDecode(utf8.decode(response.bodyBytes));
     if (jsonRoot != null && jsonRoot.isNotEmpty) {
       for (String jsonPath in jsonRoot) {
         body = body[jsonPath];
