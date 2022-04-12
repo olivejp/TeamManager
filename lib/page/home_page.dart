@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
+import 'package:team_manager/constants.dart';
 import 'package:team_manager/notifier/main_navigation_notifier.dart';
 import 'package:team_manager/page/competence_page.dart';
 import 'package:team_manager/page/planning_page.dart';
 import 'package:team_manager/page/team_creation_page.dart';
+import 'package:team_manager/service/firebase_authentication_service.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -20,67 +24,24 @@ class HomePage extends StatelessWidget {
         children: [
           LeftBarWidget(iconVerticalPadding: iconVerticalPadding),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 8.0),
-              child: Builder(builder: (context) {
-                final String mainPageName =
-                    context.select<MainNavigationNotifier, String>((value) => value.mainPageName);
-                switch (mainPageName) {
-                  case 'home':
-                    return const LayoutHomeWidget();
-                  case 'resources':
-                    return const TeamVisualizationPage();
-                  case 'competences':
-                    return const CompetencePage();
-                  case 'planning':
-                    return const PlanningPage();
-                  default:
-                    return const LayoutHomeWidget();
-                }
-              }),
-            ),
+            child: Builder(builder: (context) {
+              final String mainPageName = context.select<MainNavigationNotifier, String>((value) => value.mainPageName);
+              switch (mainPageName) {
+                case 'home':
+                  return const LayoutHomeWidget();
+                case 'resources':
+                  return const TeamVisualizationPage();
+                case 'competences':
+                  return const CompetencePage();
+                case 'planning':
+                  return const PlanningPage();
+                default:
+                  return const LayoutHomeWidget();
+              }
+            }),
           ),
         ],
       ),
-    );
-  }
-
-  GridView buildGridView(BuildContext context) {
-    return GridView.count(
-      padding: const EdgeInsets.all(10),
-      crossAxisCount: 4,
-      children: [
-        Card(
-          color: Colors.red,
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Expanded(
-                  child: Center(
-                    child: Text('Resources'),
-                  ),
-                ),
-              ],
-            ),
-            onTap: () => context.read<MainNavigationNotifier>().setMainPageName('resources'),
-          ),
-        ),
-        Card(
-          child: InkWell(
-            child: const Text('Planning'),
-            onTap: () => context.read<MainNavigationNotifier>().setMainPageName('planning'),
-          ),
-        ),
-        Card(
-          child: InkWell(
-            child: const Text('Competence'),
-            onTap: () => context.read<MainNavigationNotifier>().setMainPageName('competences'),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -113,8 +74,8 @@ class LayoutHomeWidget extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: const Color(0xff3D5FC7),
+                    borderRadius: Constants.borderRadius,
+                    color: Constants.primaryColor,
                   ),
                   height: 200,
                   alignment: Alignment.topCenter,
@@ -126,7 +87,7 @@ class LayoutHomeWidget extends StatelessWidget {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              color: Colors.blue,
+                              color: Constants.secondaryColor,
                               borderRadius: BorderRadius.circular(5),
                             ),
                             padding: const EdgeInsets.all(8),
@@ -135,7 +96,7 @@ class LayoutHomeWidget extends StatelessWidget {
                               children: [
                                 const Icon(
                                   Icons.calendar_today_rounded,
-                                  color: Colors.white,
+                                  color: Constants.iconColor,
                                   size: 16,
                                 ),
                                 Text(
@@ -187,10 +148,10 @@ class SearchBarWidget extends StatelessWidget {
           ),
           hintText: 'Rechercher un collaborateur',
           hintStyle: const TextStyle(
-            color: Colors.grey,
+            color: Constants.greyColor,
           ),
           suffixIconColor: Colors.white,
-          fillColor: const Color(0xff3A394A),
+          fillColor: Constants.backgroundColor,
         ),
       ),
     );
@@ -198,12 +159,13 @@ class SearchBarWidget extends StatelessWidget {
 }
 
 class LeftBarWidget extends StatelessWidget {
-  const LeftBarWidget({
+  LeftBarWidget({
     Key? key,
     required this.iconVerticalPadding,
   }) : super(key: key);
 
   final double iconVerticalPadding;
+  final FirebaseAuthenticationService authService = GetIt.I.get();
 
   @override
   Widget build(BuildContext context) {
@@ -213,8 +175,8 @@ class LeftBarWidget extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         width: 100,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: const Color(0xff3D5FC7),
+          borderRadius: Constants.borderRadius,
+          color: Constants.primaryColor,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -264,7 +226,8 @@ class LeftBarWidget extends StatelessWidget {
               ],
             ),
             IconButton(
-              onPressed: () {},
+              tooltip: 'sign_out'.i18n(),
+              onPressed: authService.signOut,
               icon: const Icon(Icons.exit_to_app),
             )
           ],

@@ -7,25 +7,30 @@ class TeamVisualizationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Expanded(
-              flex: 1,
-              child: TeamateListWidget(),
-            ),
-            Flexible(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: TeamateDetailWidget(),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Flexible(
+                flex: 1,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: TeamateListWidget(),
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+              Flexible(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                  child: TeamateDetailWidget(),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

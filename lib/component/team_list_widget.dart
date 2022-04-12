@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
+import 'package:team_manager/constants.dart';
 import 'package:team_manager/domain/teamate.dart';
 import 'package:team_manager/notifier/teamate_refresh_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
+import 'package:team_manager/page/team_creation_page.dart';
 
 import '../domain/view_dialog_action.dart';
 
@@ -14,25 +17,28 @@ class TeamateListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xff454457),
-        borderRadius: BorderRadius.circular(15),
+        color: Constants.backgroundColor,
+        borderRadius: Constants.borderRadius,
       ),
       child: Column(
         children: [
           Container(
             height: 50,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              color: Colors.blue,
+              borderRadius: Constants.borderRadius,
+              color: Constants.secondaryColor,
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Liste des ressources',
-                    style: Theme.of(context).textTheme.bodyText1,
+                  Flexible(
+                    flex: 6,
+                    child: Text(
+                      'Liste des ressources',
+                      style: Theme.of(context).textTheme.bodyText1,
+                    ),
                   ),
                   IconButton(
                     tooltip: "add".i18n(),
@@ -46,12 +52,13 @@ class TeamateListWidget extends StatelessWidget {
           Consumer<TeamateRefreshNotifier>(
             builder: (_, value, __) => FutureBuilder<List<Teamate>>(
               future: context.read<TeamateVisualizeNotifier>().getListTeamate(),
-              builder: (context, snapshotListTeamate) {
+              builder: (_, snapshotListTeamate) {
                 if (snapshotListTeamate.hasData) {
                   return ListView.builder(
                     shrinkWrap: true,
+                    scrollDirection: Axis.vertical,
                     itemCount: snapshotListTeamate.data!.length,
-                    itemBuilder: (context, index) => TeamateTile(
+                    itemBuilder: (_, index) => TeamateTile(
                       teamate: snapshotListTeamate.data!.elementAt(index),
                     ),
                   );
@@ -90,7 +97,7 @@ class TeamateTile extends StatelessWidget {
             context: context,
             builder: (context) => AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: Constants.borderRadius,
               ),
               title: Text('delete_teamate'.i18n()),
               actions: [

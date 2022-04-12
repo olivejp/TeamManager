@@ -18,6 +18,7 @@ Teamate _$TeamateFromJson(Map<String, dynamic> json) {
     ..dateNaissance = json['dateNaissance'] == null
         ? null
         : DateTime.parse(json['dateNaissance'] as String)
+    ..photoUrl = json['photoUrl'] as String?
     ..listCompetence = (json['listCompetence'] as List<dynamic>?)
         ?.map((e) => Competence.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -31,5 +32,6 @@ Map<String, dynamic> _$TeamateToJson(Teamate instance) => <String, dynamic>{
       'nom': instance.nom,
       'prenom': instance.prenom,
       'dateNaissance': instance.dateNaissance?.toIso8601String(),
+      'photoUrl': instance.photoUrl,
       'listCompetence': instance.listCompetence,
     };

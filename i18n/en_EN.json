@@ -12,5 +12,18 @@
   "add": "Add",
   "delete_teamate": "Delete a teamate ?",
   "yes": "Yes",
-  "no": "No"
+  "no": "No",
+  "create_title": "Creation",
+  "visualize_title": "Visualization",
+  "update_title": "Update",
+  "sign_out": "Sign out",
+  "connectToYourAccount": "Sign in",
+  "passwordForgotten": "Forget you password",
+  "connect": "Connect",
+  "signUp": "Sign up",
+  "email": "Email",
+  "password": "Password",
+  "noAccount": "Don't have a account yet ?",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password"
 }

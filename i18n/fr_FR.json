@@ -12,5 +12,18 @@
   "add": "Ajouter",
   "delete_teamate": "Supprimer un équipier ?",
   "yes": "Oui",
-  "no": "Non"
+  "no": "Non",
+  "create_title": "Création",
+  "visualize_title": "Visualisation",
+  "update_title": "Mise à jour",
+  "sign_out": "Se déconnecter",
+  "connectToYourAccount": "Se connecter",
+  "passwordForgotten": "J'ai oublié mon mot de passe",
+  "connect": "Se connecter",
+  "signUp": "Créer un compte",
+  "email": "Email",
+  "password": "Mot de passe",
+  "noAccount": "Vous n'avez pas de compte ?",
+  "showPassword": "Afficher le mot de passe",
+  "hidePassword": "Masquer le mot de passe"
 }

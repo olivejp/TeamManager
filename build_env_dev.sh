@@ -1,1 +1,1 @@
-flutter pub run environment_config:generate --serverUrl=localhost:8081
+flutter pub run environment_config:generate --serverUrl=localhost:8081 --resourceManagerStorage:'gs://resourcemanager-2a15b.appspot.com'
