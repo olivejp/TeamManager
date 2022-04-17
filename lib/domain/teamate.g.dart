@@ -26,6 +26,9 @@ Teamate _$TeamateFromJson(Map<String, dynamic> json) {
     ..description = json['description'] as String?
     ..listCompetence = (json['listCompetence'] as List<dynamic>?)
         ?.map((e) => Competence.fromJson(e as Map<String, dynamic>))
+        .toList()
+    ..listDocument = (json['listDocument'] as List<dynamic>?)
+        ?.map((e) => Document.fromJson(e as Map<String, dynamic>))
         .toList();
 }
 
@@ -44,4 +47,5 @@ Map<String, dynamic> _$TeamateToJson(Teamate instance) => <String, dynamic>{
       'email': instance.email,
       'description': instance.description,
       'listCompetence': instance.listCompetence,
+      'listDocument': instance.listDocument,
     };

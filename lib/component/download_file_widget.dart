@@ -40,6 +40,8 @@ class DownloadFileNotifier extends ChangeNotifier {
   }
 
   void storeDocument(Uint8List? documentBytes, String? documentName, String? mimeType) {
+    hover = false;
+
     print('storeDocument has been called');
 
     if (documentBytes == null) {
@@ -94,7 +96,10 @@ class DownloadFileWidget extends StatelessWidget {
     required this.width,
     required this.height,
     required this.acceptedMimeTypes,
+    required this.acceptedExtensions,
     required this.path,
+    required this.label,
+    required this.buttonLabel,
     this.downloadUrl,
     this.filename,
     this.onDelete,
@@ -105,11 +110,14 @@ class DownloadFileWidget extends StatelessWidget {
   final double width;
   final double height;
   final List<String> acceptedMimeTypes;
+  final List<String> acceptedExtensions;
   final String? downloadUrl;
   final String? filename;
   final Future<void> Function()? onDelete;
   final void Function(String downloadUrl, String fileName) onUploadComplete;
   final bool isReadOnly;
+  final String label;
+  final String buttonLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -161,20 +169,22 @@ class DownloadFileWidget extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Déposer ici le CV',
+                      Text(label,
                           style: (isReadOnly)
                               ? Theme.of(context).textTheme.caption?.copyWith(color: Colors.grey)
                               : Theme.of(context).textTheme.caption?.copyWith(color: Colors.white)),
                       TextButton.icon(
                         icon: const Icon(Icons.upload_file),
-                        label: const Text('Upload un fichier'),
+                        label: Text(buttonLabel),
                         onPressed: (isReadOnly)
                             ? null
                             : () {
-                                FilePicker.platform.pickFiles(
+                                FilePicker.platform
+                                    .pickFiles(
                                   type: FileType.custom,
-                                  allowedExtensions: ['jpeg', 'jpg', 'pdf'],
-                                ).then((FilePickerResult? result) {
+                                  allowedExtensions: acceptedExtensions,
+                                )
+                                    .then((FilePickerResult? result) {
                                   if (result != null) {
                                     final Uint8List? fileBytes = result.files.first.bytes;
                                     final String fileName = result.files.first.name;

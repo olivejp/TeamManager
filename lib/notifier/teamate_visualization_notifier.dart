@@ -6,14 +6,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart';
 import 'package:team_manager/domain/competence.dart';
+import 'package:team_manager/domain/document.dart';
 import 'package:team_manager/service/firebase_storage_service.dart';
 import 'package:team_manager/service/service_competence.dart';
+import 'package:team_manager/service/service_document.dart';
 
 import '../domain/teamate.dart';
 import '../service/service_teamate.dart';
 
 class TeamateVisualizeNotifier extends ChangeNotifier {
   final ServiceTeamate service = GetIt.I.get<ServiceTeamate>();
+  final DocumentService documentService = GetIt.I.get<DocumentService>();
   final CompetenceService competenceService = GetIt.I.get<CompetenceService>();
   final FirebaseStorageService storageService = GetIt.I.get<FirebaseStorageService>();
   Teamate? teamateToVisualize;
@@ -184,7 +187,6 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
 
   void setListCompetence(dynamic returnValue) {
     final List<dynamic> listCompetenceId = returnValue;
-    print(listCompetenceId);
     final List<Competence> list = listCompetenceId.map((e) {
       final Competence competence = Competence();
       competence.id = int.parse(e);
@@ -192,5 +194,33 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     }).toList();
     teamateToVisualize?.listCompetence = list;
     save();
+  }
+
+  void addDocument(String downloadUrl, String filename) {
+    if (teamateToVisualize?.id != null) {
+      final Document document = Document();
+      document.id = null;
+      document.url = downloadUrl;
+      document.filename = filename;
+      teamateToVisualize?.listDocument?.add(document);
+      save();
+    }
+  }
+
+  Future<void> deleteDocument(Document e) {
+    if (teamateToVisualize?.id == null) {
+      return Future.error('Aucun ID utilisateur pour la suppression du document.');
+    }
+    if (e.id == null) {
+      return Future.error('Aucun ID document pour la suppression du document.');
+    }
+
+    teamateToVisualize!.listDocument?.remove(e);
+
+    return storageService
+        .deleteFile(e.filename!)
+        .whenComplete(() => documentService.delete(e.id!))
+        .whenComplete(() => notifyListeners())
+        .onError((error, stackTrace) => print('DELETION FAILED' + (error?.toString() ?? "")));
   }
 }

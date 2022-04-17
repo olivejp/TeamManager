@@ -1,10 +1,16 @@
+import 'dart:typed_data';
+
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:localization/localization.dart';
+import 'package:mime_type/mime_type.dart';
 import 'package:provider/provider.dart';
+import 'package:team_manager/component/download_file.dart';
+import 'package:team_manager/component/file_drop_zone.dart';
 import 'package:team_manager/component/photo_storage.dart';
 import 'package:team_manager/constants.dart';
+import 'package:team_manager/domain/document.dart';
 import 'package:team_manager/notifier/teamate_refresh_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
 
@@ -32,7 +38,7 @@ class TeamateDetailWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     const double defaultWidth = 250;
     const double defaultHeight = 100;
-    const acceptedMimeTypes = ['image/jpeg', 'application/pdf'];
+    const acceptedExtensions = ['jpeg', 'jpg', 'pdf'];
 
     return Consumer<TeamateVisualizeNotifier>(
       builder: (context, notifier, child) {
@@ -211,26 +217,57 @@ class TeamateDetailWidget extends StatelessWidget {
                               save(context, notifier);
                             },
                           ),
-                          Wrap(
-                            spacing: 16,
-                            runSpacing: 16,
-                            alignment: WrapAlignment.spaceBetween,
-                            runAlignment: WrapAlignment.spaceBetween,
-                            direction: Axis.horizontal,
-                            children: [
-                              DownloadFileWidget(
-                                isReadOnly: notifier.isReadOnly,
-                                downloadUrl: notifier.teamateToVisualize?.cvUrl,
-                                filename: notifier.teamateToVisualize?.cvFilename,
-                                onUploadComplete: notifier.setCv,
-                                onDelete: notifier.deleteCv,
-                                path: notifier.teamateToVisualize!.id.toString() + '/cv/',
-                                width: defaultWidth,
-                                height: defaultHeight,
-                                acceptedMimeTypes: acceptedMimeTypes,
-                              ),
-                            ],
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Documents",
+                                  style: Theme.of(context).textTheme.bodyText1,
+                                ),
+                              ],
+                            ),
                           ),
+                          if (notifier.teamateToVisualize?.id != null)
+                            Column(children: [
+                              DownloadFileWidget(
+                                onUploadComplete: notifier.addDocument,
+                                width: double.infinity,
+                                height: defaultHeight,
+                                acceptedMimeTypes: acceptedExtensions.map((e) => mimeFromExtension(e) ?? '').toList(),
+                                path: notifier.teamateToVisualize!.id!.toString() + '/documents/',
+                                buttonLabel: 'Télécharger un fichier',
+                                label: 'Déposez ici vos documents',
+                                acceptedExtensions: acceptedExtensions,
+                              ),
+                              Wrap(
+                                  alignment: WrapAlignment.start,
+                                  spacing: 16,
+                                  runSpacing: 16,
+                                  direction: Axis.horizontal,
+                                  children: context
+                                      .select<TeamateVisualizeNotifier, List<Document>>(
+                                          (value) => value.teamateToVisualize!.listDocument!)
+                                      .map((doc) => Container(
+                                            width: defaultWidth,
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: Colors.grey,
+                                                style: BorderStyle.solid,
+                                              ),
+                                              color: Constants.backgroundColor,
+                                              borderRadius: BorderRadius.circular(5),
+                                            ),
+                                            child: DownloadFile(
+                                              downloadUrl: doc.url!,
+                                              filename: doc.filename!,
+                                              displayDeleteButton: !notifier.isReadOnly,
+                                              onDelete: () => notifier.deleteDocument(doc),
+                                            ),
+                                          ))
+                                      .toList()),
+                            ])
                         ],
                       ),
                     ),

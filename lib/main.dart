@@ -17,6 +17,7 @@ import 'package:team_manager/service/firebase_authentication_service.dart';
 import 'package:team_manager/service/firebase_storage_service.dart';
 import 'package:team_manager/service/http_interceptor.dart';
 import 'package:team_manager/service/service_competence.dart';
+import 'package:team_manager/service/service_document.dart';
 import 'package:team_manager/service/service_teamate.dart';
 
 import 'controller/sign_in_controller.dart';
@@ -39,6 +40,10 @@ void injectDependencies() {
   GetIt.I.registerFactory(() {
     HttpInterceptor interceptor = GetIt.I.get();
     return CompetenceService(interceptor: interceptor);
+  });
+  GetIt.I.registerFactory(() {
+    HttpInterceptor interceptor = GetIt.I.get();
+    return DocumentService(interceptor: interceptor);
   });
 }
 

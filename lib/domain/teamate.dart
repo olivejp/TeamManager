@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:team_manager/domain/document.dart';
 
 import 'abstract.domain.dart';
 import 'competence.dart';
@@ -19,9 +20,9 @@ class Teamate extends AbstractDomain<int> {
   String? email;
   String? description;
   List<Competence>? listCompetence;
+  List<Document>? listDocument;
 
-  factory Teamate.fromJson(Map<String, dynamic> json) =>
-      _$TeamateFromJson(json);
+  factory Teamate.fromJson(Map<String, dynamic> json) => _$TeamateFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$TeamateToJson(this);
