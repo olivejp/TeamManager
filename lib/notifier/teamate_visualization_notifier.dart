@@ -5,13 +5,16 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart';
+import 'package:team_manager/domain/competence.dart';
 import 'package:team_manager/service/firebase_storage_service.dart';
+import 'package:team_manager/service/service_competence.dart';
 
 import '../domain/teamate.dart';
 import '../service/service_teamate.dart';
 
 class TeamateVisualizeNotifier extends ChangeNotifier {
   final ServiceTeamate service = GetIt.I.get<ServiceTeamate>();
+  final CompetenceService competenceService = GetIt.I.get<CompetenceService>();
   final FirebaseStorageService storageService = GetIt.I.get<FirebaseStorageService>();
   Teamate? teamateToVisualize;
   UploadTask? uploadPhotoTask;
@@ -91,6 +94,10 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     teamateToVisualize?.description = value;
   }
 
+  Future<List<Competence>> getAllCompetence() {
+    return competenceService.getAll(jsonRoot: ['_embedded', 'competence'], queryParams: {'sort': 'id asc'});
+  }
+
   void setPhotoUrl(Uint8List? data, String name) {
     if (teamateToVisualize?.id != null && data != null) {
       final String filename = teamateToVisualize!.id!.toString() + '/photo/' + name;
@@ -167,5 +174,17 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
           .then((value) => notifyListeners())
           .onError((error, stackTrace) => print('DELETION FAILED' + (error?.toString() ?? ""))));
     }
+  }
+
+  void setListCompetence(dynamic returnValue) {
+    final List<dynamic> listCompetenceId = returnValue;
+    print(listCompetenceId);
+    final List<Competence> list = listCompetenceId.map((e) {
+      final Competence competence = Competence();
+      competence.id = int.parse(e);
+      return competence;
+    }).toList();
+    teamateToVisualize?.listCompetence = list;
+    save();
   }
 }

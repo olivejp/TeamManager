@@ -1,10 +1,13 @@
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animations/loading_animations.dart';
 import 'package:localization/localization.dart';
+import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/component/photo_storage.dart';
 import 'package:team_manager/constants.dart';
+import 'package:team_manager/domain/competence.dart';
 import 'package:team_manager/notifier/teamate_refresh_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
 
@@ -211,6 +214,35 @@ class TeamateDetailWidget extends StatelessWidget {
                               save(context, notifier);
                             },
                           ),
+                          FutureBuilder<List<Competence>>(
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                final dataSource = snapshot.data!.map((e) => {'nom': e.nom, 'id': e.id.toString()} as dynamic).toList();
+                                return MultiSelectFormField(
+                                  initialValue: notifier.teamateToVisualize?.listCompetence,
+                                  chipBackGroundColor: Colors.red,
+                                  checkBoxActiveColor: Colors.red,
+                                  dialogShapeBorder: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(12.0),
+                                    ),
+                                  ),
+                                  dataSource: dataSource,
+                                  textField: 'nom',
+                                  valueField: 'id',
+                                  leading: const Icon(Icons.bookmark),
+                                  okButtonLabel: 'OK',
+                                  cancelButtonLabel: 'Annuler',
+                                  hintWidget: const Text('Choisissez les compétences'),
+                                  title: const Text('Compétences'),
+                                  onSaved: notifier.setListCompetence,
+                                );
+                              } else {
+                                return LoadingRotating.square();
+                              }
+                            },
+                            future: notifier.getAllCompetence(),
+                          ),
                           Wrap(
                             spacing: 16,
                             runSpacing: 16,
@@ -218,16 +250,6 @@ class TeamateDetailWidget extends StatelessWidget {
                             runAlignment: WrapAlignment.spaceBetween,
                             direction: Axis.horizontal,
                             children: [
-                              DownloadFileWidget(
-                                downloadUrl: notifier.teamateToVisualize?.cvUrl,
-                                filename: notifier.teamateToVisualize?.cvFilename,
-                                onUploadComplete: notifier.setCv,
-                                onDelete: notifier.deleteCv,
-                                path: notifier.teamateToVisualize!.id.toString() + '/cv/',
-                                width: defaultWidth,
-                                height: defaultHeight,
-                                acceptedMimeTypes: acceptedMimeTypes,
-                              ),
                               DownloadFileWidget(
                                 downloadUrl: notifier.teamateToVisualize?.cvUrl,
                                 filename: notifier.teamateToVisualize?.cvFilename,
