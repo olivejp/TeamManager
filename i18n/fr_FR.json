@@ -27,5 +27,6 @@
   "showPassword": "Afficher le mot de passe",
   "hidePassword": "Masquer le mot de passe",
   "applicationLoading": "Chargement de l'application",
-  "description": "Description"
+  "description": "Description",
+  "filter": "Trier"
 }

@@ -21,9 +21,15 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
   UploadTask? uploadCvTask;
   bool isReadOnly = true;
   bool isCreationMode = false;
+  String sort = 'id';
+
+  void changeSort(String s) {
+    sort = s;
+    notifyListeners();
+  }
 
   Future<List<Teamate>> getListTeamate() {
-    return service.getAll(jsonRoot: ['_embedded', 'teamate'], queryParams: {'sort': 'id asc'});
+    return service.getAll(jsonRoot: ['content'], queryParams: {'sort': sort + ',asc'});
   }
 
   void changeToCreationMode() {

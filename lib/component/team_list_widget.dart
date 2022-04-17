@@ -38,11 +38,47 @@ class TeamateListWidget extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                   ),
-                  IconButton(
-                    tooltip: "add".i18n(),
-                    onPressed: () => context.read<TeamateVisualizeNotifier>().changeToCreationMode(),
-                    icon: const Icon(Icons.add),
-                  )
+                  Row(children: [
+                    IconButton(
+                      tooltip: "filter".i18n(),
+                      onPressed: () => showDialog(
+                          builder: (contextDialog) {
+                            return AlertDialog(
+                              title: const Text('Trier la liste par'),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      context.read<TeamateVisualizeNotifier>().changeSort('id');
+                                      context.read<TeamateRefreshNotifier>().refresh();
+                                      Navigator.of(contextDialog).pop();
+                                    },
+                                    child: const Text('Id')),
+                                TextButton(
+                                    onPressed: () {
+                                      context.read<TeamateVisualizeNotifier>().changeSort('nom');
+                                      context.read<TeamateRefreshNotifier>().refresh();
+                                      Navigator.of(contextDialog).pop();
+                                    },
+                                    child: const Text('Nom')),
+                                TextButton(
+                                    onPressed: () {
+                                      context.read<TeamateVisualizeNotifier>().changeSort('prenom');
+                                      context.read<TeamateRefreshNotifier>().refresh();
+                                      Navigator.of(contextDialog).pop();
+                                    },
+                                    child: const Text('Prénom')),
+                              ],
+                            );
+                          },
+                          context: context),
+                      icon: const Icon(Icons.filter_list_rounded),
+                    ),
+                    IconButton(
+                      tooltip: "add".i18n(),
+                      onPressed: () => context.read<TeamateVisualizeNotifier>().changeToCreationMode(),
+                      icon: const Icon(Icons.add),
+                    ),
+                  ]),
                 ],
               ),
             ),
@@ -82,6 +118,7 @@ class TeamateTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      selected: context.select<TeamateVisualizeNotifier, int?>((value) => value.teamateToVisualize?.id) == teamate.id,
       onTap: () {
         if (teamate.id != null) {
           context.read<TeamateVisualizeNotifier>().setNewTeamateToVisualize(teamate.id);
@@ -92,7 +129,7 @@ class TeamateTile extends StatelessWidget {
         radius: 18,
         foregroundImage: teamate.photoUrl != null ? NetworkImage(teamate.photoUrl!) : null,
         backgroundColor: Theme.of(context).primaryColor,
-        child: Text((teamate.nom?.substring(0,1) ?? "") + (teamate.prenom?.substring(0,1) ?? "")),
+        child: Text((teamate.nom?.substring(0, 1) ?? "") + (teamate.prenom?.substring(0, 1) ?? "")),
       ),
       trailing: IconButton(
         tooltip: 'delete'.i18n(),

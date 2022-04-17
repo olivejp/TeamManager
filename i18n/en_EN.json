@@ -27,5 +27,6 @@
   "showPassword": "Show password",
   "hidePassword": "Hide password",
   "applicationLoading": "Loading application",
-  "description": "Description"
+  "description": "Description",
+  "filter": "Sort"
 }
