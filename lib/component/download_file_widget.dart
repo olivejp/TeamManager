@@ -1,4 +1,3 @@
-
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -60,7 +59,7 @@ class DownloadFileNotifier extends ChangeNotifier {
 
     final String filename = newPath + documentName;
     final SettableMetadata metadata =
-    SettableMetadata(cacheControl: 'max-age=36000', contentType: mimeType ?? 'application/octet-stream');
+        SettableMetadata(cacheControl: 'max-age=36000', contentType: mimeType ?? 'application/octet-stream');
 
     isLoading = true;
     notifyListeners();
@@ -99,6 +98,7 @@ class DownloadFileWidget extends StatelessWidget {
     this.downloadUrl,
     this.filename,
     this.onDelete,
+    this.isReadOnly = false,
   }) : super(key: key);
 
   final String path;
@@ -109,96 +109,87 @@ class DownloadFileWidget extends StatelessWidget {
   final String? filename;
   final Future<void> Function()? onDelete;
   final void Function(String downloadUrl, String fileName) onUploadComplete;
+  final bool isReadOnly;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      lazy: true,
       create: (_) => DownloadFileNotifier(
         path: path,
         onUploadComplete: onUploadComplete,
       ),
       child: Consumer<DownloadFileNotifier>(builder: (_, notifier, __) {
-        if (notifier.isLoading) {
-          return Container(
-            width: width,
-            height: height,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(
-                color: Colors.grey,
-                style: BorderStyle.solid,
-              ),
+        return Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(
+              color: notifier.hover ? Theme.of(context).colorScheme.primary : Colors.grey,
+              style: BorderStyle.solid,
             ),
-            child: Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
-                backgroundColor: Colors.grey,
-                value: (notifier.byteTransferred != null && notifier.totalBytes != null)
-                    ? notifier.byteTransferred! / notifier.totalBytes!
-                    : null,
-              ),
-            ),
-          );
-        }
-        if (downloadUrl != null && filename != null) {
-          return Container(
-            width: width,
-            height: height,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(
-                color: Colors.grey,
-                style: BorderStyle.solid,
-              ),
-            ),
-            child: DownloadFile(
-              filename: filename!,
-              downloadUrl: downloadUrl!,
-              displayDeleteButton: true,
-              onDelete: onDelete,
-            ),
-          );
-        } else {
-          return Container(
-            width: width,
-            height: height,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(
-                color: notifier.hover ? Colors.blue : Colors.grey,
-                style: BorderStyle.solid,
-              ),
-            ),
-            child: FileDropZone(
-              onHover: notifier.onHover,
-              onLeave: notifier.onLeave,
-              onDrop: notifier.storeDocument,
-              acceptedMimeTypes: acceptedMimeTypes,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Déposer ici le CV'),
-                  TextButton.icon(
-                    onPressed: () {
-                      FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowedExtensions: ['pdf', 'jpeg', 'jpg']).then((FilePickerResult? result) {
-                        if (result != null) {
-                          final Uint8List? fileBytes = result.files.first.bytes;
-                          final String fileName = result.files.first.name;
-                          notifier.storeDocument(fileBytes, fileName, mimeFromExtension(fileName));
-                        }
-                      });
-                    },
-                    icon: const Icon(Icons.upload_file),
-                    label: const Text('Upload un fichier'),
-                  )
-                ],
-              ),
-            ),
-          );
-        }
+          ),
+          child: Builder(
+            builder: (context) {
+              if (notifier.isLoading) {
+                return Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                    backgroundColor: Colors.grey,
+                    value: (notifier.byteTransferred != null && notifier.totalBytes != null)
+                        ? notifier.byteTransferred! / notifier.totalBytes!
+                        : null,
+                  ),
+                );
+              } else if (downloadUrl != null && filename != null) {
+                return DownloadFile(
+                  filename: filename!,
+                  downloadUrl: downloadUrl!,
+                  displayDeleteButton: !isReadOnly,
+                  onDelete: onDelete,
+                );
+              } else {
+                return FileDropZone(
+                  onDrop: (data, filename, mimeType) {
+                    if (!isReadOnly) {
+                      notifier.storeDocument(data, filename, mimeType);
+                    }
+                  },
+                  onHover: notifier.onHover,
+                  onLeave: notifier.onLeave,
+                  acceptedMimeTypes: acceptedMimeTypes,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Déposer ici le CV',
+                          style: (isReadOnly)
+                              ? Theme.of(context).textTheme.caption?.copyWith(color: Colors.grey)
+                              : Theme.of(context).textTheme.caption?.copyWith(color: Colors.white)),
+                      TextButton.icon(
+                        icon: const Icon(Icons.upload_file),
+                        label: const Text('Upload un fichier'),
+                        onPressed: (isReadOnly)
+                            ? null
+                            : () {
+                                FilePicker.platform.pickFiles(
+                                  type: FileType.custom,
+                                  allowedExtensions: ['jpeg', 'jpg', 'pdf'],
+                                ).then((FilePickerResult? result) {
+                                  if (result != null) {
+                                    final Uint8List? fileBytes = result.files.first.bytes;
+                                    final String fileName = result.files.first.name;
+                                    notifier.storeDocument(fileBytes, fileName, mimeFromExtension(fileName));
+                                  }
+                                });
+                              },
+                      )
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+        );
       }),
     );
   }

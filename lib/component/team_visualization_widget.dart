@@ -219,6 +219,7 @@ class TeamateDetailWidget extends StatelessWidget {
                             direction: Axis.horizontal,
                             children: [
                               DownloadFileWidget(
+                                isReadOnly: notifier.isReadOnly,
                                 downloadUrl: notifier.teamateToVisualize?.cvUrl,
                                 filename: notifier.teamateToVisualize?.cvFilename,
                                 onUploadComplete: notifier.setCv,
