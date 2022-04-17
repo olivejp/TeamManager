@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/constants.dart';
 import 'package:team_manager/domain/teamate.dart';
 import 'package:team_manager/notifier/teamate_refresh_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
-import 'package:team_manager/page/team_creation_page.dart';
 
 import '../domain/view_dialog_action.dart';
 
@@ -90,6 +88,12 @@ class TeamateTile extends StatelessWidget {
         }
       },
       title: Text((teamate.nom ?? '') + ' ' + (teamate.prenom ?? '')),
+      leading: CircleAvatar(
+        radius: 18,
+        foregroundImage: teamate.photoUrl != null ? NetworkImage(teamate.photoUrl!) : null,
+        backgroundColor: Theme.of(context).primaryColor,
+        child: Text((teamate.nom?.substring(0,1) ?? "") + (teamate.prenom?.substring(0,1) ?? "")),
+      ),
       trailing: IconButton(
         tooltip: 'delete'.i18n(),
         onPressed: () async {

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:team_manager/environment_config.dart';
@@ -11,10 +12,10 @@ import '../domain/storage_file.dart';
 
 /// For uploading options see : https://firebase.flutter.dev/docs/storage/upload-files
 class FirebaseStorageService {
-  late FirebaseStorage storageRef;
+  late Reference storageRef;
 
   FirebaseStorageService() {
-    storageRef = FirebaseStorage.instanceFor(bucket: EnvironmentConfig.resourceManagerStorage);
+    storageRef = FirebaseStorage.instanceFor(bucket: EnvironmentConfig.resourceManagerStorage).ref();
   }
 
   /// String path : Create a reference to path.
@@ -22,7 +23,7 @@ class FirebaseStorageService {
   /// SettableMetadata? metadata : The metadata attached to the file.
   /// path could be "mountains.jpg".
   Stream<TaskSnapshot>? uploadFile(String path, File file, SettableMetadata? metadata) {
-    final Reference? ref = storageRef.ref().child(path);
+    final Reference? ref = storageRef.child(path);
     return ref?.putFile(file, metadata).asStream();
   }
 
@@ -31,7 +32,7 @@ class FirebaseStorageService {
   /// SettableMetadata? metadata : The metadata attached to the file.
   /// path could be "mountains.jpg".
   Stream<TaskSnapshot>? uploadData(String path, Uint8List data, SettableMetadata? metadata) {
-    final Reference? ref = storageRef.ref().child(path);
+    final Reference? ref = storageRef.child(path);
     return ref?.putData(data, metadata).asStream();
   }
 
@@ -40,7 +41,7 @@ class FirebaseStorageService {
   /// SettableMetadata? metadata : The metadata attached to the file.
   /// path could be "mountains.jpg".
   Stream<TaskSnapshot>? uploadBlob(String path, dynamic blob, SettableMetadata? metadata) {
-    final Reference? ref = storageRef.ref().child(path);
+    final Reference? ref = storageRef.child(path);
     return ref?.putBlob(blob, metadata).asStream();
   }
 
@@ -49,7 +50,7 @@ class FirebaseStorageService {
   /// SettableMetadata? metadata : The metadata attached to the file.
   /// path could be "mountains.jpg".
   UploadTask? uploadDataAsUploadTask(String path, Uint8List data, SettableMetadata? metadata) {
-    final Reference? ref = storageRef.ref().child(path);
+    final Reference? ref = storageRef.child(path);
     return ref?.putData(data, metadata);
   }
 
@@ -72,5 +73,30 @@ class FirebaseStorageService {
   /// Permet de récupérer le binaire d'un fichier à partir de son adresse url.
   Future<Uint8List> _getRemoteImageToUint8List(String imageUrl) {
     return http.readBytes(Uri.parse(imageUrl));
+  }
+
+  Future<void> deleteFile(String filePath) {
+    return storageRef.child(filePath).delete();
+  }
+
+  Future<void> deleteFolder(String folderPath) {
+    return _deleteFolder(folderPath);
+  }
+
+  Future<void> _deleteFolder(String folderPath) async {
+    final Reference ref = storageRef.child(folderPath);
+    final ListResult directories = await ref.listAll();
+    for (var fileRef in directories.items) {
+      await _deleteFolderFile(ref.fullPath, fileRef.name);
+    }
+    for (var folderRef in directories.prefixes) {
+      await _deleteFolder(folderRef.fullPath);
+    }
+  }
+
+  Future<void> _deleteFolderFile(pathToFile, fileName) {
+    final Reference ref = storageRef.child(pathToFile);
+    final Reference childRef = ref.child(fileName);
+    return childRef.delete();
   }
 }

@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:team_manager/environment_config.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -40,7 +41,8 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA4nQa7bqv1l16_h1LfZ_FTSBUR9PMgG_8',
+    apiKey: EnvironmentConfig.firebaseOptionsWebApiKey,
+    // apiKey: 'AIzaSyA4nQa7bqv1l16_h1LfZ_FTSBUR9PMgG_8',
     appId: '1:667494274685:web:6807bbe05b9d9097fa0314',
     messagingSenderId: '667494274685',
     projectId: 'resourcemanager-2a15b',
@@ -50,7 +52,8 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBkyZM6TC1APhhSphU4sK-6X6CIzLJeb48',
+    apiKey: EnvironmentConfig.firebaseOptionsAndroidApiKey,
+    // apiKey: 'AIzaSyBkyZM6TC1APhhSphU4sK-6X6CIzLJeb48',
     appId: '1:667494274685:android:eec29627ce9d164ffa0314',
     messagingSenderId: '667494274685',
     projectId: 'resourcemanager-2a15b',

@@ -13,6 +13,11 @@ class Teamate extends AbstractDomain<int> {
   String? prenom;
   DateTime? dateNaissance;
   String? photoUrl;
+  String? cvUrl;
+  String? cvFilename;
+  String? telephone;
+  String? email;
+  String? description;
   List<Competence>? listCompetence;
 
   factory Teamate.fromJson(Map<String, dynamic> json) =>

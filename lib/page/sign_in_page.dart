@@ -170,7 +170,9 @@ class SignInPage extends StatelessWidget {
                               onPressed: () {},
                               child: Text(
                                 'signUp'.i18n(),
-                                style: TextStyle(color: Colors.white),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ],
@@ -189,9 +191,6 @@ class SignInPage extends StatelessWidget {
 
   void pressEnter(ValueNotifier<bool> isLoading, SignInController controller, GlobalKey<FormState> _formKey) {
     isLoading.value = true;
-    controller
-        .onPressEnter(_formKey)
-        .then((value) => isLoading.value = false)
-        .onError((error, stackTrace) => isLoading.value = false);
+    controller.onPressEnter(_formKey).whenComplete(() => isLoading.value = false);
   }
 }

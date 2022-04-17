@@ -1,14 +1,15 @@
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
+import 'package:team_manager/component/photo_storage.dart';
 import 'package:team_manager/constants.dart';
 import 'package:team_manager/notifier/teamate_refresh_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
 
 import '../domain/teamate.dart';
+import 'download_file_widget.dart';
 
 class TeamateDetailWidget extends StatelessWidget {
   TeamateDetailWidget({Key? key}) : super(key: key);
@@ -16,6 +17,7 @@ class TeamateDetailWidget extends StatelessWidget {
   final DateFormat dateFormat = DateFormat("dd/MM/yyyy");
   final TextEditingController lastnameController = TextEditingController();
   final TextEditingController firstnameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
   final TextEditingController birthdateController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -28,13 +30,19 @@ class TeamateDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const double defaultWidth = 250;
+    const double defaultHeight = 100;
+    const acceptedMimeTypes = ['image/jpeg', 'application/pdf'];
+
     return Consumer<TeamateVisualizeNotifier>(
       builder: (context, notifier, child) {
         if (notifier.teamateToVisualize != null) {
+          print('Rebuild TeamateDetailWidget with : ' + (notifier.teamateToVisualize?.cvUrl ?? ''));
           initializeControllers(notifier.teamateToVisualize!, dateFormat);
         } else {
           return Container();
         }
+
         return Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -49,32 +57,18 @@ class TeamateDetailWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  (notifier.isCreationMode) ? Container() : Container(
-                      width: 200,
-                      height: 300,
-                      decoration: BoxDecoration(
-                        color: Constants.secondaryColor,
-                        borderRadius: Constants.borderRadius,
-                      ),
-                      child: notifier.isReadOnly
-                          ? Container()
-                          : Center(
-                              child: IconButton(
-                                onPressed: () {
-                                  FilePicker.platform.pickFiles(
-                                      type: FileType.custom,
-                                      allowedExtensions: ['jpg', 'png', 'gif']).then((FilePickerResult? result) {
-                                    if (result != null) {
-                                      notifier.setPhotoUrl(result.files.first.bytes, result.files.first.name);
-                                    }
-                                  });
-                                },
-                                icon: const Icon(
-                                  Icons.add,
-                                ),
-                              ),
-                            ),
-                    ),
+                  (notifier.isCreationMode)
+                      ? Container()
+                      : PhotoStorageWidget(
+                          imageUrl: notifier.teamateToVisualize?.photoUrl,
+                          onSaved: (storageFile) => notifier.setPhotoUrl(storageFile.fileBytes, storageFile.fileName!),
+                          onDeleted: () => notifier.deletePhotoUrl(),
+                          allowedExtensions: const ['jpeg', 'jpg', 'gif', 'png'],
+                          borderRadius: Constants.borderRadius,
+                          emptyColor: Constants.secondaryColor,
+                          fit: BoxFit.cover,
+                          isReadOnly: notifier.isReadOnly,
+                        ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 16.0),
@@ -178,7 +172,6 @@ class TeamateDetailWidget extends StatelessWidget {
                                   helpText: "choose-birthdate".i18n(),
                                   confirmText: "choose".i18n(),
                                   cancelText: "cancel".i18n(),
-                                  locale: const Locale("fr", "FR"),
                                   firstDate: DateTime(1900),
                                   initialDate: currentValue ?? DateTime.now(),
                                   lastDate: DateTime(2100),
@@ -196,6 +189,57 @@ class TeamateDetailWidget extends StatelessWidget {
                               return null;
                             },
                           ),
+                          TextFormField(
+                            minLines: 6,
+                            keyboardType: TextInputType.multiline,
+                            maxLines: null,
+                            maxLength: 2000,
+                            readOnly: notifier.isReadOnly,
+                            onChanged: notifier.setDescription,
+                            controller: descriptionController,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyText2
+                                ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
+                            decoration: InputDecoration(
+                              label: Text('description'.i18n()),
+                              labelStyle: Theme.of(context).textTheme.caption,
+                              counterStyle: Theme.of(context).textTheme.caption,
+                            ),
+                            onFieldSubmitted: (value) {
+                              notifier.setDescription(value);
+                              save(context, notifier);
+                            },
+                          ),
+                          Wrap(
+                            spacing: 16,
+                            runSpacing: 16,
+                            alignment: WrapAlignment.spaceBetween,
+                            runAlignment: WrapAlignment.spaceBetween,
+                            direction: Axis.horizontal,
+                            children: [
+                              DownloadFileWidget(
+                                downloadUrl: notifier.teamateToVisualize?.cvUrl,
+                                filename: notifier.teamateToVisualize?.cvFilename,
+                                onUploadComplete: notifier.setCv,
+                                onDelete: notifier.deleteCv,
+                                path: notifier.teamateToVisualize!.id.toString() + '/cv/',
+                                width: defaultWidth,
+                                height: defaultHeight,
+                                acceptedMimeTypes: acceptedMimeTypes,
+                              ),
+                              DownloadFileWidget(
+                                downloadUrl: notifier.teamateToVisualize?.cvUrl,
+                                filename: notifier.teamateToVisualize?.cvFilename,
+                                onUploadComplete: notifier.setCv,
+                                onDelete: notifier.deleteCv,
+                                path: notifier.teamateToVisualize!.id.toString() + '/cv/',
+                                width: defaultWidth,
+                                height: defaultHeight,
+                                acceptedMimeTypes: acceptedMimeTypes,
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -212,6 +256,7 @@ class TeamateDetailWidget extends StatelessWidget {
   void initializeControllers(Teamate teamate, DateFormat format) {
     lastnameController.text = teamate.nom ?? '';
     firstnameController.text = teamate.prenom ?? '';
+    descriptionController.text = teamate.description ?? '';
     birthdateController.text = (teamate.dateNaissance?.toString() != null) ? format.format(teamate.dateNaissance!) : '';
   }
 }

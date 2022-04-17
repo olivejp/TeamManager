@@ -13,5 +13,4 @@ class AuthenticationNotifier extends ChangeNotifier {
       notifyListeners();
     });
   }
-
 }

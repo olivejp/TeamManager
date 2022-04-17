@@ -25,5 +25,7 @@
   "password": "Password",
   "noAccount": "Don't have a account yet ?",
   "showPassword": "Show password",
-  "hidePassword": "Hide password"
+  "hidePassword": "Hide password",
+  "applicationLoading": "Loading application",
+  "description": "Description"
 }

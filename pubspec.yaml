@@ -34,6 +34,8 @@ dependencies:
   loading_animations: ^2.2.0
   rxdart: ^0.27.3
   tuple: ^2.0.0
+  flutter_dropzone: ^3.0.5
+  mime_type: ^1.0.0
 dev_dependencies:
   analyzer: ^1.7.2
   build_runner: ^2.0.5

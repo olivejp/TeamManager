@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
+import 'package:team_manager/constants.dart';
 import 'package:team_manager/firebase_options.dart';
 import 'package:team_manager/notifier/authentication_notifier.dart';
 import 'package:team_manager/notifier/competence_creation_notifier.dart';
@@ -49,34 +50,34 @@ class MyApp extends StatelessWidget {
     // Specify where we should look for the translations.
     LocalJsonLocalization.delegate.directories = ['i18n'];
 
-    return FutureBuilder(
-      future: initializeFirebase(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          // Le contexte Firebase est disponible à partir d'ici.
-          // On peut injecter le service de Firebase Storage.
-          return MultiProvider(
-            providers: [
-              ChangeNotifierProvider(create: (_) => MainNavigationNotifier()),
-              ChangeNotifierProvider(create: (_) => TeamateVisualizeNotifier()),
-              ChangeNotifierProvider(create: (_) => TeamateRefreshNotifier()),
-              ChangeNotifierProvider(create: (_) => CompetenceCreationNotifier()),
-              ChangeNotifierProvider(create: (_) => AuthenticationNotifier()),
-            ],
-            child: MaterialApp(
-              title: 'Team Manager',
-              supportedLocales: const [
-                Locale('en', 'EN'),
-                Locale('fr', 'FR'),
+    return MaterialApp(
+      title: 'Team Manager',
+      supportedLocales: const [
+        Locale('en', 'EN'),
+        Locale('fr', 'FR'),
+      ],
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        LocalJsonLocalization.delegate
+      ],
+      theme: buildThemeData(),
+      home: FutureBuilder(
+        future: initializeFirebase(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            // Le contexte Firebase est disponible à partir d'ici.
+            // On peut injecter le service de Firebase Storage.
+            return MultiProvider(
+              providers: [
+                ChangeNotifierProvider(create: (_) => MainNavigationNotifier()),
+                ChangeNotifierProvider(create: (_) => TeamateVisualizeNotifier()),
+                ChangeNotifierProvider(create: (_) => TeamateRefreshNotifier()),
+                ChangeNotifierProvider(create: (_) => CompetenceCreationNotifier()),
+                ChangeNotifierProvider(create: (_) => AuthenticationNotifier()),
               ],
-              localizationsDelegates: [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-                LocalJsonLocalization.delegate
-              ],
-              theme: buildThemeData(),
-              home: Consumer<AuthenticationNotifier>(
+              child: Consumer<AuthenticationNotifier>(
                 builder: (_, value, child) {
                   if (value.user == null) {
                     return const SignInPage();
@@ -86,16 +87,32 @@ class MyApp extends StatelessWidget {
                 },
                 child: const HomePage(),
               ),
-            ),
-          );
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
-      },
+            );
+          } else {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "applicationLoading".i18n(),
+                  style: Theme.of(context).textTheme.subtitle1?.copyWith(color: Colors.black),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(58.0),
+                  child: CircularProgressIndicator(
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            );
+          }
+        },
+      ),
     );
   }
 
   /// Initialize Firebase application and inject FirebaseStorageService.
+  /// After firebase context initialization, we can register Firebase services.
   Future<void> initializeFirebase() => Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform).then(
         (value) {
           GetIt.I.registerSingleton(FirebaseStorageService());
@@ -108,6 +125,7 @@ class MyApp extends StatelessWidget {
     return ThemeData(
       scaffoldBackgroundColor: const Color(0xff1d1b26),
       primarySwatch: Colors.grey,
+      colorScheme: ColorScheme.fromSeed(seedColor: Constants.primaryColor),
       textTheme: TextTheme(
         headline1: GoogleFonts.nunito(
           fontWeight: FontWeight.w900,

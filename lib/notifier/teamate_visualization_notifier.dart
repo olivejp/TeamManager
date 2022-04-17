@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
+import 'package:path/path.dart';
 import 'package:team_manager/service/firebase_storage_service.dart';
 
 import '../domain/teamate.dart';
@@ -13,7 +14,8 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
   final ServiceTeamate service = GetIt.I.get<ServiceTeamate>();
   final FirebaseStorageService storageService = GetIt.I.get<FirebaseStorageService>();
   Teamate? teamateToVisualize;
-  UploadTask? uploadTask;
+  UploadTask? uploadPhotoTask;
+  UploadTask? uploadCvTask;
   bool isReadOnly = true;
   bool isCreationMode = false;
 
@@ -85,35 +87,85 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     teamateToVisualize?.dateNaissance = newDateNaissance;
   }
 
+  setDescription(String value) {
+    teamateToVisualize?.description = value;
+  }
+
   void setPhotoUrl(Uint8List? data, String name) {
     if (teamateToVisualize?.id != null && data != null) {
-      final String filename = teamateToVisualize!.id!.toString() + '/' + name;
-      uploadTask = storageService.uploadDataAsUploadTask(filename, data, null);
-      uploadTask?.whenComplete(() {
-        uploadTask?.snapshot.ref.getDownloadURL().then((value) {
-          teamateToVisualize?.photoUrl = value;
+      final String filename = teamateToVisualize!.id!.toString() + '/photo/' + name;
+      String contentType;
+
+      switch (extension(name).toLowerCase()) {
+        case '.jpg':
+        case '.jpeg':
+          contentType = 'image/jpeg';
+          break;
+        case '.png':
+          contentType = 'image/png';
+          break;
+        case '.gif':
+          contentType = 'image/gif';
+          break;
+        default:
+          contentType = 'application/octet-stream';
+      }
+
+      final SettableMetadata metadata = SettableMetadata(cacheControl: 'max-age=36000', contentType: contentType);
+
+      uploadPhotoTask = storageService.uploadDataAsUploadTask(filename, data, metadata);
+      uploadPhotoTask?.whenComplete(() {
+        uploadPhotoTask?.snapshot.ref.getDownloadURL().then((downloadUrl) {
+          teamateToVisualize?.photoUrl = downloadUrl;
           save();
         });
-        uploadTask = null;
+        uploadPhotoTask = null;
       });
     }
   }
 
-  void pauseUpload() {
-    if (uploadTask != null) {
-      uploadTask!.pause();
+  void setCv(String downloadUrl, String filename) {
+    teamateToVisualize?.cvUrl = downloadUrl;
+    teamateToVisualize?.cvFilename = filename;
+    save();
+  }
+
+  void pausePhotoUpload() {
+    if (uploadPhotoTask != null) {
+      uploadPhotoTask!.pause();
     }
   }
 
-  void resumeUpload() {
-    if (uploadTask != null) {
-      uploadTask!.resume();
+  void resumePhotoUpload() {
+    if (uploadPhotoTask != null) {
+      uploadPhotoTask!.resume();
     }
   }
 
-  void cancelUpload() {
-    if (uploadTask != null) {
-      uploadTask!.cancel();
+  void cancelPhotoUpload() {
+    if (uploadPhotoTask != null) {
+      uploadPhotoTask!.cancel();
+    }
+  }
+
+  void deletePhotoUrl() {
+    if (teamateToVisualize != null && teamateToVisualize?.id != null) {
+      teamateToVisualize!.photoUrl = null;
+      save().then((value) => storageService
+          .deleteFolder(teamateToVisualize!.id.toString() + '/photo')
+          .then((value) => print('DELETION COMPLETED'))
+          .onError((error, stackTrace) => print('DELETION FAILED' + (error?.toString() ?? ""))));
+    }
+  }
+
+  Future<void> deleteCv() async {
+    if (teamateToVisualize != null && teamateToVisualize?.id != null) {
+      teamateToVisualize!.cvUrl = null;
+      teamateToVisualize!.cvFilename = null;
+      return save().then((value) => storageService
+          .deleteFolder(teamateToVisualize!.id.toString() + '/cv')
+          .then((value) => notifyListeners())
+          .onError((error, stackTrace) => print('DELETION FAILED' + (error?.toString() ?? ""))));
     }
   }
 }
