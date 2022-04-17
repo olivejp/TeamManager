@@ -68,7 +68,7 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
   }
 
   @override
-  Future<dynamic> create(T body,
+  Future<T> create(T body,
       {Map<String, String>? headers, Map<String, String>? queryParams, Encoding? encoding, Duration? timeout}) {
     final Duration _timeout = timeout ?? _defaultTimeoutDuration;
 
@@ -87,7 +87,7 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
         .then((value) {
       // Status between 200 and 300
       if (value!.statusCode >= HttpStatus.ok && value.statusCode < HttpStatus.multipleChoices) {
-        return value.body;
+        return fromJson(jsonDecode(value.body));
       } else {
         return Future.error(value.body);
       }
@@ -95,7 +95,8 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
   }
 
   @override
-  Future<void> update(T body, {Map<String, String>? headers, Map<String, String>? queryParams, Encoding? encoding}) {
+  Future<T> update(T body, {Map<String, String>? headers, Map<String, String>? queryParams, Encoding? encoding, Duration? timeout}) {
+    final Duration _timeout = timeout ?? _defaultTimeoutDuration;
     final String id = body.id.toString();
     final Uri uri = useHttps
         ? Uri.https(EnvironmentConfig.serverUrl, '$path/$id', queryParams)
@@ -104,7 +105,16 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
     final String json = jsonEncode(bodyJson);
     final Map<String, String>? headersToSend = _mergeHeaders(headers);
 
-    return callInterceptor(http.put(uri, body: json, headers: headersToSend, encoding: encoding));
+    return callInterceptor(http.put(uri, body: json, headers: headersToSend, encoding: encoding))
+        .timeout(_timeout, onTimeout: () => _defaultTimeoutResponse)
+        .then((value) {
+      // Status between 200 and 300
+      if (value!.statusCode >= HttpStatus.ok && value.statusCode < HttpStatus.multipleChoices) {
+        return fromJson(jsonDecode(value.body));
+      } else {
+        return Future.error(value.body);
+      }
+    });
   }
 
   @override

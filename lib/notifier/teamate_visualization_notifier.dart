@@ -43,6 +43,7 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
   }
 
   void changeReadOnly() {
+    print('Change readOnly');
     isReadOnly = !isReadOnly;
     notifyListeners();
   }
@@ -51,25 +52,27 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     return service.delete(id).then((value) => notifyListeners());
   }
 
-  Future<void> checkAndSave(GlobalKey<FormState> formKey) {
+  Future<Teamate> checkAndSave(GlobalKey<FormState> formKey) {
     if (formKey.currentState?.validate() == true) {
       return save();
     }
     return Future.error('There is errors on this page.');
   }
 
-  Future<void> save() {
-    if (teamateToVisualize != null) {
-      final Future<void> callToMake =
-          (isCreationMode) ? service.create(teamateToVisualize!) : service.update(teamateToVisualize!);
-
-      return callToMake.then((value) {
-        isReadOnly = true;
-        notifyListeners();
-      });
-    } else {
+  Future<Teamate> save() {
+    if (teamateToVisualize == null) {
       return Future.error('There is no Teamate to save.');
     }
+
+    final Future<Teamate> callToMake =
+        (isCreationMode) ? service.create(teamateToVisualize!) : service.update(teamateToVisualize!);
+
+    return callToMake.then((teamate) {
+      teamateToVisualize = teamate;
+      isReadOnly = true;
+      notifyListeners();
+      return teamate;
+    });
   }
 
   void setNewTeamateToVisualize(int? idTeamate) {
@@ -140,12 +143,6 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     }
   }
 
-  void setCv(String downloadUrl, String filename) {
-    teamateToVisualize?.cvUrl = downloadUrl;
-    teamateToVisualize?.cvFilename = filename;
-    save();
-  }
-
   void pausePhotoUpload() {
     if (uploadPhotoTask != null) {
       uploadPhotoTask!.pause();
@@ -170,17 +167,6 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
       save().then((value) => storageService
           .deleteFolder(teamateToVisualize!.id.toString() + '/photo')
           .then((value) => print('DELETION COMPLETED'))
-          .onError((error, stackTrace) => print('DELETION FAILED' + (error?.toString() ?? ""))));
-    }
-  }
-
-  Future<void> deleteCv() async {
-    if (teamateToVisualize != null && teamateToVisualize?.id != null) {
-      teamateToVisualize!.cvUrl = null;
-      teamateToVisualize!.cvFilename = null;
-      return save().then((value) => storageService
-          .deleteFolder(teamateToVisualize!.id.toString() + '/cv')
-          .then((value) => notifyListeners())
           .onError((error, stackTrace) => print('DELETION FAILED' + (error?.toString() ?? ""))));
     }
   }
@@ -220,7 +206,7 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     return storageService
         .deleteFile(e.filename!)
         .whenComplete(() => documentService.delete(e.id!))
-        .whenComplete(() => notifyListeners())
+        .whenComplete(() => setNewTeamateToVisualize(teamateToVisualize?.id))
         .onError((error, stackTrace) => print('DELETION FAILED' + (error?.toString() ?? "")));
   }
 }

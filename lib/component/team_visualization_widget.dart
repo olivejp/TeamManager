@@ -28,9 +28,8 @@ class TeamateDetailWidget extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void save(BuildContext context, TeamateVisualizeNotifier notifier) {
-    notifier.checkAndSave(_formKey).then((value) {
+    notifier.checkAndSave(_formKey).then((teamateSaved) {
       context.read<TeamateRefreshNotifier>().refresh();
-      notifier.changeToCreationMode();
     });
   }
 
@@ -43,7 +42,7 @@ class TeamateDetailWidget extends StatelessWidget {
     return Consumer<TeamateVisualizeNotifier>(
       builder: (context, notifier, child) {
         if (notifier.teamateToVisualize != null) {
-          print('Rebuild TeamateDetailWidget with : ' + (notifier.teamateToVisualize?.cvUrl ?? ''));
+          print('Rebuild TeamateDetailWidget with : ' + (notifier.teamateToVisualize?.id.toString() ?? ''));
           initializeControllers(notifier.teamateToVisualize!, dateFormat);
         } else {
           return Container();
@@ -97,11 +96,20 @@ class TeamateDetailWidget extends StatelessWidget {
                                       onPressed: notifier.changeReadOnly,
                                       icon: const Icon(Icons.create),
                                     )
-                                  : IconButton(
-                                      tooltip: "save".i18n(),
-                                      onPressed: () => save(context, notifier),
-                                      icon: const Icon(Icons.save_alt_rounded),
-                                    ),
+                                  : Row(
+                                    children: [
+                                      IconButton(
+                                          tooltip: "cancel".i18n(),
+                                          onPressed: notifier.changeReadOnly,
+                                          icon: const Icon(Icons.cancel_rounded),
+                                        ),
+                                      IconButton(
+                                        tooltip: "save".i18n(),
+                                        onPressed: () => save(context, notifier),
+                                        icon: const Icon(Icons.save_alt_rounded),
+                                      ),
+                                    ],
+                                  ),
                             ],
                           ),
                           TextFormField(
@@ -149,6 +157,7 @@ class TeamateDetailWidget extends StatelessWidget {
                             },
                           ),
                           DateTimeField(
+                            initialValue: notifier.teamateToVisualize?.dateNaissance,
                             onChanged: notifier.setBirthdate,
                             resetIcon: notifier.isReadOnly
                                 ? null
@@ -232,6 +241,7 @@ class TeamateDetailWidget extends StatelessWidget {
                           if (notifier.teamateToVisualize?.id != null)
                             Column(children: [
                               DownloadFileWidget(
+                                isReadOnly: notifier.isReadOnly,
                                 onUploadComplete: notifier.addDocument,
                                 width: double.infinity,
                                 height: defaultHeight,
