@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,7 +5,6 @@ import 'package:localization/localization.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/component/download_file.dart';
-import 'package:team_manager/component/file_drop_zone.dart';
 import 'package:team_manager/component/photo_storage.dart';
 import 'package:team_manager/constants.dart';
 import 'package:team_manager/domain/document.dart';
@@ -42,7 +39,6 @@ class TeamateDetailWidget extends StatelessWidget {
     return Consumer<TeamateVisualizeNotifier>(
       builder: (context, notifier, child) {
         if (notifier.teamateToVisualize != null) {
-          print('Rebuild TeamateDetailWidget with : ' + (notifier.teamateToVisualize?.id.toString() ?? ''));
           initializeControllers(notifier.teamateToVisualize!, dateFormat);
         } else {
           return Container();
@@ -97,19 +93,19 @@ class TeamateDetailWidget extends StatelessWidget {
                                       icon: const Icon(Icons.create),
                                     )
                                   : Row(
-                                    children: [
-                                      IconButton(
+                                      children: [
+                                        IconButton(
                                           tooltip: "cancel".i18n(),
                                           onPressed: notifier.changeReadOnly,
                                           icon: const Icon(Icons.cancel_rounded),
                                         ),
-                                      IconButton(
-                                        tooltip: "save".i18n(),
-                                        onPressed: () => save(context, notifier),
-                                        icon: const Icon(Icons.save_alt_rounded),
-                                      ),
-                                    ],
-                                  ),
+                                        IconButton(
+                                          tooltip: "save".i18n(),
+                                          onPressed: () => save(context, notifier),
+                                          icon: const Icon(Icons.save_alt_rounded),
+                                        ),
+                                      ],
+                                    ),
                             ],
                           ),
                           TextFormField(
@@ -226,18 +222,19 @@ class TeamateDetailWidget extends StatelessWidget {
                               save(context, notifier);
                             },
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Documents",
-                                  style: Theme.of(context).textTheme.bodyText1,
-                                ),
-                              ],
+                          if (!notifier.isCreationMode)
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Documents",
+                                    style: Theme.of(context).textTheme.bodyText1,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
                           if (notifier.teamateToVisualize?.id != null)
                             Column(children: [
                               DownloadFileWidget(
@@ -251,32 +248,40 @@ class TeamateDetailWidget extends StatelessWidget {
                                 label: 'Déposez ici vos documents',
                                 acceptedExtensions: acceptedExtensions,
                               ),
-                              Wrap(
-                                  alignment: WrapAlignment.start,
-                                  spacing: 16,
-                                  runSpacing: 16,
-                                  direction: Axis.horizontal,
-                                  children: context
-                                      .select<TeamateVisualizeNotifier, List<Document>>(
-                                          (value) => value.teamateToVisualize!.listDocument!)
-                                      .map((doc) => Container(
-                                            width: defaultWidth,
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                color: Colors.grey,
-                                                style: BorderStyle.solid,
-                                              ),
-                                              color: Constants.backgroundColor,
-                                              borderRadius: BorderRadius.circular(5),
-                                            ),
-                                            child: DownloadFile(
-                                              downloadUrl: doc.url!,
-                                              filename: doc.filename!,
-                                              displayDeleteButton: !notifier.isReadOnly,
-                                              onDelete: () => notifier.deleteDocument(doc),
-                                            ),
-                                          ))
-                                      .toList()),
+                              Builder(builder: (context) {
+                                final List<Document>? listDoc =
+                                    context.select<TeamateVisualizeNotifier, List<Document>?>(
+                                        (value) => value.teamateToVisualize?.listDocument);
+
+                                if (listDoc != null && listDoc.isNotEmpty) {
+                                  return Wrap(
+                                      alignment: WrapAlignment.start,
+                                      spacing: 16,
+                                      runSpacing: 16,
+                                      direction: Axis.horizontal,
+                                      children: listDoc
+                                          .map((doc) => Container(
+                                                width: defaultWidth,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Colors.grey,
+                                                    style: BorderStyle.solid,
+                                                  ),
+                                                  color: Constants.backgroundColor,
+                                                  borderRadius: BorderRadius.circular(5),
+                                                ),
+                                                child: DownloadFile(
+                                                  downloadUrl: doc.url!,
+                                                  filename: doc.filename!,
+                                                  displayDeleteButton: !notifier.isReadOnly,
+                                                  onDelete: () => notifier.deleteDocument(doc),
+                                                ),
+                                              ))
+                                          .toList());
+                                } else {
+                                  return Container();
+                                }
+                              }),
                             ])
                         ],
                       ),

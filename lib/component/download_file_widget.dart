@@ -133,7 +133,7 @@ class DownloadFileWidget extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             border: Border.all(
-              color: notifier.hover ? Theme.of(context).colorScheme.primary : Colors.grey,
+              color: (notifier.hover && !isReadOnly) ? Theme.of(context).colorScheme.primary : Colors.grey,
               style: BorderStyle.solid,
             ),
           ),

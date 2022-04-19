@@ -70,6 +70,7 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     return callToMake.then((teamate) {
       teamateToVisualize = teamate;
       isReadOnly = true;
+      isCreationMode = false;
       notifyListeners();
       return teamate;
     });

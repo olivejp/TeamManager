@@ -129,7 +129,7 @@ class TeamateTile extends StatelessWidget {
         radius: 18,
         foregroundImage: teamate.photoUrl != null ? NetworkImage(teamate.photoUrl!) : null,
         backgroundColor: Theme.of(context).primaryColor,
-        child: Text((teamate.nom?.substring(0, 1) ?? "") + (teamate.prenom?.substring(0, 1) ?? "")),
+        child: Text((teamate.nom?.substring(0, 1).toUpperCase() ?? "") + (teamate.prenom?.substring(0, 1).toUpperCase() ?? "")),
       ),
       trailing: IconButton(
         tooltip: 'delete'.i18n(),
