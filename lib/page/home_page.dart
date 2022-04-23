@@ -200,6 +200,7 @@ class LeftBarWidget extends StatelessWidget {
                   child: IconButton(
                     onPressed: () => context.read<MainNavigationNotifier>().setMainPageName('resources'),
                     icon: const Icon(Icons.account_box),
+                    tooltip: 'team'.i18n(),
                   ),
                 ),
                 Padding(

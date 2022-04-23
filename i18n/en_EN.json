@@ -28,5 +28,6 @@
   "hidePassword": "Hide password",
   "applicationLoading": "Loading application",
   "description": "Description",
-  "filter": "Sort"
+  "filter": "Sort",
+  "team": "Team"
 }

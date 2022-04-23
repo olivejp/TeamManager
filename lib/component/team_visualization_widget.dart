@@ -200,27 +200,31 @@ class TeamateDetailWidget extends StatelessWidget {
                               return null;
                             },
                           ),
-                          TextFormField(
-                            minLines: 6,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            maxLength: 2000,
-                            readOnly: notifier.isReadOnly,
-                            onChanged: notifier.setDescription,
-                            controller: descriptionController,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
-                            decoration: InputDecoration(
-                              label: Text('description'.i18n()),
-                              labelStyle: Theme.of(context).textTheme.caption,
-                              counterStyle: Theme.of(context).textTheme.caption,
+                          Padding(
+                            padding: const EdgeInsets.only(top: 50.0),
+                            child: TextFormField(
+                              minLines: 6,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              maxLength: 2000,
+                              readOnly: notifier.isReadOnly,
+                              onChanged: notifier.setDescription,
+                              controller: descriptionController,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText2
+                                  ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
+                              decoration: InputDecoration(
+                                label: Text('description'.i18n()),
+                                labelStyle: Theme.of(context).textTheme.caption,
+                                counterStyle: Theme.of(context).textTheme.caption,
+                                border: const OutlineInputBorder()
+                              ),
+                              onFieldSubmitted: (value) {
+                                notifier.setDescription(value);
+                                save(context, notifier);
+                              },
                             ),
-                            onFieldSubmitted: (value) {
-                              notifier.setDescription(value);
-                              save(context, notifier);
-                            },
                           ),
                           if (!notifier.isCreationMode)
                             Padding(
@@ -296,10 +300,10 @@ class TeamateDetailWidget extends StatelessWidget {
     );
   }
 
-  void initializeControllers(Teamate teamate, DateFormat format) {
-    lastnameController.text = teamate.nom ?? '';
-    firstnameController.text = teamate.prenom ?? '';
-    descriptionController.text = teamate.description ?? '';
-    birthdateController.text = (teamate.dateNaissance?.toString() != null) ? format.format(teamate.dateNaissance!) : '';
+  void initializeControllers(Teamate teammate, DateFormat format) {
+    lastnameController.text = teammate.nom ?? '';
+    firstnameController.text = teammate.prenom ?? '';
+    descriptionController.text = teammate.description ?? '';
+    birthdateController.text = (teammate.dateNaissance?.toString() != null) ? format.format(teammate.dateNaissance!) : '';
   }
 }

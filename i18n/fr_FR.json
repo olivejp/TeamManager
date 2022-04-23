@@ -28,5 +28,6 @@
   "hidePassword": "Masquer le mot de passe",
   "applicationLoading": "Chargement de l'application",
   "description": "Description",
-  "filter": "Trier"
+  "filter": "Trier",
+  "team": "Équipe"
 }

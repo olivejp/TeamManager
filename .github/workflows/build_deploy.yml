@@ -28,6 +28,9 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Change to use Production properties
+        run: ./build_env_prod.sh
+
       - name: Build web application
         run: flutter build web --web-renderer auto
 

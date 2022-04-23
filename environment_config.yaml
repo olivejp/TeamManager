@@ -7,3 +7,6 @@ environment_config:
     serverUrl: # key name
       type: String
       default: 10.0.2.2:8081
+    resourceManagerStorage: # key name
+      type: String
+      default: gs://resourcemanager-2a15b.appspot.com

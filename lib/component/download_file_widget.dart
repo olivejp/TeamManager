@@ -18,10 +18,14 @@ class DownloadFileNotifier extends ChangeNotifier {
     this.isLoading = false,
   });
 
+  static const String applicationOctetStream = 'application/octet-stream';
+  static const String maxAge = 'max-age=36000';
+
   final FirebaseStorageService storageService = GetIt.I.get<FirebaseStorageService>();
 
   final String path;
   final void Function(String downloadUrl, String fileName) onUploadComplete;
+
 
   bool isLoading;
   int? byteTransferred;
@@ -42,15 +46,11 @@ class DownloadFileNotifier extends ChangeNotifier {
   void storeDocument(Uint8List? documentBytes, String? documentName, String? mimeType) {
     hover = false;
 
-    print('storeDocument has been called');
-
     if (documentBytes == null) {
-      print("Impossible de sauvegarder un CV sans les données de fichier.");
       return;
     }
 
     if (documentName == null || documentName.isEmpty) {
-      print("Impossible de sauvegarder un CV sans le nom du fichier.");
       return;
     }
 
@@ -61,7 +61,7 @@ class DownloadFileNotifier extends ChangeNotifier {
 
     final String filename = newPath + documentName;
     final SettableMetadata metadata =
-        SettableMetadata(cacheControl: 'max-age=36000', contentType: mimeType ?? 'application/octet-stream');
+        SettableMetadata(cacheControl: maxAge, contentType: mimeType ?? applicationOctetStream);
 
     isLoading = true;
     notifyListeners();
@@ -76,9 +76,7 @@ class DownloadFileNotifier extends ChangeNotifier {
     });
 
     // When the uploadTask is complete we send back the
-    print('Listen whenComplete');
     uploadTask?.whenComplete(() {
-      print('uploadTask complete');
       uploadTask?.snapshot.ref.getDownloadURL().then((downloadUrl) {
         onUploadComplete(downloadUrl, filename);
       });
