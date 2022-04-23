@@ -28,10 +28,11 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Change to use Production properties
-      - shell: bash
-        run: >
-          ./build_env_prod.sh
+      - name: Change file permission
+        run: chmod +x ./build_env_prod.sh
+
+      - name: Setting production properties
+        run: ./build_env_prod.sh
 
       - name: Build web application
         run: flutter build web --web-renderer auto
