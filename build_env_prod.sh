@@ -1,1 +1,5 @@
-flutter pub run environment_config:generate --serverUrl='resourcemanager-2a15b.ts.r.appspot.com' --resourceManagerStorage='gs://resourcemanager-2a15b.appspot.com' --useHttps=true
+#!/usr/bin/env bash
+
+flutter pub run environment_config:generate --serverUrl=$TEAMATE_MANAGER_SERVER_URL --resourceManagerStorage=$TEAMATE_MANAGER_RESOURCE_STORAGE --useHttps=true
+
+echo Production settings applied.

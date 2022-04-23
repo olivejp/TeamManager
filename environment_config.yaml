@@ -3,13 +3,13 @@ environment_config:
   dotenv_path: .env # optional, result file path for .env file against project root folder
   class: EnvironmentConfig # optional, class name
 
-  fields: # set of fields for command
-    serverUrl: # key name
+  fields:
+    serverUrl: # Backend server URL.
       type: String
       default: 10.0.2.2:8081
-    resourceManagerStorage: # key name
+    resourceManagerStorage: # Where the images and documents will be store.
       type: String
       default: gs://resourcemanager-2a15b.appspot.com
-    useHttps: # key name
+    useHttps: # Should we use HTTPS to ask the backend server.
       type: bool
       default: false
