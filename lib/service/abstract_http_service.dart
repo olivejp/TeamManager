@@ -13,7 +13,7 @@ import 'interface_service.dart';
 /// @author JPOLIVE
 abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements InterfaceService<T, U> {
 
-  AbstractHttpService({required this.path, this.useHttps = false, this.interceptor, this.defaultHeaders}) {
+  AbstractHttpService({required this.path, this.interceptor, this.defaultHeaders}) {
     if (EnvironmentConfig.serverUrl.isEmpty == true) {
 
     }
@@ -38,7 +38,7 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
 
   /// If the service should use HTTPS instead of HTTP.
   /// Default to FALSE to use HTTP.
-  bool useHttps;
+  bool useHttps = EnvironmentConfig.useHttps;
 
   /// Optional : Default headers to send with all the requests of this service.
   /// If headers are passed at the method level, merge the two maps.

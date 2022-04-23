@@ -10,3 +10,6 @@ environment_config:
     resourceManagerStorage: # key name
       type: String
       default: gs://resourcemanager-2a15b.appspot.com
+    useHttps: # key name
+      type: bool
+      default: false
