@@ -6,11 +6,12 @@ import 'abstract_http_service.dart';
 import 'interface_interceptor.dart';
 
 class CompetenceService extends AbstractHttpService<Competence, int> {
-  CompetenceService({InterfaceInterceptor? interceptor})
+  CompetenceService({InterfaceInterceptor? interceptor, Map<String, String>? Function()? getHeaders})
       : super(
             path: '/competence',
             interceptor: interceptor,
-            defaultHeaders: {HttpHeaders.contentTypeHeader: 'application/json'});
+            defaultHeaders: {HttpHeaders.contentTypeHeader: 'application/json'},
+            getHeaders: getHeaders);
 
   @override
   Competence fromJson(Map<String, dynamic> map) {

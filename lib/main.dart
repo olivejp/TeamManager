@@ -16,6 +16,7 @@ import 'package:team_manager/page/sign_in_page.dart';
 import 'package:team_manager/service/firebase_authentication_service.dart';
 import 'package:team_manager/service/firebase_storage_service.dart';
 import 'package:team_manager/service/http_interceptor.dart';
+import 'package:team_manager/service/interface_default_headers.dart';
 import 'package:team_manager/service/service_competence.dart';
 import 'package:team_manager/service/service_document.dart';
 import 'package:team_manager/service/service_teamate.dart';
@@ -33,17 +34,30 @@ void main() {
 
 void injectDependencies() {
   GetIt.I.registerSingleton(HttpInterceptor());
+  GetIt.I.registerSingleton(AuthorizationHeaders());
   GetIt.I.registerFactory(() {
-    HttpInterceptor interceptor = GetIt.I.get();
-    return ServiceTeamate(interceptor: interceptor);
+    final HttpInterceptor interceptor = GetIt.I.get();
+    final AuthorizationHeaders authorizationHeaders = GetIt.I.get();
+    return ServiceTeamate(
+      interceptor: interceptor,
+      getHeaders: authorizationHeaders.getDefaultHeaders,
+    );
   });
   GetIt.I.registerFactory(() {
-    HttpInterceptor interceptor = GetIt.I.get();
-    return CompetenceService(interceptor: interceptor);
+    final HttpInterceptor interceptor = GetIt.I.get();
+    final AuthorizationHeaders authorizationHeaders = GetIt.I.get();
+    return CompetenceService(
+      interceptor: interceptor,
+      getHeaders: authorizationHeaders.getDefaultHeaders,
+    );
   });
   GetIt.I.registerFactory(() {
-    HttpInterceptor interceptor = GetIt.I.get();
-    return DocumentService(interceptor: interceptor);
+    final HttpInterceptor interceptor = GetIt.I.get();
+    final AuthorizationHeaders authorizationHeaders = GetIt.I.get();
+    return DocumentService(
+      interceptor: interceptor,
+      getHeaders: authorizationHeaders.getDefaultHeaders,
+    );
   });
 }
 
@@ -83,10 +97,13 @@ class MyApp extends StatelessWidget {
                 ChangeNotifierProvider(create: (_) => AuthenticationNotifier()),
               ],
               child: Consumer<AuthenticationNotifier>(
-                builder: (_, value, child) {
-                  if (value.user == null) {
+                builder: (_, authNotifier, child) {
+                  final AuthorizationHeaders authorizationHeaders = GetIt.I.get<AuthorizationHeaders>();
+                  if (authNotifier.user == null) {
+                    authorizationHeaders.setAuthorizationHeader(null);
                     return const SignInPage();
                   } else {
+                    authorizationHeaders.setAuthorizationHeader(authNotifier.user!.uid);
                     return child!;
                   }
                 },

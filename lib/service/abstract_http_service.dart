@@ -12,11 +12,8 @@ import 'interface_service.dart';
 /// Abstract CRUD service through HTTP.
 /// @author JPOLIVE
 abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements InterfaceService<T, U> {
-
-  AbstractHttpService({required this.path, this.interceptor, this.defaultHeaders}) {
-    if (EnvironmentConfig.serverUrl.isEmpty == true) {
-
-    }
+  AbstractHttpService({required this.path, this.interceptor, this.defaultHeaders, this.getHeaders}) {
+    if (EnvironmentConfig.serverUrl.isEmpty == true) {}
   }
 
   http.Response _defaultTimeoutResponse = http.Response('Timeout exception', 408);
@@ -40,6 +37,10 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
   /// Default to FALSE to use HTTP.
   bool useHttps = EnvironmentConfig.useHttps;
 
+  /// Optional : Function to get authorization headers to send with all the requests of this service.
+  /// If headers are passed at the method level, merge the two maps.
+  Map<String, String>? Function()? getHeaders;
+
   /// Optional : Default headers to send with all the requests of this service.
   /// If headers are passed at the method level, merge the two maps.
   Map<String, String>? defaultHeaders;
@@ -51,10 +52,6 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
   /// to define the serialization of an http response.
   T fromJson(Map<String, dynamic> map);
 
-  set setInterceptor(InterfaceInterceptor? newInterceptor) => interceptor = newInterceptor;
-
-  set setDefaultHeaders(Map<String, String>? newDefaultHeaders) => defaultHeaders = newDefaultHeaders;
-
   Future<http.Response?> callInterceptor(Future<http.Response?> httpCall) {
     return httpCall.then((httpResponse) {
       interceptor?.catchResponse(httpResponse);
@@ -62,9 +59,13 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
     });
   }
 
-  /// Merge headers passed to method level with the defaultHeaders of the service.
+  /// Merge headers passed to method level with the defaultHeaders of the service and the headers from authorizationHeaders.
   Map<String, String>? _mergeHeaders(Map<String, String>? headers) {
-    return {...?defaultHeaders, ...?headers};
+    Map<String, String>? authorizationHeaders;
+    if (getHeaders != null) {
+      authorizationHeaders = getHeaders!();
+    }
+    return {...?defaultHeaders, ...?authorizationHeaders, ...?headers};
   }
 
   @override
@@ -95,7 +96,8 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
   }
 
   @override
-  Future<T> update(T body, {Map<String, String>? headers, Map<String, String>? queryParams, Encoding? encoding, Duration? timeout}) {
+  Future<T> update(T body,
+      {Map<String, String>? headers, Map<String, String>? queryParams, Encoding? encoding, Duration? timeout}) {
     final Duration _timeout = timeout ?? _defaultTimeoutDuration;
     final String id = body.id.toString();
     final Uri uri = useHttps
@@ -131,7 +133,7 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
     final Uri uri = useHttps
         ? Uri.https(EnvironmentConfig.serverUrl, '$path/$id', queryParams)
         : Uri.http(EnvironmentConfig.serverUrl, '$path/$id', queryParams);
-    final Map<String, String>? headersToSend = {...?headers, ...?defaultHeaders};
+    final Map<String, String>? headersToSend = _mergeHeaders(headers);
     return callInterceptor(http.get(uri, headers: headersToSend)).then((response) {
       if (response != null &&
           response.statusCode >= HttpStatus.ok &&
@@ -150,7 +152,7 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
     final Uri uri = useHttps
         ? Uri.https(EnvironmentConfig.serverUrl, path, queryParams)
         : Uri.http(EnvironmentConfig.serverUrl, path, queryParams);
-    final Map<String, String>? headersToSend = {...?headers, ...?defaultHeaders};
+    final Map<String, String>? headersToSend = _mergeHeaders(headers);
     return callInterceptor(http.get(uri, headers: headersToSend)).then((response) {
       if (response != null &&
           response.statusCode >= HttpStatus.ok &&
