@@ -32,7 +32,11 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
   }
 
   Future<List<Teamate>> getListTeamate() {
-    return service.getAll(jsonRoot: ['content'], queryParams: {'sort': sort + ',asc'});
+    return service.getAll(
+      jsonRoot: ['content'],
+      queryParams: {'sort': sort + ',asc'},
+      timeout: const Duration(seconds: 5),
+    );
   }
 
   void changeToCreationMode() {

@@ -84,23 +84,46 @@ class TeamateListWidget extends StatelessWidget {
             ),
           ),
           Consumer<TeamateRefreshNotifier>(
-            builder: (_, value, __) => FutureBuilder<List<Teamate>>(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Aucunes données à afficher'),
+                    IconButton(
+                      onPressed: () => context.read<TeamateRefreshNotifier>().refresh(),
+                      icon: const Icon(Icons.refresh),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            builder: (_, value, noDataChild) => FutureBuilder<List<Teamate>>(
               future: context.read<TeamateVisualizeNotifier>().getListTeamate(),
               builder: (_, snapshotListTeamate) {
-                if (snapshotListTeamate.hasData) {
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
-                    itemCount: snapshotListTeamate.data!.length,
-                    itemBuilder: (_, index) => TeamateTile(
-                      teamate: snapshotListTeamate.data!.elementAt(index),
-                    ),
+                if (snapshotListTeamate.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: CircularProgressIndicator(),
                   );
                 }
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: CircularProgressIndicator(),
-                );
+                if (snapshotListTeamate.connectionState == ConnectionState.done) {
+                  if (snapshotListTeamate.hasData) {
+                    var data = snapshotListTeamate.data;
+                    if (data!.isNotEmpty) {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.vertical,
+                        itemCount: snapshotListTeamate.data!.length,
+                        itemBuilder: (_, index) => TeamateTile(
+                          teamate: snapshotListTeamate.data!.elementAt(index),
+                        ),
+                      );
+                    }
+                  }
+                }
+                return noDataChild!;
               },
             ),
           ),
@@ -129,7 +152,8 @@ class TeamateTile extends StatelessWidget {
         radius: 18,
         foregroundImage: teamate.photoUrl != null ? NetworkImage(teamate.photoUrl!) : null,
         backgroundColor: Theme.of(context).primaryColor,
-        child: Text((teamate.nom?.substring(0, 1).toUpperCase() ?? "") + (teamate.prenom?.substring(0, 1).toUpperCase() ?? "")),
+        child: Text(
+            (teamate.nom?.substring(0, 1).toUpperCase() ?? "") + (teamate.prenom?.substring(0, 1).toUpperCase() ?? "")),
       ),
       trailing: IconButton(
         tooltip: 'delete'.i18n(),

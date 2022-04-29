@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/notifier/competence_creation_notifier.dart';
 
@@ -45,11 +46,12 @@ class CompetenceCreationWidget extends StatelessWidget {
             TextFormField(
                 maxLength: 255,
                 controller: nomController,
-                style: GoogleFonts.roboto(fontSize: 15),
+                style: Theme.of(context).textTheme.bodyText2?.copyWith(color: Colors.white),
                 onChanged: notifier.setNom,
                 decoration: InputDecoration(
-                  hintText: 'Nom',
-                  hintStyle: GoogleFonts.roboto(fontSize: 15),
+                  label: Text('name'.i18n()),
+                  labelStyle: Theme.of(context).textTheme.caption,
+                  counterStyle: Theme.of(context).textTheme.caption,
                 ),
                 validator: (String? value) {
                   return (value == null || value.isEmpty) ? 'Le nom est obligatoire' : null;

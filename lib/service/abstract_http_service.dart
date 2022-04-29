@@ -16,19 +16,8 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
     if (EnvironmentConfig.serverUrl.isEmpty == true) {}
   }
 
-  http.Response _defaultTimeoutResponse = http.Response('Timeout exception', 408);
-
-  setDefaultTimeoutResponse(http.Response? httpTimeoutResponse) {
-    _defaultTimeoutResponse = httpTimeoutResponse ?? _defaultTimeoutResponse;
-    return this;
-  }
-
-  Duration _defaultTimeoutDuration = const Duration(seconds: 5);
-
-  setDefaultTimeoutDuration(Duration? duration) {
-    _defaultTimeoutDuration = duration ?? _defaultTimeoutDuration;
-    return this;
-  }
+  final Duration _defaultTimeoutDuration = const Duration(seconds: 1);
+  final Future<http.Response> _defaultTimeoutResponse = Future.value(http.Response('Timeout exception', 408));
 
   /// The URL of the resource.
   String path;
@@ -52,8 +41,9 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
   /// to define the serialization of an http response.
   T fromJson(Map<String, dynamic> map);
 
-  Future<http.Response?> callInterceptor(Future<http.Response?> httpCall) {
-    return httpCall.then((httpResponse) {
+  Future<http.Response?> _callInterceptor(Future<http.Response?> httpCall, {Duration? timeout}) {
+    final Duration timeoutDuration = timeout ?? _defaultTimeoutDuration;
+    return httpCall.timeout(timeoutDuration, onTimeout: () => _defaultTimeoutResponse).then((httpResponse) {
       interceptor?.catchResponse(httpResponse);
       return httpResponse;
     });
@@ -68,11 +58,20 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
     return {...?defaultHeaders, ...?authorizationHeaders, ...?headers};
   }
 
+  bool _isStatusBetween200And299(http.Response? response) {
+    if (response == null) {
+      return false;
+    }
+    return response.statusCode >= HttpStatus.ok && response.statusCode < HttpStatus.multipleChoices;
+  }
+
   @override
   Future<T> create(T body,
-      {Map<String, String>? headers, Map<String, String>? queryParams, Encoding? encoding, Duration? timeout}) {
-    final Duration _timeout = timeout ?? _defaultTimeoutDuration;
-
+      {Map<String, String>? headers,
+      Map<String, String>? queryParams,
+      Encoding? encoding,
+      List<String>? jsonRoot,
+      Duration? timeout}) {
     final Uri uri = useHttps
         ? Uri.https(EnvironmentConfig.serverUrl, path, queryParams)
         : Uri.http(EnvironmentConfig.serverUrl, path, queryParams);
@@ -83,22 +82,30 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
 
     final Map<String, String>? headersToSend = _mergeHeaders(headers);
 
-    return callInterceptor(http.post(uri, body: json, headers: headersToSend, encoding: encoding))
-        .timeout(_timeout, onTimeout: () => _defaultTimeoutResponse)
-        .then((value) {
-      // Status between 200 and 300
-      if (value!.statusCode >= HttpStatus.ok && value.statusCode < HttpStatus.multipleChoices) {
-        return fromJson(jsonDecode(value.body));
+    return _callInterceptor(
+      http.post(
+        uri,
+        body: json,
+        headers: headersToSend,
+        encoding: encoding,
+      ),
+      timeout: timeout,
+    ).then((response) {
+      if (_isStatusBetween200And299(response)) {
+        return fromJson(_decodeResponseBodyWithJsonPath(response!, jsonRoot));
       } else {
-        return Future.error(value.body);
+        return Future.error(response?.body ?? '');
       }
     });
   }
 
   @override
   Future<T> update(T body,
-      {Map<String, String>? headers, Map<String, String>? queryParams, Encoding? encoding, Duration? timeout}) {
-    final Duration _timeout = timeout ?? _defaultTimeoutDuration;
+      {Map<String, String>? headers,
+      Map<String, String>? queryParams,
+      Encoding? encoding,
+      List<String>? jsonRoot,
+      Duration? timeout}) {
     final String id = body.id.toString();
     final Uri uri = useHttps
         ? Uri.https(EnvironmentConfig.serverUrl, '$path/$id', queryParams)
@@ -107,57 +114,69 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
     final String json = jsonEncode(bodyJson);
     final Map<String, String>? headersToSend = _mergeHeaders(headers);
 
-    return callInterceptor(http.put(uri, body: json, headers: headersToSend, encoding: encoding))
-        .timeout(_timeout, onTimeout: () => _defaultTimeoutResponse)
-        .then((value) {
-      // Status between 200 and 300
-      if (value!.statusCode >= HttpStatus.ok && value.statusCode < HttpStatus.multipleChoices) {
-        return fromJson(jsonDecode(value.body));
+    return _callInterceptor(
+      http.put(
+        uri,
+        body: json,
+        headers: headersToSend,
+        encoding: encoding,
+      ),
+      timeout: timeout,
+    ).then((response) {
+      if (_isStatusBetween200And299(response)) {
+        return fromJson(_decodeResponseBodyWithJsonPath(response!, jsonRoot));
       } else {
-        return Future.error(value.body);
+        return Future.error(response?.body ?? '');
       }
     });
   }
 
   @override
-  Future<void> delete(U id, {Map<String, String>? headers, Map<String, String>? queryParams, Encoding? encoding}) {
+  Future<void> delete(U id,
+      {Map<String, String>? headers, Map<String, String>? queryParams, Encoding? encoding, Duration? timeout}) {
     final Uri uri = useHttps
         ? Uri.https(EnvironmentConfig.serverUrl, '$path/$id', queryParams)
         : Uri.http(EnvironmentConfig.serverUrl, '$path/$id', queryParams);
+
     final Map<String, String>? headersToSend = _mergeHeaders(headers);
-    return callInterceptor(http.delete(uri, headers: headersToSend, encoding: encoding));
+
+    return _callInterceptor(
+      http.delete(
+        uri,
+        headers: headersToSend,
+        encoding: encoding,
+      ),
+      timeout: timeout,
+    );
   }
 
   @override
-  Future<T> read(U id, {Map<String, String>? headers, Map<String, String>? queryParams, List<String>? jsonRoot}) {
+  Future<T> read(U id,
+      {Map<String, String>? headers, Map<String, String>? queryParams, List<String>? jsonRoot, Duration? timeout}) {
     final Uri uri = useHttps
         ? Uri.https(EnvironmentConfig.serverUrl, '$path/$id', queryParams)
         : Uri.http(EnvironmentConfig.serverUrl, '$path/$id', queryParams);
     final Map<String, String>? headersToSend = _mergeHeaders(headers);
-    return callInterceptor(http.get(uri, headers: headersToSend)).then((response) {
-      if (response != null &&
-          response.statusCode >= HttpStatus.ok &&
-          response.statusCode < HttpStatus.multipleChoices) {
-        var body = _decodeResponseBodyWithJsonPath(response, jsonRoot);
-
-        return fromJson(body);
+    return _callInterceptor(http.get(uri, headers: headersToSend)).then((response) {
+      if (_isStatusBetween200And299(response)) {
+        return fromJson(_decodeResponseBodyWithJsonPath(response!, jsonRoot));
+      } else {
+        return Future.error(response?.body ?? '');
       }
-      throw Exception('ERROR while reading domain.');
     });
   }
 
   /// Method that will make a Http GET to the
   @override
-  Future<List<T>> getAll({Map<String, String>? headers, Map<String, String>? queryParams, List<String>? jsonRoot}) {
+  Future<List<T>> getAll(
+      {Map<String, String>? headers, Map<String, String>? queryParams, List<String>? jsonRoot, Duration? timeout}) {
     final Uri uri = useHttps
         ? Uri.https(EnvironmentConfig.serverUrl, path, queryParams)
         : Uri.http(EnvironmentConfig.serverUrl, path, queryParams);
     final Map<String, String>? headersToSend = _mergeHeaders(headers);
-    return callInterceptor(http.get(uri, headers: headersToSend)).then((response) {
-      if (response != null &&
-          response.statusCode >= HttpStatus.ok &&
-          response.statusCode < HttpStatus.multipleChoices) {
-        final List<dynamic> listMap = _decodeResponseBodyWithJsonPath(response, jsonRoot);
+    return _callInterceptor(http.get(uri, headers: headersToSend), timeout: timeout).then((response) {
+      if (_isStatusBetween200And299(response)) {
+        final List<dynamic> listMap = _decodeResponseBodyWithJsonPath(response!, jsonRoot);
         return listMap.map((e) => fromJson(e)).toList();
       }
       throw Exception('ERROR while reading all domains.');
