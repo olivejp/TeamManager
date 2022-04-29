@@ -32,7 +32,7 @@ jobs:
         run: chmod +x ./build_env_prod.sh
 
       - name: Setting production properties
-        run: ./build_env_prod.sh
+        run: ./build_env_prod.sh ${{ secrets.TEAMATE_MANAGER_SERVER_URL }} ${{ secrets.TEAMATE_MANAGER_RESOURCE_STORAGE }}
 
       - name: Build web application
         run: flutter build web --web-renderer auto
