@@ -62,8 +62,12 @@ class TeamateDetailWidget extends StatelessWidget {
                       ? Container()
                       : PhotoStorageWidget(
                           imageUrl: notifier.teamateToVisualize?.photoUrl,
-                          onSaved: (storageFile) => notifier.setPhotoUrl(storageFile.fileBytes, storageFile.fileName!),
-                          onDeleted: () => notifier.deletePhotoUrl(),
+                          onSaved: (storageFile) => notifier
+                              .setPhotoUrl(storageFile.fileBytes, storageFile.fileName!)
+                              .then((_) => context.read<TeamateRefreshNotifier>().refresh()),
+                          onDeleted: () => notifier.deletePhotoUrl().then(
+                                (_) => context.read<TeamateRefreshNotifier>().refresh(),
+                              ),
                           allowedExtensions: const ['jpeg', 'jpg', 'gif', 'png'],
                           borderRadius: Constants.borderRadius,
                           emptyColor: Constants.secondaryColor,
@@ -215,11 +219,10 @@ class TeamateDetailWidget extends StatelessWidget {
                                   .bodyText2
                                   ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
                               decoration: InputDecoration(
-                                label: Text('description'.i18n()),
-                                labelStyle: Theme.of(context).textTheme.caption,
-                                counterStyle: Theme.of(context).textTheme.caption,
-                                border: const OutlineInputBorder()
-                              ),
+                                  label: Text('description'.i18n()),
+                                  labelStyle: Theme.of(context).textTheme.caption,
+                                  counterStyle: Theme.of(context).textTheme.caption,
+                                  border: const OutlineInputBorder()),
                               onFieldSubmitted: (value) {
                                 notifier.setDescription(value);
                                 save(context, notifier);
@@ -304,6 +307,7 @@ class TeamateDetailWidget extends StatelessWidget {
     lastnameController.text = teammate.nom ?? '';
     firstnameController.text = teammate.prenom ?? '';
     descriptionController.text = teammate.description ?? '';
-    birthdateController.text = (teammate.dateNaissance?.toString() != null) ? format.format(teammate.dateNaissance!) : '';
+    birthdateController.text =
+        (teammate.dateNaissance?.toString() != null) ? format.format(teammate.dateNaissance!) : '';
   }
 }

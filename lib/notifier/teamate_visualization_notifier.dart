@@ -63,7 +63,7 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     return Future.error('There is errors on this page.');
   }
 
-  Future<Teamate> save() {
+  Future<Teamate> save({bool setToReadonlyAfter = true, bool exitCreationMode = true}) {
     if (teamateToVisualize == null) {
       return Future.error('There is no Teamate to save.');
     }
@@ -73,8 +73,8 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
 
     return callToMake.then((teamate) {
       teamateToVisualize = teamate;
-      isReadOnly = true;
-      isCreationMode = false;
+      isReadOnly = setToReadonlyAfter;
+      isCreationMode = !exitCreationMode;
       notifyListeners();
       return teamate;
     });
@@ -115,37 +115,48 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     return competenceService.getAll(jsonRoot: ['_embedded', 'competence'], queryParams: {'sort': 'id asc'});
   }
 
-  void setPhotoUrl(Uint8List? data, String name) {
-    if (teamateToVisualize?.id != null && data != null) {
-      final String filename = teamateToVisualize!.id!.toString() + '/photo/' + name;
-      String contentType;
-
-      switch (extension(name).toLowerCase()) {
-        case '.jpg':
-        case '.jpeg':
-          contentType = 'image/jpeg';
-          break;
-        case '.png':
-          contentType = 'image/png';
-          break;
-        case '.gif':
-          contentType = 'image/gif';
-          break;
-        default:
-          contentType = 'application/octet-stream';
-      }
-
-      final SettableMetadata metadata = SettableMetadata(cacheControl: 'max-age=36000', contentType: contentType);
-
-      uploadPhotoTask = storageService.uploadDataAsUploadTask(filename, data, metadata);
-      uploadPhotoTask?.whenComplete(() {
-        uploadPhotoTask?.snapshot.ref.getDownloadURL().then((downloadUrl) {
-          teamateToVisualize?.photoUrl = downloadUrl;
-          save();
-        });
-        uploadPhotoTask = null;
-      });
+  Future<Object?> setPhotoUrl(Uint8List? data, String name) {
+    if (teamateToVisualize?.id == null) {
+      return Future.error("Aucun id");
     }
+
+    if (data == null) {
+      return Future.error("Aucune donnée");
+    }
+
+    final String filename = teamateToVisualize!.id!.toString() + '/photo/' + name;
+
+    String contentType;
+    switch (extension(name).toLowerCase()) {
+      case '.jpg':
+      case '.jpeg':
+        contentType = 'image/jpeg';
+        break;
+      case '.png':
+        contentType = 'image/png';
+        break;
+      case '.gif':
+        contentType = 'image/gif';
+        break;
+      default:
+        contentType = 'application/octet-stream';
+    }
+
+    final SettableMetadata metadata = SettableMetadata(cacheControl: 'max-age=36000', contentType: contentType);
+    final Completer<Object?> completer = Completer<Object?>();
+
+    uploadPhotoTask = storageService.uploadDataAsUploadTask(filename, data, metadata);
+    uploadPhotoTask?.whenComplete(() {
+      uploadPhotoTask?.snapshot.ref.getDownloadURL().then((downloadUrl) {
+        teamateToVisualize?.photoUrl = downloadUrl;
+        save(setToReadonlyAfter: false, exitCreationMode: true)
+            .then((value) => completer.complete(value))
+            .onError((error, stackTrace) => completer.completeError(error!));
+      });
+      uploadPhotoTask = null;
+    }).catchError((error, stackTrace) => completer.completeError(error));
+
+    return completer.future;
   }
 
   void pausePhotoUpload() {
@@ -166,14 +177,18 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     }
   }
 
-  void deletePhotoUrl() {
-    if (teamateToVisualize != null && teamateToVisualize?.id != null) {
-      teamateToVisualize!.photoUrl = null;
-      save().then((value) => storageService
-          .deleteFolder(teamateToVisualize!.id.toString() + '/photo')
-          .then((value) => print('DELETION COMPLETED'))
-          .onError((error, stackTrace) => print('DELETION FAILED' + (error?.toString() ?? ""))));
+  Future<void> deletePhotoUrl() async {
+    if (teamateToVisualize == null) {
+      return Future.error('Aucun teamate');
     }
+
+    if (teamateToVisualize?.id == null) {
+      return Future.error('Aucune ID');
+    }
+
+    teamateToVisualize!.photoUrl = null;
+    return save(setToReadonlyAfter: false, exitCreationMode: true)
+        .then((value) => storageService.deleteFolder(teamateToVisualize!.id.toString() + '/photo'));
   }
 
   void setListCompetence(dynamic returnValue) {
