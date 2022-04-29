@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart';
 import 'package:team_manager/domain/competence.dart';
@@ -10,15 +10,18 @@ import 'package:team_manager/domain/document.dart';
 import 'package:team_manager/service/firebase_storage_service.dart';
 import 'package:team_manager/service/service_competence.dart';
 import 'package:team_manager/service/service_document.dart';
+import 'package:team_manager/service/service_toast.dart';
 
 import '../domain/teamate.dart';
 import '../service/service_teamate.dart';
 
 class TeamateVisualizeNotifier extends ChangeNotifier {
   final ServiceTeamate service = GetIt.I.get<ServiceTeamate>();
+  final ServiceToast serviceToast = GetIt.I.get<ServiceToast>();
   final DocumentService documentService = GetIt.I.get<DocumentService>();
   final CompetenceService competenceService = GetIt.I.get<CompetenceService>();
   final FirebaseStorageService storageService = GetIt.I.get<FirebaseStorageService>();
+
   Teamate? teamateToVisualize;
   UploadTask? uploadPhotoTask;
   UploadTask? uploadCvTask;
@@ -53,19 +56,22 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
   }
 
   Future<void> delete(int id) {
-    return service.delete(id).then((value) => notifyListeners());
+    return service.delete(id).then((value) {
+      serviceToast.addToast(message: 'Suppression effectuée', level: ToastLevel.success);
+      notifyListeners();
+    });
   }
 
   Future<Teamate> checkAndSave(GlobalKey<FormState> formKey) {
     if (formKey.currentState?.validate() == true) {
-      return save();
+      return saveCurrentTeammate();
     }
     return Future.error('There is errors on this page.');
   }
 
-  Future<Teamate> save({bool setToReadonlyAfter = true, bool exitCreationMode = true}) {
+  Future<Teamate> saveCurrentTeammate({bool setToReadonlyAfter = true, bool exitCreationMode = true}) {
     if (teamateToVisualize == null) {
-      return Future.error('There is no Teamate to save.');
+      return Future.error('There is no Teammate to save.');
     }
 
     final Future<Teamate> callToMake =
@@ -76,6 +82,11 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
       isReadOnly = setToReadonlyAfter;
       isCreationMode = !exitCreationMode;
       notifyListeners();
+      serviceToast.addToast(
+        message: 'Sauvegarde effectuée',
+        level: ToastLevel.success,
+        iconData: Icons.save,
+      );
       return teamate;
     });
   }
@@ -149,7 +160,7 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     uploadPhotoTask?.whenComplete(() {
       uploadPhotoTask?.snapshot.ref.getDownloadURL().then((downloadUrl) {
         teamateToVisualize?.photoUrl = downloadUrl;
-        save(setToReadonlyAfter: false, exitCreationMode: true)
+        saveCurrentTeammate(setToReadonlyAfter: false, exitCreationMode: true)
             .then((value) => completer.complete(value))
             .onError((error, stackTrace) => completer.completeError(error!));
       });
@@ -157,24 +168,6 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     }).catchError((error, stackTrace) => completer.completeError(error));
 
     return completer.future;
-  }
-
-  void pausePhotoUpload() {
-    if (uploadPhotoTask != null) {
-      uploadPhotoTask!.pause();
-    }
-  }
-
-  void resumePhotoUpload() {
-    if (uploadPhotoTask != null) {
-      uploadPhotoTask!.resume();
-    }
-  }
-
-  void cancelPhotoUpload() {
-    if (uploadPhotoTask != null) {
-      uploadPhotoTask!.cancel();
-    }
   }
 
   Future<void> deletePhotoUrl() async {
@@ -187,8 +180,9 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     }
 
     teamateToVisualize!.photoUrl = null;
-    return save(setToReadonlyAfter: false, exitCreationMode: true)
-        .then((value) => storageService.deleteFolder(teamateToVisualize!.id.toString() + '/photo'));
+    return saveCurrentTeammate(setToReadonlyAfter: false, exitCreationMode: true)
+        .then((value) => storageService.deleteFolder(teamateToVisualize!.id.toString() + '/photo'))
+        .then((value) => serviceToast.addToast(message: 'Suppression photo effectuée', level: ToastLevel.success));
   }
 
   void setListCompetence(dynamic returnValue) {
@@ -199,7 +193,7 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
       return competence;
     }).toList();
     teamateToVisualize?.listCompetence = list;
-    save();
+    saveCurrentTeammate();
   }
 
   void addDocument(String downloadUrl, String filename) {
@@ -209,7 +203,7 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
       document.url = downloadUrl;
       document.filename = filename;
       teamateToVisualize?.listDocument?.add(document);
-      save();
+      saveCurrentTeammate();
     }
   }
 

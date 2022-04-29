@@ -19,6 +19,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ToastLayoutWidget(
+      width: 500,
       child: Scaffold(
         body: Row(
           mainAxisAlignment: MainAxisAlignment.start,

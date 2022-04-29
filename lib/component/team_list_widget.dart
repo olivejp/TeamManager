@@ -96,10 +96,7 @@ class TeamateListWidget extends StatelessWidget {
                   children: [
                     const Text('Aucunes données à afficher'),
                     IconButton(
-                      onPressed: () {
-                        context.read<TeamateRefreshNotifier>().refresh();
-                        serviceToast.addToast(message: 'Bidule', level: ToastLevel.info);
-                      },
+                      onPressed: () => context.read<TeamateRefreshNotifier>().refresh(),
                       icon: const Icon(Icons.refresh),
                     )
                   ],

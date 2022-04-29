@@ -4,7 +4,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-enum ToastLevel { info, warn, error }
+enum ToastLevel { info, warn, error, success }
 
 class Toast {
   Toast({this.title, required this.message, this.icon, required this.level, required this.duration});
