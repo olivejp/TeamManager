@@ -20,6 +20,7 @@ import 'package:team_manager/service/interface_default_headers.dart';
 import 'package:team_manager/service/service_competence.dart';
 import 'package:team_manager/service/service_document.dart';
 import 'package:team_manager/service/service_teamate.dart';
+import 'package:team_manager/service/service_toast.dart';
 
 import 'controller/sign_in_controller.dart';
 import 'notifier/teamate_refresh_notifier.dart';
@@ -33,6 +34,7 @@ void main() {
 }
 
 void injectDependencies() {
+  GetIt.I.registerSingleton(ServiceToast());
   GetIt.I.registerSingleton(HttpInterceptor());
   GetIt.I.registerSingleton(AuthorizationHeaders());
   GetIt.I.registerFactory(() {

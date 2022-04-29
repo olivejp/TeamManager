@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
+import 'package:team_manager/component/toast_layout_widget.dart';
 import 'package:team_manager/constants.dart';
 import 'package:team_manager/notifier/main_navigation_notifier.dart';
 import 'package:team_manager/page/competence_page.dart';
@@ -17,30 +18,32 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LeftBarWidget(iconVerticalPadding: iconVerticalPadding),
-          Expanded(
-            child: Builder(builder: (context) {
-              final String mainPageName = context.select<MainNavigationNotifier, String>((notifier) => notifier.mainPageName);
-              switch (mainPageName) {
-                case 'home':
-                  return const LayoutHomeWidget();
-                case 'resources':
-                  return const TeamVisualizationPage();
-                case 'competences':
-                  return const CompetencePage();
-                case 'planning':
-                  return const PlanningPage();
-                default:
-                  return const LayoutHomeWidget();
-              }
-            }),
-          ),
-        ],
+    return ToastLayoutWidget(
+      child: Scaffold(
+        body: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            LeftBarWidget(iconVerticalPadding: iconVerticalPadding),
+            Expanded(
+              child: Builder(builder: (context) {
+                final String mainPageName = context.select<MainNavigationNotifier, String>((notifier) => notifier.mainPageName);
+                switch (mainPageName) {
+                  case 'home':
+                    return const LayoutHomeWidget();
+                  case 'resources':
+                    return const TeamVisualizationPage();
+                  case 'competences':
+                    return const CompetencePage();
+                  case 'planning':
+                    return const PlanningPage();
+                  default:
+                    return const LayoutHomeWidget();
+                }
+              }),
+            ),
+          ],
+        ),
       ),
     );
   }

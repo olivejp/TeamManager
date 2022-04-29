@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/constants.dart';
 import 'package:team_manager/domain/teamate.dart';
 import 'package:team_manager/notifier/teamate_refresh_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
+import 'package:team_manager/service/service_toast.dart';
 
 import '../domain/view_dialog_action.dart';
 
 class TeamateListWidget extends StatelessWidget {
-  const TeamateListWidget({Key? key}) : super(key: key);
+  TeamateListWidget({Key? key}) : super(key: key);
+
+  final ServiceToast serviceToast = GetIt.I.get();
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +96,10 @@ class TeamateListWidget extends StatelessWidget {
                   children: [
                     const Text('Aucunes données à afficher'),
                     IconButton(
-                      onPressed: () => context.read<TeamateRefreshNotifier>().refresh(),
+                      onPressed: () {
+                        context.read<TeamateRefreshNotifier>().refresh();
+                        serviceToast.addToast(message: 'Bidule', level: ToastLevel.info);
+                      },
                       icon: const Icon(Icons.refresh),
                     )
                   ],
