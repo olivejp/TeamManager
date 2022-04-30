@@ -1,10 +1,11 @@
+import 'dart:html' as html;
+
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:localization/localization.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:provider/provider.dart';
-import 'package:team_manager/component/download_file.dart';
 import 'package:team_manager/component/photo_storage.dart';
 import 'package:team_manager/constants.dart';
 import 'package:team_manager/domain/document.dart';
@@ -245,6 +246,7 @@ class TeamateDetailWidget extends StatelessWidget {
                           if (notifier.teamateToVisualize?.id != null)
                             Column(children: [
                               DownloadFileWidget(
+                                radius: Constants.borderRadius,
                                 isReadOnly: notifier.isReadOnly,
                                 onUploadComplete: notifier.addDocument,
                                 width: double.infinity,
@@ -256,35 +258,48 @@ class TeamateDetailWidget extends StatelessWidget {
                                 acceptedExtensions: acceptedExtensions,
                               ),
                               Builder(builder: (context) {
+                                print('Rebuild document list.');
                                 final List<Document>? listDoc =
                                     context.select<TeamateVisualizeNotifier, List<Document>?>(
                                         (value) => value.teamateToVisualize?.listDocument);
 
                                 if (listDoc != null && listDoc.isNotEmpty) {
-                                  return Wrap(
-                                      alignment: WrapAlignment.start,
-                                      spacing: 16,
-                                      runSpacing: 16,
-                                      direction: Axis.horizontal,
-                                      children: listDoc
-                                          .map((doc) => Container(
-                                                width: defaultWidth,
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                    color: Colors.grey,
-                                                    style: BorderStyle.solid,
+                                  return ListView.builder(
+                                    padding: const EdgeInsetsDirectional.only(top: 5, bottom: 5),
+                                    shrinkWrap: true,
+                                    itemCount: listDoc.length,
+                                    itemBuilder: (_, index) {
+                                      final Document document = listDoc.elementAt(index);
+                                      return Padding(
+                                        padding: const EdgeInsets.only(top: 5, bottom: 5),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: Constants.borderRadius,
+                                            color: Constants.secondaryColor,
+                                          ),
+                                          child: ListTile(
+                                            title: Text(document.filename!),
+                                            trailing: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () => html.window.open(
+                                                    document.url!,
+                                                    'PlaceholderName',
                                                   ),
-                                                  color: Constants.backgroundColor,
-                                                  borderRadius: BorderRadius.circular(5),
+                                                  icon: const Icon(Icons.remove_red_eye_rounded),
                                                 ),
-                                                child: DownloadFile(
-                                                  downloadUrl: doc.url!,
-                                                  filename: doc.filename!,
-                                                  displayDeleteButton: !notifier.isReadOnly,
-                                                  onDelete: () => notifier.deleteDocument(doc),
-                                                ),
-                                              ))
-                                          .toList());
+                                                IconButton(
+                                                  onPressed: () => notifier.deleteDocument(document),
+                                                  icon: const Icon(Icons.delete_rounded),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
                                 } else {
                                   return Container();
                                 }

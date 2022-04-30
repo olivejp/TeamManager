@@ -102,6 +102,7 @@ class DownloadFileWidget extends StatelessWidget {
     this.filename,
     this.onDelete,
     this.isReadOnly = false,
+    this.radius
   }) : super(key: key);
 
   final String path;
@@ -116,6 +117,7 @@ class DownloadFileWidget extends StatelessWidget {
   final bool isReadOnly;
   final String label;
   final String buttonLabel;
+  final BorderRadius? radius;
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +131,7 @@ class DownloadFileWidget extends StatelessWidget {
           width: width,
           height: height,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: radius ?? BorderRadius.circular(5),
             border: Border.all(
               color: (notifier.hover && !isReadOnly) ? Theme.of(context).colorScheme.primary : Colors.grey,
               style: BorderStyle.solid,

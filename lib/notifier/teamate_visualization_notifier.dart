@@ -92,9 +92,9 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     });
   }
 
-  void setNewTeamateToVisualize(int? idTeamate) {
-    isReadOnly = true;
-    isCreationMode = false;
+  void setNewTeamateToVisualize(int? idTeamate, {bool setToReadOnly = true, bool setToCreationMode = false}) {
+    isReadOnly = setToReadOnly;
+    isCreationMode = setToCreationMode;
 
     if (idTeamate != null) {
       service.read(idTeamate).then((teamateRead) {
@@ -206,7 +206,7 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
       document.url = downloadUrl;
       document.filename = filename;
       teamateToVisualize?.listDocument?.add(document);
-      saveCurrentTeammate();
+      saveCurrentTeammate(setToReadonlyAfter: false);
     }
   }
 
@@ -220,10 +220,19 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
 
     teamateToVisualize!.listDocument?.remove(e);
 
-    return storageService
+    storageService
         .deleteFile(e.filename!)
-        .whenComplete(() => documentService.delete(e.id!))
-        .whenComplete(() => setNewTeamateToVisualize(teamateToVisualize?.id))
-        .onError((error, stackTrace) => print('DELETION FAILED' + (error?.toString() ?? "")));
+        .then((value) => serviceToast.addToast(message: 'Document supprimé du storage.', level: ToastLevel.success))
+        .onError((error, stackTrace) =>
+            serviceToast.addToast(message: 'Le document n\'a pas été supprimé du storage.', level: ToastLevel.error));
+
+    return documentService
+        .delete(e.id!)
+        .then((_) => setNewTeamateToVisualize(teamateToVisualize?.id, setToReadOnly: false))
+        .then((_) => serviceToast.addToast(message: 'Document correctement supprimé.', level: ToastLevel.success))
+        .onError((error, stackTrace) => serviceToast.addToast(
+              message: 'Erreur lors de la suppression du document : ' + error.toString(),
+              level: ToastLevel.error,
+            ));
   }
 }
