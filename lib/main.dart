@@ -34,33 +34,41 @@ void main() {
 }
 
 void injectDependencies() {
-  GetIt.I.registerSingleton(ServiceToast());
-  GetIt.I.registerSingleton(HttpInterceptor());
-  GetIt.I.registerSingleton(AuthorizationHeaders());
-  GetIt.I.registerFactory(() {
+  GetIt.I.registerSingletonAsync(() => Future.value(AuthorizationHeaders()));
+
+  GetIt.I.registerSingletonAsync(() => Future.value(ServiceToast()));
+
+  GetIt.I.registerSingletonWithDependencies(
+    () => HttpInterceptor(),
+    dependsOn: [ServiceToast],
+  );
+
+  GetIt.I.registerSingletonWithDependencies(() {
     final HttpInterceptor interceptor = GetIt.I.get();
     final AuthorizationHeaders authorizationHeaders = GetIt.I.get();
     return ServiceTeamate(
       interceptor: interceptor,
       getHeaders: authorizationHeaders.getDefaultHeaders,
     );
-  });
-  GetIt.I.registerFactory(() {
+  }, dependsOn: [HttpInterceptor, AuthorizationHeaders]);
+
+  GetIt.I.registerSingletonWithDependencies(() {
     final HttpInterceptor interceptor = GetIt.I.get();
     final AuthorizationHeaders authorizationHeaders = GetIt.I.get();
     return CompetenceService(
       interceptor: interceptor,
       getHeaders: authorizationHeaders.getDefaultHeaders,
     );
-  });
-  GetIt.I.registerFactory(() {
+  },dependsOn: [HttpInterceptor, AuthorizationHeaders]);
+
+  GetIt.I.registerSingletonWithDependencies(() {
     final HttpInterceptor interceptor = GetIt.I.get();
     final AuthorizationHeaders authorizationHeaders = GetIt.I.get();
     return DocumentService(
       interceptor: interceptor,
       getHeaders: authorizationHeaders.getDefaultHeaders,
     );
-  });
+  }, dependsOn: [HttpInterceptor, AuthorizationHeaders]);
 }
 
 class MyApp extends StatelessWidget {
