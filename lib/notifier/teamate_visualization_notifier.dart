@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:path/path.dart';
 import 'package:team_manager/domain/competence.dart';
 import 'package:team_manager/domain/document.dart';
+import 'package:team_manager/domain/json_patch.dart';
 import 'package:team_manager/service/firebase_storage_service.dart';
 import 'package:team_manager/service/service_competence.dart';
 import 'package:team_manager/service/service_document.dart';
@@ -155,12 +156,14 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
 
     final SettableMetadata metadata = SettableMetadata(cacheControl: 'max-age=36000', contentType: contentType);
     final Completer<Object?> completer = Completer<Object?>();
+    final int idTeammate = teamateToVisualize!.id!;
 
     uploadPhotoTask = storageService.uploadDataAsUploadTask(filename, data, metadata);
     uploadPhotoTask?.whenComplete(() {
       uploadPhotoTask?.snapshot.ref.getDownloadURL().then((downloadUrl) {
-        teamateToVisualize?.photoUrl = downloadUrl;
-        saveCurrentTeammate(setToReadonlyAfter: false, exitCreationMode: true)
+        final JsonPatchObject replacePhotoUrl = JsonPatchObject.replacePatch('/photoUrl', downloadUrl);
+        service
+            .patch(id: idTeammate, body: replacePhotoUrl, headers: {"Content-Type": "application/json-patch+json"})
             .then((value) => completer.complete(value))
             .onError((error, stackTrace) => completer.completeError(error!));
       });

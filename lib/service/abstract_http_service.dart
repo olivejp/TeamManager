@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:team_manager/domain/json_patch.dart';
 import 'package:team_manager/environment_config.dart';
 
 import '../domain/abstract.domain.dart';
@@ -180,6 +181,38 @@ abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements In
         return listMap.map((e) => fromJson(e)).toList();
       }
       throw Exception('ERROR while reading all domains.');
+    });
+  }
+
+  Future<T> patch({required int id,
+      required JsonPatchObject body,
+      Map<String, String>? headers,
+      Map<String, String>? queryParams,
+      Encoding? encoding,
+      List<String>? jsonRoot,
+      Duration? timeout}) {
+
+    final Uri uri = useHttps
+        ? Uri.https(EnvironmentConfig.serverUrl, '$path/$id', queryParams)
+        : Uri.http(EnvironmentConfig.serverUrl, '$path/$id', queryParams);
+
+    final String jsonBody = jsonEncode([body.toJson()]);
+    final Map<String, String>? headersToSend = _mergeHeaders(headers);
+
+    return _callInterceptor(
+      http.patch(
+        uri,
+        body: jsonBody,
+        headers: headersToSend,
+        encoding: encoding,
+      ),
+      timeout: timeout,
+    ).then((response) {
+      if (_isStatusBetween200And299(response)) {
+        return fromJson(_decodeResponseBodyWithJsonPath(response!, jsonRoot));
+      } else {
+        return Future.error(response?.body ?? '');
+      }
     });
   }
 
