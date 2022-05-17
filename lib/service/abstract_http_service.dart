@@ -11,13 +11,16 @@ import 'interface_interceptor.dart';
 import 'interface_service.dart';
 
 /// Abstract CRUD service through HTTP.
+/// @depends on EnvironmentConfig class.
 /// @author JPOLIVE
 abstract class AbstractHttpService<T extends AbstractDomain<U>, U> implements InterfaceService<T, U> {
   AbstractHttpService({required this.path, this.interceptor, this.defaultHeaders, this.getHeaders}) {
-    if (EnvironmentConfig.serverUrl.isEmpty == true) {}
+    if (EnvironmentConfig.serverUrl.isEmpty == true) {
+      throw Exception('EnvironmentConfig.serverUrl is empty. Please fill this variable.');
+    }
   }
 
-  final Duration _defaultTimeoutDuration = const Duration(seconds: 1);
+  final Duration _defaultTimeoutDuration = const Duration(seconds: 60);
   final Future<http.Response> _defaultTimeoutResponse = Future.value(http.Response('Timeout exception', 408));
 
   /// The URL of the resource.

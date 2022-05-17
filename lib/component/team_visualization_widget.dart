@@ -2,12 +2,15 @@ import 'dart:html' as html;
 
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animations/loading_animations.dart';
 import 'package:localization/localization.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/component/photo_storage.dart';
 import 'package:team_manager/constants.dart';
+import 'package:team_manager/domain/competence.dart';
 import 'package:team_manager/domain/document.dart';
 import 'package:team_manager/notifier/teamate_refresh_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
@@ -24,6 +27,7 @@ class TeamateDetailWidget extends StatelessWidget {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController birthdateController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final ValueNotifier<bool> _isExpanded = ValueNotifier(false);
 
   void save(BuildContext context, TeamateVisualizeNotifier notifier) {
     notifier.checkAndSave(_formKey).then((teamateSaved) {
@@ -230,6 +234,62 @@ class TeamateDetailWidget extends StatelessWidget {
                               },
                             ),
                           ),
+                          FutureBuilder<List<Competence>>(
+                              future: notifier.getAllCompetence(),
+                              builder: (_, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return LoadingBouncingGrid.circle();
+                                } else {
+                                  final List<Competence> listCompetence = snapshot.data!;
+                                  return ValueListenableBuilder<bool>(
+                                    builder: (_, isExpanded, __) => ExpansionPanelList(
+                                        expansionCallback: (_, isExpanded) => _isExpanded.value = !isExpanded,
+                                        children: [
+                                          ExpansionPanel(
+                                            isExpanded: isExpanded,
+                                            headerBuilder: (_, __) => const Center(
+                                              child: Text(
+                                                'Compétences',
+                                                style: TextStyle(color: Colors.black),
+                                              ),
+                                            ),
+                                            body: ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount: listCompetence.length,
+                                              itemBuilder: (_, index) => Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.all(8.0),
+                                                    child: Text(
+                                                      listCompetence.elementAt(index).nom!,
+                                                      style: const TextStyle(color: Colors.black),
+                                                    ),
+                                                  ),
+                                                  RatingBar.builder(
+                                                    initialRating: 0,
+                                                    minRating: 0,
+                                                    direction: Axis.horizontal,
+                                                    allowHalfRating: false,
+                                                    itemCount: 3,
+                                                    itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                                    itemBuilder: (context, _) => const Icon(
+                                                      Icons.star,
+                                                      color: Colors.amber,
+                                                    ),
+                                                    onRatingUpdate: (rating) {
+                                                      print(rating);
+                                                    },
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ]),
+                                    valueListenable: _isExpanded,
+                                  );
+                                }
+                              }),
                           if (!notifier.isCreationMode)
                             Padding(
                               padding: const EdgeInsets.all(8.0),

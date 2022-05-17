@@ -8,7 +8,7 @@ import 'interface_interceptor.dart';
 class CompetenceService extends AbstractHttpService<Competence, int> {
   CompetenceService({InterfaceInterceptor? interceptor, Map<String, String>? Function()? getHeaders})
       : super(
-            path: '/competence',
+            path: '/api/competence',
             interceptor: interceptor,
             defaultHeaders: {HttpHeaders.contentTypeHeader: 'application/json'},
             getHeaders: getHeaders);

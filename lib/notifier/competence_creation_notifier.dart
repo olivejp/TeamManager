@@ -37,7 +37,7 @@ class CompetenceCreationNotifier extends ChangeNotifier {
   }
 
   void refresh() {
-    competenceService.getAll(jsonRoot: ['_embedded', 'competence'], queryParams: {'sort': 'id asc'}).then((value) {
+    competenceService.getAll(jsonRoot: ['_embedded', 'competence'], queryParams: {'sort': 'id,asc'}).then((value) {
       listCompetence = value;
       notifyListeners();
     });

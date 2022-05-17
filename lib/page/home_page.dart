@@ -111,7 +111,7 @@ class LayoutHomeWidget extends StatelessWidget {
                             ),
                           ),
                           const Text('Good Day, Dr. Nicholls'),
-                          const Text('Hava a Nice Monday!')
+                          const Text('Have a Nice Monday!')
                         ],
                       ),
                     ],

@@ -27,8 +27,13 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
   UploadTask? uploadPhotoTask;
   UploadTask? uploadCvTask;
   bool isReadOnly = true;
+  bool isCompetencePanelExpanded = false;
   bool isCreationMode = false;
   String sort = 'id';
+
+  void switchCompetencePanelExpanded() {
+    isCompetencePanelExpanded = !isCompetencePanelExpanded;
+  }
 
   void changeSort(String s) {
     sort = s;
@@ -123,8 +128,12 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     teamateToVisualize?.description = value;
   }
 
+  setListCompetence(List<Competence> listCompetence) {
+    teamateToVisualize?.listCompetence = listCompetence;
+  }
+
   Future<List<Competence>> getAllCompetence() {
-    return competenceService.getAll(jsonRoot: ['_embedded', 'competence'], queryParams: {'sort': 'id asc'});
+    return competenceService.getAll(jsonRoot: ['content'], queryParams: {'sort': 'id,asc'});
   }
 
   Future<Object?> setPhotoUrl(Uint8List? data, String name) {
@@ -186,17 +195,6 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     return saveCurrentTeammate(setToReadonlyAfter: false, exitCreationMode: true)
         .then((value) => storageService.deleteFolder(teamateToVisualize!.id.toString() + '/photo'))
         .then((value) => serviceToast.addToast(message: 'Suppression photo effectuée', level: ToastLevel.success));
-  }
-
-  void setListCompetence(dynamic returnValue) {
-    final List<dynamic> listCompetenceId = returnValue;
-    final List<Competence> list = listCompetenceId.map((e) {
-      final Competence competence = Competence();
-      competence.id = int.parse(e);
-      return competence;
-    }).toList();
-    teamateToVisualize?.listCompetence = list;
-    saveCurrentTeammate();
   }
 
   void addDocument(String downloadUrl, String filename) {
