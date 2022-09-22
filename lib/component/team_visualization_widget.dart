@@ -1,25 +1,19 @@
-import 'dart:html' as html;
-
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
-import 'package:loading_animations/loading_animations.dart';
 import 'package:localization/localization.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/component/photo_storage.dart';
 import 'package:team_manager/constants.dart';
-import 'package:team_manager/domain/competence.dart';
-import 'package:team_manager/domain/document.dart';
 import 'package:team_manager/notifier/teamate_refresh_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
+import 'package:team_manager/openapi/api.dart';
 
-import '../domain/teamate.dart';
 import 'download_file_widget.dart';
 
-class TeamateDetailWidget extends StatelessWidget {
-  TeamateDetailWidget({Key? key}) : super(key: key);
+class TeammateDetailWidget extends StatelessWidget {
+  TeammateDetailWidget({Key? key}) : super(key: key);
 
   final DateFormat dateFormat = DateFormat("dd/MM/yyyy");
   final TextEditingController lastnameController = TextEditingController();
@@ -27,24 +21,25 @@ class TeamateDetailWidget extends StatelessWidget {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController birthdateController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final ValueNotifier<bool> _isExpanded = ValueNotifier(false);
+  final MaskTextInputFormatter dateMaskFormatter =
+      MaskTextInputFormatter(mask: '##/##/####', filter: {"#": RegExp(r'[0-9]')}, type: MaskAutoCompletionType.lazy);
 
   void save(BuildContext context, TeamateVisualizeNotifier notifier) {
-    notifier.checkAndSave(_formKey).then((teamateSaved) {
+    notifier.checkAndSave(_formKey).then((teammateSaved) {
       context.read<TeamateRefreshNotifier>().refresh();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    const double defaultWidth = 250;
     const double defaultHeight = 100;
-    const acceptedExtensions = ['jpeg', 'jpg', 'pdf'];
+    const acceptedDocumentExtensions = ['jpeg', 'jpg', 'pdf'];
+    const acceptedPhotoExtensions = ['jpeg', 'jpg', 'gif', 'png'];
 
     return Consumer<TeamateVisualizeNotifier>(
       builder: (context, notifier, child) {
-        if (notifier.teamateToVisualize != null) {
-          initializeControllers(notifier.teamateToVisualize!, dateFormat);
+        if (notifier.teammateToVisualize != null) {
+          initializeControllers(notifier.teammateToVisualize!, dateFormat);
         } else {
           return Container();
         }
@@ -63,22 +58,18 @@ class TeamateDetailWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  (notifier.isCreationMode)
-                      ? Container()
-                      : PhotoStorageWidget(
-                          imageUrl: notifier.teamateToVisualize?.photoUrl,
-                          onSaved: (storageFile) => notifier
-                              .setPhotoUrl(storageFile.fileBytes, storageFile.fileName!)
-                              .then((_) => context.read<TeamateRefreshNotifier>().refresh()),
-                          onDeleted: () => notifier.deletePhotoUrl().then(
-                                (_) => context.read<TeamateRefreshNotifier>().refresh(),
-                              ),
-                          allowedExtensions: const ['jpeg', 'jpg', 'gif', 'png'],
-                          borderRadius: Constants.borderRadius,
-                          emptyColor: Constants.secondaryColor,
-                          fit: BoxFit.cover,
-                          isReadOnly: notifier.isReadOnly,
-                        ),
+                  PhotoStorageWidget(
+                    imageBase64: notifier.teammateToVisualize?.photo,
+                    onSaved: (storageFile) {
+                      notifier.waitForResize(storageFile.fileBytes!).then((value) => notifier.setPhotoUrl(value));
+                    },
+                    onDeleted: notifier.deletePhotoUrl,
+                    allowedExtensions: acceptedPhotoExtensions,
+                    borderRadius: Constants.borderRadius,
+                    emptyColor: Constants.secondaryColor,
+                    fit: BoxFit.cover,
+                    isReadOnly: notifier.isReadOnly,
+                  ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 16.0),
@@ -95,26 +86,12 @@ class TeamateDetailWidget extends StatelessWidget {
                                         : "update_title".i18n(),
                                 style: Theme.of(context).textTheme.bodyText1,
                               ),
-                              notifier.isReadOnly
-                                  ? IconButton(
-                                      tooltip: 'update'.i18n(),
-                                      onPressed: notifier.changeReadOnly,
-                                      icon: const Icon(Icons.create),
-                                    )
-                                  : Row(
-                                      children: [
-                                        IconButton(
-                                          tooltip: "cancel".i18n(),
-                                          onPressed: notifier.changeReadOnly,
-                                          icon: const Icon(Icons.cancel_rounded),
-                                        ),
-                                        IconButton(
-                                          tooltip: "save".i18n(),
-                                          onPressed: () => save(context, notifier),
-                                          icon: const Icon(Icons.save_alt_rounded),
-                                        ),
-                                      ],
-                                    ),
+                              if (!notifier.isCreationMode)
+                                IconButton(
+                                  tooltip: 'update'.i18n(),
+                                  onPressed: notifier.changeReadOnly,
+                                  icon: const Icon(Icons.create),
+                                )
                             ],
                           ),
                           TextFormField(
@@ -161,18 +138,10 @@ class TeamateDetailWidget extends StatelessWidget {
                               save(context, notifier);
                             },
                           ),
-                          DateTimeField(
-                            initialValue: notifier.teamateToVisualize?.dateNaissance,
-                            onChanged: notifier.setBirthdate,
-                            resetIcon: notifier.isReadOnly
-                                ? null
-                                : const Icon(
-                                    Icons.delete_rounded,
-                                    color: Colors.white,
-                                  ),
-                            readOnly: notifier.isReadOnly,
+                          TextFormField(
                             controller: birthdateController,
-                            format: dateFormat,
+                            onChanged: notifier.setBirthdateAsString,
+                            inputFormatters: [dateMaskFormatter],
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyText2
@@ -180,31 +149,28 @@ class TeamateDetailWidget extends StatelessWidget {
                             decoration: InputDecoration(
                               label: Text("birth_date".i18n()),
                               labelStyle: Theme.of(context).textTheme.caption,
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  showDatePicker(
+                                          context: context,
+                                          initialDate: notifier.teammateToVisualize?.dateNaissance ?? DateTime.now(),
+                                          firstDate: DateTime(1900),
+                                          lastDate: DateTime(2100))
+                                      .then((value) {
+                                    notifier.setBirthdate(value, birthdateController);
+                                  });
+                                },
+                                icon: const Icon(Icons.calendar_today),
+                              ),
                             ),
-                            onFieldSubmitted: (value) {
-                              notifier.setBirthdate(value);
-                              save(context, notifier);
-                            },
-                            onShowPicker: (context, currentValue) {
-                              if (!notifier.isReadOnly) {
-                                return showDatePicker(
-                                  context: context,
-                                  helpText: "choose-birthdate".i18n(),
-                                  confirmText: "choose".i18n(),
-                                  cancelText: "cancel".i18n(),
-                                  firstDate: DateTime(1900),
-                                  initialDate: currentValue ?? DateTime.now(),
-                                  lastDate: DateTime(2100),
-                                );
-                              }
-                              return Future.value();
-                            },
-                            validator: (DateTime? value) {
+                            validator: (String? value) {
                               if (value == null) {
-                                return 'La date de naissance est obligatoire.';
+                                return 'Champ obligatoire.';
                               }
-                              if (value.isAfter(DateTime.now())) {
-                                return 'La date de naissance ne peut être après la date du jour.';
+                              try {
+                                notifier.stringToDate(value);
+                              } catch (e) {
+                                return 'La date de naissance est mal formatée.';
                               }
                               return null;
                             },
@@ -234,62 +200,6 @@ class TeamateDetailWidget extends StatelessWidget {
                               },
                             ),
                           ),
-                          FutureBuilder<List<Competence>>(
-                              future: notifier.getAllCompetence(),
-                              builder: (_, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                  return LoadingBouncingGrid.circle();
-                                } else {
-                                  final List<Competence> listCompetence = snapshot.data!;
-                                  return ValueListenableBuilder<bool>(
-                                    builder: (_, isExpanded, __) => ExpansionPanelList(
-                                        expansionCallback: (_, isExpanded) => _isExpanded.value = !isExpanded,
-                                        children: [
-                                          ExpansionPanel(
-                                            isExpanded: isExpanded,
-                                            headerBuilder: (_, __) => const Center(
-                                              child: Text(
-                                                'Compétences',
-                                                style: TextStyle(color: Colors.black),
-                                              ),
-                                            ),
-                                            body: ListView.builder(
-                                              shrinkWrap: true,
-                                              itemCount: listCompetence.length,
-                                              itemBuilder: (_, index) => Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: Text(
-                                                      listCompetence.elementAt(index).nom!,
-                                                      style: const TextStyle(color: Colors.black),
-                                                    ),
-                                                  ),
-                                                  RatingBar.builder(
-                                                    initialRating: 0,
-                                                    minRating: 0,
-                                                    direction: Axis.horizontal,
-                                                    allowHalfRating: false,
-                                                    itemCount: 3,
-                                                    itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                                    itemBuilder: (context, _) => const Icon(
-                                                      Icons.star,
-                                                      color: Colors.amber,
-                                                    ),
-                                                    onRatingUpdate: (rating) {
-                                                      print(rating);
-                                                    },
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ]),
-                                    valueListenable: _isExpanded,
-                                  );
-                                }
-                              }),
                           if (!notifier.isCreationMode)
                             Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -303,68 +213,40 @@ class TeamateDetailWidget extends StatelessWidget {
                                 ],
                               ),
                             ),
-                          if (notifier.teamateToVisualize?.id != null)
-                            Column(children: [
-                              DownloadFileWidget(
-                                radius: Constants.borderRadius,
-                                isReadOnly: notifier.isReadOnly,
-                                onUploadComplete: notifier.addDocument,
-                                width: double.infinity,
-                                height: defaultHeight,
-                                acceptedMimeTypes: acceptedExtensions.map((e) => mimeFromExtension(e) ?? '').toList(),
-                                path: notifier.teamateToVisualize!.id!.toString() + '/documents/',
-                                buttonLabel: 'Télécharger un fichier',
-                                label: 'Déposez ici vos documents',
-                                acceptedExtensions: acceptedExtensions,
-                              ),
-                              Builder(builder: (context) {
-                                print('Rebuild document list.');
-                                final List<Document>? listDoc =
-                                    context.select<TeamateVisualizeNotifier, List<Document>?>(
-                                        (value) => value.teamateToVisualize?.listDocument);
-
-                                if (listDoc != null && listDoc.isNotEmpty) {
-                                  return ListView.builder(
-                                    padding: const EdgeInsetsDirectional.only(top: 5, bottom: 5),
-                                    shrinkWrap: true,
-                                    itemCount: listDoc.length,
-                                    itemBuilder: (_, index) {
-                                      final Document document = listDoc.elementAt(index);
-                                      return Padding(
-                                        padding: const EdgeInsets.only(top: 5, bottom: 5),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: Constants.borderRadius,
-                                            color: Constants.secondaryColor,
-                                          ),
-                                          child: ListTile(
-                                            title: Text(document.filename!),
-                                            trailing: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                IconButton(
-                                                  onPressed: () => html.window.open(
-                                                    document.url!,
-                                                    'PlaceholderName',
-                                                  ),
-                                                  icon: const Icon(Icons.remove_red_eye_rounded),
-                                                ),
-                                                IconButton(
-                                                  onPressed: () => notifier.deleteDocument(document),
-                                                  icon: const Icon(Icons.delete_rounded),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                } else {
-                                  return Container();
-                                }
-                              }),
-                            ])
+                          Column(children: [
+                            DownloadFileWidget(
+                              radius: Constants.borderRadius,
+                              isReadOnly: notifier.isReadOnly,
+                              onUploadComplete: notifier.addDocument,
+                              width: double.infinity,
+                              height: defaultHeight,
+                              acceptedMimeTypes:
+                                  acceptedDocumentExtensions.map((e) => mimeFromExtension(e) ?? '').toList(),
+                              path: notifier.teammateToVisualize?.id?.toString() ?? '/documents/',
+                              buttonLabel: 'Télécharger un fichier',
+                              label: 'Déposez ici vos documents',
+                              acceptedExtensions: acceptedDocumentExtensions,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton.icon(
+                                  onPressed: notifier.changeReadOnly,
+                                  icon: const Icon(Icons.cancel_rounded),
+                                  label: Text(
+                                    "cancel".i18n(),
+                                  ),
+                                ),
+                                TextButton.icon(
+                                  onPressed: () => save(context, notifier),
+                                  icon: const Icon(Icons.save_alt_rounded),
+                                  label: Text(
+                                    "save".i18n(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ])
                         ],
                       ),
                     ),
@@ -378,7 +260,7 @@ class TeamateDetailWidget extends StatelessWidget {
     );
   }
 
-  void initializeControllers(Teamate teammate, DateFormat format) {
+  void initializeControllers(TeammateDto teammate, DateFormat format) {
     lastnameController.text = teammate.nom ?? '';
     firstnameController.text = teammate.prenom ?? '';
     descriptionController.text = teammate.description ?? '';

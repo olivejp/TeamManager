@@ -1,35 +1,38 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path/path.dart';
-import 'package:team_manager/domain/competence.dart';
-import 'package:team_manager/domain/document.dart';
-import 'package:team_manager/domain/json_patch.dart';
+import 'package:image/image.dart' as image;
+import 'package:intl/intl.dart';
+import 'package:team_manager/openapi/api.dart';
 import 'package:team_manager/service/firebase_storage_service.dart';
-import 'package:team_manager/service/service_competence.dart';
-import 'package:team_manager/service/service_document.dart';
-import 'package:team_manager/service/service_toast.dart';
-
-import '../domain/teamate.dart';
-import '../service/service_teamate.dart';
+import 'package:team_manager/service/toast_service.dart';
 
 class TeamateVisualizeNotifier extends ChangeNotifier {
-  final ServiceTeamate service = GetIt.I.get<ServiceTeamate>();
-  final ServiceToast serviceToast = GetIt.I.get<ServiceToast>();
-  final DocumentService documentService = GetIt.I.get<DocumentService>();
-  final CompetenceService competenceService = GetIt.I.get<CompetenceService>();
+  final ToastService serviceToast = GetIt.I.get<ToastService>();
   final FirebaseStorageService storageService = GetIt.I.get<FirebaseStorageService>();
+  final TeammateControllerApi service = GetIt.I.get<TeammateControllerApi>();
+  final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
 
-  Teamate? teamateToVisualize;
+  TeammateDto? teammateToVisualize;
   UploadTask? uploadPhotoTask;
   UploadTask? uploadCvTask;
   bool isReadOnly = true;
   bool isCompetencePanelExpanded = false;
   bool isCreationMode = false;
   String sort = 'id';
+
+  DateTime stringToDate(String dateAsString) {
+    return dateFormat.parse(dateAsString);
+  }
+
+  String dateToString(DateTime dateTime) {
+    return dateFormat.format(dateTime);
+  }
 
   void switchCompetencePanelExpanded() {
     isCompetencePanelExpanded = !isCompetencePanelExpanded;
@@ -40,18 +43,15 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<List<Teamate>> getListTeamate() {
-    return service.getAll(
-      jsonRoot: ['content'],
-      queryParams: {'sort': sort + ',asc'},
-      timeout: const Duration(seconds: 5),
-    );
+  Future<List<TeammateDto>> getListTeamate() async {
+    final page = await service.getAll(Pageable());
+    return page!.content;
   }
 
   void changeToCreationMode() {
     isCreationMode = true;
     isReadOnly = false;
-    teamateToVisualize = Teamate();
+    teammateToVisualize = TeammateDto();
     notifyListeners();
   }
 
@@ -61,6 +61,15 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setBirthdateAsString(String value) {
+    try {
+      final DateTime dateFinParsed = dateFormat.parse(value);
+      teammateToVisualize!.dateNaissance = dateFinParsed;
+    } catch (exception) {
+      print('Date impossible à formatter.');
+    }
+  }
+
   Future<void> delete(int id) {
     return service.delete(id).then((value) {
       serviceToast.addToast(message: 'Suppression effectuée', level: ToastLevel.success);
@@ -68,32 +77,35 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     });
   }
 
-  Future<Teamate> checkAndSave(GlobalKey<FormState> formKey) {
+  Future<TeammateDto?> checkAndSave(GlobalKey<FormState> formKey) {
     if (formKey.currentState?.validate() == true) {
       return saveCurrentTeammate();
     }
     return Future.error('There is errors on this page.');
   }
 
-  Future<Teamate> saveCurrentTeammate({bool setToReadonlyAfter = true, bool exitCreationMode = true}) {
-    if (teamateToVisualize == null) {
+  Future<TeammateDto?> saveCurrentTeammate({bool setToReadonlyAfter = true, bool exitCreationMode = true}) {
+    if (teammateToVisualize == null) {
       return Future.error('There is no Teammate to save.');
     }
 
-    final Future<Teamate> callToMake =
-        (isCreationMode) ? service.create(teamateToVisualize!) : service.update(teamateToVisualize!);
+    final Future<TeammateDto?> callToMake =
+        (isCreationMode) ? service.create(teammateToVisualize!) : service.update(teammateToVisualize!);
 
-    return callToMake.then((teamate) {
-      teamateToVisualize = teamate;
+    return callToMake.then((teammate) {
+      teammateToVisualize = teammate;
       isReadOnly = setToReadonlyAfter;
       isCreationMode = !exitCreationMode;
+
       notifyListeners();
+
       serviceToast.addToast(
         message: 'Sauvegarde effectuée',
         level: ToastLevel.success,
         iconData: Icons.save,
       );
-      return teamate;
+
+      return teammate;
     });
   }
 
@@ -102,135 +114,55 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     isCreationMode = setToCreationMode;
 
     if (idTeamate != null) {
-      service.read(idTeamate).then((teamateRead) {
-        teamateToVisualize = teamateRead;
+      service.callGet(idTeamate).then((teamateRead) {
+        teammateToVisualize = teamateRead;
         notifyListeners();
       });
     } else {
-      teamateToVisualize = null;
+      teammateToVisualize = null;
       notifyListeners();
     }
   }
 
   setLastname(String? newName) {
-    teamateToVisualize?.nom = newName;
+    teammateToVisualize?.nom = newName;
   }
 
   setFirstname(String? newPrenom) {
-    teamateToVisualize?.prenom = newPrenom;
+    teammateToVisualize?.prenom = newPrenom;
   }
 
-  setBirthdate(DateTime? newDateNaissance) {
-    teamateToVisualize?.dateNaissance = newDateNaissance;
+  setBirthdate(DateTime? newBirthdate, TextEditingController birthdateController) {
+    teammateToVisualize?.dateNaissance = newBirthdate;
+    birthdateController.text = dateToString(newBirthdate!);
   }
 
   setDescription(String value) {
-    teamateToVisualize?.description = value;
+    teammateToVisualize?.description = value;
   }
 
-  setListCompetence(List<Competence> listCompetence) {
-    teamateToVisualize?.listCompetence = listCompetence;
+  Future<String> resizeImage(Uint8List data, {int resizeWidth = 120}) {
+    return Future(() {
+      final decodedImage = image.decodeImage(data) as image.Image;
+      final thumbnail = image.copyResize(decodedImage, width: 120);
+      final String base64 = base64Encode(thumbnail.getBytes());
+      return base64;
+    });
   }
 
-  Future<List<Competence>> getAllCompetence() {
-    return competenceService.getAll(jsonRoot: ['content'], queryParams: {'sort': 'id,asc'});
-  }
-
-  Future<Object?> setPhotoUrl(Uint8List? data, String name) {
-    if (teamateToVisualize?.id == null) {
-      return Future.error("Aucun id");
-    }
-
-    if (data == null) {
-      return Future.error("Aucune donnée");
-    }
-
-    final String filename = teamateToVisualize!.id!.toString() + '/photo/' + name;
-
-    String contentType;
-    switch (extension(name).toLowerCase()) {
-      case '.jpg':
-      case '.jpeg':
-        contentType = 'image/jpeg';
-        break;
-      case '.png':
-        contentType = 'image/png';
-        break;
-      case '.gif':
-        contentType = 'image/gif';
-        break;
-      default:
-        contentType = 'application/octet-stream';
-    }
-
-    final SettableMetadata metadata = SettableMetadata(cacheControl: 'max-age=36000', contentType: contentType);
-    final Completer<Object?> completer = Completer<Object?>();
-    final int idTeammate = teamateToVisualize!.id!;
-
-    uploadPhotoTask = storageService.uploadDataAsUploadTask(filename, data, metadata);
-    uploadPhotoTask?.whenComplete(() {
-      uploadPhotoTask?.snapshot.ref.getDownloadURL().then((downloadUrl) {
-        final JsonPatchObject replacePhotoUrl = JsonPatchObject.replacePatch('/photoUrl', downloadUrl);
-        service
-            .patch(id: idTeammate, body: replacePhotoUrl, headers: {"Content-Type": "application/json-patch+json"})
-            .then((value) => completer.complete(value))
-            .onError((error, stackTrace) => completer.completeError(error!));
-      });
-      uploadPhotoTask = null;
-    }).catchError((error, stackTrace) => completer.completeError(error));
-
+  Future<String> waitForResize(Uint8List data) {
+    final Completer<String> completer = Completer();
+    resizeImage(data).then((value) => completer.complete(value));
     return completer.future;
   }
 
-  Future<void> deletePhotoUrl() async {
-    if (teamateToVisualize == null) {
-      return Future.error('Aucun teamate');
-    }
-
-    if (teamateToVisualize?.id == null) {
-      return Future.error('Aucune ID');
-    }
-
-    teamateToVisualize!.photoUrl = null;
-    return saveCurrentTeammate(setToReadonlyAfter: false, exitCreationMode: true)
-        .then((value) => storageService.deleteFolder(teamateToVisualize!.id.toString() + '/photo'))
-        .then((value) => serviceToast.addToast(message: 'Suppression photo effectuée', level: ToastLevel.success));
+  void setPhotoUrl(String base64Image) {
+    teammateToVisualize?.photo = base64Image;
   }
 
-  void addDocument(String downloadUrl, String filename) {
-    if (teamateToVisualize?.id != null) {
-      final Document document = Document();
-      document.id = null;
-      document.url = downloadUrl;
-      document.filename = filename;
-      teamateToVisualize?.listDocument?.add(document);
-      saveCurrentTeammate(setToReadonlyAfter: false);
-    }
+  void deletePhotoUrl() {
+    teammateToVisualize?.photo = null;
   }
 
-  Future<void> deleteDocument(Document e) {
-    if (teamateToVisualize?.id == null) {
-      return Future.error('Aucun ID utilisateur pour la suppression du document.');
-    }
-    if (e.id == null) {
-      return Future.error('Aucun ID document pour la suppression du document.');
-    }
-
-    teamateToVisualize!.listDocument?.remove(e);
-
-    storageService
-        .deleteFile(e.filename!)
-        .then((value) => serviceToast.addToast(message: 'Document supprimé du storage.', level: ToastLevel.success))
-        .onError((error, stackTrace) =>
-            serviceToast.addToast(message: 'Le document n\'a pas été supprimé du storage.', level: ToastLevel.error));
-
-    return documentService
-        .delete(e.id!)
-        .then((_) => setNewTeamateToVisualize(teamateToVisualize?.id, setToReadOnly: false))
-        .then((_) => serviceToast.addToast(message: 'Document correctement supprimé.', level: ToastLevel.success))
-        .onError((error, stackTrace) => serviceToast.addToast(
-              message: 'Erreur lors de la suppression du document : ' + error.toString(),
-              level: ToastLevel.error,
-            ));
-  }
+  void addDocument(String downloadUrl, String fileName) {}
 }

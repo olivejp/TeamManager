@@ -29,5 +29,6 @@
   "applicationLoading": "Chargement de l'application",
   "description": "Description",
   "filter": "Trier",
+  "calendarView": "Type de vue",
   "team": "Équipe"
 }

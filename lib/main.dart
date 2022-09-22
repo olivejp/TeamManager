@@ -6,21 +6,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/constants.dart';
+import 'package:team_manager/environment_config.dart';
 import 'package:team_manager/firebase_options.dart';
 import 'package:team_manager/notifier/authentication_notifier.dart';
 import 'package:team_manager/notifier/competence_creation_notifier.dart';
 import 'package:team_manager/notifier/main_navigation_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
+import 'package:team_manager/openapi/api.dart';
 import 'package:team_manager/page/home_page.dart';
 import 'package:team_manager/page/sign_in_page.dart';
 import 'package:team_manager/service/firebase_authentication_service.dart';
 import 'package:team_manager/service/firebase_storage_service.dart';
-import 'package:team_manager/service/http_interceptor.dart';
-import 'package:team_manager/service/interface_default_headers.dart';
-import 'package:team_manager/service/service_competence.dart';
-import 'package:team_manager/service/service_document.dart';
-import 'package:team_manager/service/service_teamate.dart';
-import 'package:team_manager/service/service_toast.dart';
+import 'package:team_manager/service/toast_service.dart';
 
 import 'controller/sign_in_controller.dart';
 import 'notifier/teamate_refresh_notifier.dart';
@@ -34,41 +31,30 @@ void main() {
 }
 
 void injectDependencies() {
-  GetIt.I.registerSingletonAsync(() => Future.value(AuthorizationHeaders()));
+  GetIt.I.registerSingletonAsync(() => Future.value(ToastService()));
 
-  GetIt.I.registerSingletonAsync(() => Future.value(ServiceToast()));
+  GetIt.I.registerSingleton(
+      (ApiClient(basePath: (EnvironmentConfig.useHttps ? 'https://' : 'http://') + EnvironmentConfig.serverUrl)));
 
-  GetIt.I.registerSingletonWithDependencies(
-    () => HttpInterceptor(),
-    dependsOn: [ServiceToast],
-  );
+  GetIt.I.registerLazySingleton(() {
+    final ApiClient apiClient = GetIt.I.get();
+    return PlanningControllerApi(apiClient);
+  });
 
-  GetIt.I.registerSingletonWithDependencies(() {
-    final HttpInterceptor interceptor = GetIt.I.get();
-    final AuthorizationHeaders authorizationHeaders = GetIt.I.get();
-    return ServiceTeamate(
-      interceptor: interceptor,
-      getHeaders: authorizationHeaders.getDefaultHeaders,
-    );
-  }, dependsOn: [HttpInterceptor, AuthorizationHeaders]);
+  GetIt.I.registerLazySingleton(() {
+    final ApiClient apiClient = GetIt.I.get();
+    return TeammateControllerApi(apiClient);
+  });
 
-  GetIt.I.registerSingletonWithDependencies(() {
-    final HttpInterceptor interceptor = GetIt.I.get();
-    final AuthorizationHeaders authorizationHeaders = GetIt.I.get();
-    return CompetenceService(
-      interceptor: interceptor,
-      getHeaders: authorizationHeaders.getDefaultHeaders,
-    );
-  },dependsOn: [HttpInterceptor, AuthorizationHeaders]);
+  GetIt.I.registerLazySingleton(() {
+    final ApiClient apiClient = GetIt.I.get();
+    return CongesControllerApi(apiClient);
+  });
 
-  GetIt.I.registerSingletonWithDependencies(() {
-    final HttpInterceptor interceptor = GetIt.I.get();
-    final AuthorizationHeaders authorizationHeaders = GetIt.I.get();
-    return DocumentService(
-      interceptor: interceptor,
-      getHeaders: authorizationHeaders.getDefaultHeaders,
-    );
-  }, dependsOn: [HttpInterceptor, AuthorizationHeaders]);
+  GetIt.I.registerLazySingleton(() {
+    final ApiClient apiClient = GetIt.I.get();
+    return CompetenceControllerApi(apiClient);
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -108,12 +94,9 @@ class MyApp extends StatelessWidget {
               ],
               child: Consumer<AuthenticationNotifier>(
                 builder: (_, authNotifier, child) {
-                  final AuthorizationHeaders authorizationHeaders = GetIt.I.get<AuthorizationHeaders>();
                   if (authNotifier.user == null) {
-                    authorizationHeaders.setAuthorizationHeader(null);
                     return const SignInPage();
                   } else {
-                    authorizationHeaders.setAuthorizationHeader(authNotifier.user!.uid);
                     return child!;
                   }
                 },
@@ -164,6 +147,11 @@ class MyApp extends StatelessWidget {
           color: Colors.grey,
           fontSize: 50,
         ),
+        headline6: GoogleFonts.nunito(
+          fontWeight: FontWeight.w500,
+          color: Colors.grey,
+          fontSize: 20,
+        ),
         caption: GoogleFonts.nunito(
           color: Colors.grey,
           fontSize: 16,
@@ -172,7 +160,11 @@ class MyApp extends StatelessWidget {
           color: Colors.white,
           fontSize: 18,
         ),
-        bodyText1: GoogleFonts.nunito(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        bodyText1: GoogleFonts.nunito(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
         bodyText2: GoogleFonts.nunito(
           color: Colors.white,
           fontSize: 15,

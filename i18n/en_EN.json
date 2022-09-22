@@ -29,5 +29,6 @@
   "applicationLoading": "Loading application",
   "description": "Description",
   "filter": "Sort",
+  "calendarView": "View",
   "team": "Team"
 }

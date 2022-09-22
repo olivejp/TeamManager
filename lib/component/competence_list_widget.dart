@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:team_manager/openapi/api.dart';
 
-import '../domain/competence.dart';
 import '../notifier/competence_creation_notifier.dart';
 
 class CompetenceListWidget extends StatelessWidget {

@@ -17,12 +17,12 @@ class Toast {
   final Duration duration;
 }
 
-class ServiceToast {
+class ToastService {
   final List<Toast> _toasts = [];
   final Duration _defaultDuration = const Duration(seconds: 5);
   final StreamController<List<Toast>> streamController = StreamController.broadcast();
 
-  ServiceToast() {
+  ToastService() {
     Timer.periodic(const Duration(seconds: 1), handleTimeout);
   }
 

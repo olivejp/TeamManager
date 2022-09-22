@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -22,8 +23,13 @@ class PhotoStorageWidget extends StatelessWidget {
     this.saveTooltip = "Save",
     this.deleteTooltip = "Delete",
     this.isReadOnly = false,
+    this.imageBase64,
   }) : super(key: key) {
-    vlImage.value = Tuple2(imageUrl, imageData);
+    if (imageBase64 != null) {
+      vlImage.value = Tuple2(imageUrl, base64Decode(imageBase64!));
+    } else {
+      vlImage.value = Tuple2(imageUrl, imageData);
+    }
   }
 
   final ValueNotifier<Tuple2<String?, Uint8List?>> vlImage = ValueNotifier(const Tuple2(null, null));
@@ -40,6 +46,7 @@ class PhotoStorageWidget extends StatelessWidget {
   final String deleteTooltip;
   final BorderRadiusGeometry? borderRadius;
   final bool isReadOnly;
+  final String? imageBase64;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +64,10 @@ class PhotoStorageWidget extends StatelessWidget {
           ),
           child: Stack(
             fit: StackFit.expand,
-            children: [_getImage(tuple), _getActionButtons(tuple)],
+            children: [
+              _getImageWidget(tuple),
+              _getActionButtons(tuple),
+            ],
           ),
         );
       },
@@ -97,16 +107,24 @@ class PhotoStorageWidget extends StatelessWidget {
         ((tuple.item2 != null && tuple.item2!.isNotEmpty) || (tuple.item1 != null && tuple.item1!.isNotEmpty)));
   }
 
-  Widget _getImage(Tuple2<String?, Uint8List?>? tuple) {
+  Widget _getImageWidget(Tuple2<String?, Uint8List?>? tuple) {
+    // Si on a les bytes de l'image, on affiche l'objet qui est en mémoire.
     if (tuple != null && tuple.item2 != null && tuple.item2!.isNotEmpty) {
+      final Uint8List imageBytes = tuple.item2!;
+
       return Image.memory(
-        tuple.item2!,
+        imageBytes,
         fit: fit,
       );
     }
+
+    // Si on a l'adresse URL de l'image, on affiche une image du réseau.
     if (tuple != null && tuple.item1 != null && tuple.item1!.isNotEmpty) {
+      final String imageUrl = tuple.item1!;
+
       return Image.network(
-        tuple.item1!,
+        imageUrl,
+        fit: fit,
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) {
             return child;
@@ -116,9 +134,10 @@ class PhotoStorageWidget extends StatelessWidget {
             );
           }
         },
-        fit: fit,
       );
     }
+
+    // Si on a ni l'url de l'image, ni les bytes, on affiche rien.
     return Container();
   }
 
@@ -135,10 +154,10 @@ class PhotoStorageWidget extends StatelessWidget {
         .then((FilePickerResult? result) {
       if (result != null) {
         final Uint8List? fileBytes = result.files.first.bytes;
-
+        final String fileName = result.files.first.name;
         final StorageFile storageFile = StorageFile(
           fileBytes: fileBytes,
-          fileName: result.files.first.name,
+          fileName: fileName,
         );
         onSaved(storageFile);
         vlImage.value = Tuple2(null, fileBytes);

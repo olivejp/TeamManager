@@ -24,7 +24,7 @@ class TeamVisualizationPage extends StatelessWidget {
                 flex: 2,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                  child: TeamateDetailWidget(),
+                  child: TeammateDetailWidget(),
                 ),
               ),
             ],

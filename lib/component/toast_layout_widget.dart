@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:loading_animations/loading_animations.dart';
-import 'package:team_manager/service/service_toast.dart';
+import 'package:team_manager/service/toast_service.dart';
 
 class ToastLayoutWidget extends StatelessWidget {
   ToastLayoutWidget(
@@ -22,7 +22,7 @@ class ToastLayoutWidget extends StatelessWidget {
   final Color warnColor;
   final Color errorColor;
   final Widget Function(Toast toast)? buildToast;
-  final ServiceToast serviceToast = GetIt.I.get();
+  final ToastService toastService = GetIt.I.get();
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class ToastLayoutWidget extends StatelessWidget {
           child: SizedBox(
             width: width,
             child: StreamBuilder<List<Toast>>(
-                stream: serviceToast.getToast(),
+                stream: toastService.getToast(),
                 builder: (_, snapshot) {
                   if (snapshot.hasData) {
                     final List<Toast> data = snapshot.data!;
@@ -60,10 +60,10 @@ class ToastLayoutWidget extends StatelessWidget {
                             color: (toast.level == ToastLevel.info)
                                 ? infoColor
                                 : (toast.level == ToastLevel.warn)
-                                ? warnColor
-                                : (toast.level == ToastLevel.success)
-                                ? successColor
-                                : errorColor,
+                                    ? warnColor
+                                    : (toast.level == ToastLevel.success)
+                                        ? successColor
+                                        : errorColor,
                             child: ListTile(
                               title: Center(child: Text(title)),
                               subtitle: subtitle != null ? Center(child: Text(subtitle)) : null,

@@ -1,12 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:team_manager/domain/competence.dart';
-import 'package:team_manager/service/service_competence.dart';
+import 'package:team_manager/openapi/api.dart';
 
 class CompetenceCreationNotifier extends ChangeNotifier {
-  CompetenceService competenceService = GetIt.I.get<CompetenceService>();
+  CompetenceControllerApi competenceService = GetIt.I.get<CompetenceControllerApi>();
   List<Competence> listCompetence = [];
   String? nom;
 
@@ -22,8 +21,8 @@ class CompetenceCreationNotifier extends ChangeNotifier {
 
   Future<void> create(GlobalKey<FormState> formKey) {
     if (formKey.currentState?.validate() == true) {
-      final Competence competence = Competence(nom: nom);
-      return competenceService.create(competence);
+      final Competence competence = Competence(nom: nom!);
+      return competenceService.create3(competence);
     }
     return Future.error('Formulaire invalide.');
   }
@@ -33,12 +32,12 @@ class CompetenceCreationNotifier extends ChangeNotifier {
   }
 
   Future<void> delete(int id) {
-    return competenceService.delete(id).then((value) => refresh());
+    return competenceService.delete4(id).then((value) => refresh());
   }
 
   void refresh() {
-    competenceService.getAll(jsonRoot: ['_embedded', 'competence'], queryParams: {'sort': 'id,asc'}).then((value) {
-      listCompetence = value;
+    competenceService.getAll3(Pageable()).then((value) {
+      listCompetence = value?.content ?? [];
       notifyListeners();
     });
   }
