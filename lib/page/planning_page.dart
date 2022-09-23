@@ -67,7 +67,6 @@ class PlanningPage extends StatelessWidget {
         return ChangeNotifierProvider(
           create: (_) => PlanningPageNotifier(calendarCtl),
           builder: (context, child) {
-            final PlanningPageNotifier notifier = Provider.of<PlanningPageNotifier>(context, listen: false);
             return Scaffold(
               floatingActionButton: FloatingActionButton(
                 isExtended: true,
@@ -85,7 +84,7 @@ class PlanningPage extends StatelessWidget {
                     ),
                   );
                 },
-                child: Icon(Icons.edit_calendar),
+                child: const Icon(Icons.edit_calendar),
               ),
               body: Center(
                 child: Column(
@@ -184,33 +183,9 @@ class PlanningPage extends StatelessWidget {
                                   monthViewSettings: const MonthViewSettings(
                                     appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
                                   ),
-                                  onTap: (calendarTapDetails) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (alertContext) => AlertDialog(
-                                        content: MeetingWidget(
-                                          initialMeeting: calendarTapDetails.appointments?.isNotEmpty == true
-                                              ? calendarTapDetails.appointments?.first
-                                              : null,
-                                          onSave: (meeting) {
-                                            dataSource.addMeeting(meeting);
-                                            Navigator.of(context).pop();
-                                          },
-                                          onExit: Navigator.of(context).pop,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  appointmentBuilder: (context, calendarAppointmentDetails) {
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        color: calendarAppointmentDetails.appointments.first.background,
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child:
-                                          Text(calendarAppointmentDetails.appointments.map((e) => e.eventName).join()),
-                                    );
-                                  },
+                                  onTap: (calendarTapDetails) =>
+                                      openMeetingWidget(context, calendarTapDetails, dataSource),
+                                  appointmentBuilder: appointmentBuilder,
                                 ),
                               ),
                             ),
@@ -225,6 +200,45 @@ class PlanningPage extends StatelessWidget {
           },
         );
       },
+    );
+  }
+
+  Widget appointmentBuilder(BuildContext context, CalendarAppointmentDetails details) {
+    return Container(
+      decoration: BoxDecoration(
+        color: details.appointments.first.background,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(details.appointments.map((e) => e.eventName).join()),
+    );
+  }
+
+  openMeetingWidget(BuildContext context, CalendarTapDetails calendarTapDetails, MeetingDataSource dataSource) {
+    Meeting initialMeeting;
+    if (calendarTapDetails.appointments?.isNotEmpty == true) {
+      initialMeeting = calendarTapDetails.appointments?.first;
+    } else {
+      initialMeeting = Meeting(
+          eventName: '',
+          from: calendarTapDetails.date!,
+          to: calendarTapDetails.date!.add(const Duration(hours: 1)),
+          background: Colors.blue,
+          isAllDay: false,
+          resources: []);
+    }
+
+    showDialog(
+      context: context,
+      builder: (alertContext) => AlertDialog(
+        content: MeetingWidget(
+          initialMeeting: initialMeeting,
+          onSave: (meeting) {
+            dataSource.addMeeting(meeting);
+            Navigator.of(context).pop();
+          },
+          onExit: Navigator.of(context).pop,
+        ),
+      ),
     );
   }
 }
@@ -274,7 +288,7 @@ class MeetingDataSource extends CalendarDataSource {
     resources?.clear();
     if (pageTeammateDto != null) {
       resources?.addAll(
-        pageTeammateDto.content.map((e) => CalendarResource(id: e.id!, displayName: e.prenom!)),
+        pageTeammateDto.content.map((e) => CalendarResource(id: e.email!, displayName: e.prenom!)),
       );
     }
   }
@@ -298,13 +312,15 @@ class MeetingDataSource extends CalendarDataSource {
 /// Custom business object class which contains properties to hold the detailed
 /// information about the event data which will be rendered in calendar.
 class Meeting {
-  Meeting(
-      {required this.eventName,
-      required this.from,
-      required this.to,
-      required this.background,
-      required this.isAllDay,
-      required this.resources});
+  Meeting({
+    required this.eventName,
+    required this.from,
+    required this.to,
+    required this.background,
+    required this.isAllDay,
+    required this.resources,
+    this.comment,
+  });
 
   String eventName;
   DateTime from;
@@ -312,4 +328,5 @@ class Meeting {
   Color background;
   bool isAllDay;
   List<Object> resources;
+  String? comment;
 }

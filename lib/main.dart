@@ -2,59 +2,28 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
-import 'package:team_manager/constants.dart';
-import 'package:team_manager/environment_config.dart';
 import 'package:team_manager/firebase_options.dart';
+import 'package:team_manager/injection_dependencies.dart';
 import 'package:team_manager/notifier/authentication_notifier.dart';
 import 'package:team_manager/notifier/competence_creation_notifier.dart';
 import 'package:team_manager/notifier/main_navigation_notifier.dart';
 import 'package:team_manager/notifier/teamate_visualization_notifier.dart';
-import 'package:team_manager/openapi/api.dart';
 import 'package:team_manager/page/home_page.dart';
 import 'package:team_manager/page/sign_in_page.dart';
 import 'package:team_manager/service/firebase_authentication_service.dart';
 import 'package:team_manager/service/firebase_storage_service.dart';
-import 'package:team_manager/service/toast_service.dart';
+import 'package:team_manager/theming.dart';
 
 import 'controller/sign_in_controller.dart';
 import 'notifier/teamate_refresh_notifier.dart';
 
 void main() {
-  injectDependencies();
-
+  InjectionDependencies.injectDependencies();
   runApp(
     const MyApp(),
   );
-}
-
-void injectDependencies() {
-  GetIt.I.registerSingletonAsync(() => Future.value(ToastService()));
-
-  GetIt.I.registerSingleton(
-      (ApiClient(basePath: (EnvironmentConfig.useHttps ? 'https://' : 'http://') + EnvironmentConfig.serverUrl)));
-
-  GetIt.I.registerLazySingleton(() {
-    final ApiClient apiClient = GetIt.I.get();
-    return PlanningControllerApi(apiClient);
-  });
-
-  GetIt.I.registerLazySingleton(() {
-    final ApiClient apiClient = GetIt.I.get();
-    return TeammateControllerApi(apiClient);
-  });
-
-  GetIt.I.registerLazySingleton(() {
-    final ApiClient apiClient = GetIt.I.get();
-    return CongesControllerApi(apiClient);
-  });
-
-  GetIt.I.registerLazySingleton(() {
-    final ApiClient apiClient = GetIt.I.get();
-    return CompetenceControllerApi(apiClient);
-  });
 }
 
 class MyApp extends StatelessWidget {
@@ -77,7 +46,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
         LocalJsonLocalization.delegate
       ],
-      theme: buildThemeData(),
+      theme: Theming.buildThemeData(),
       home: FutureBuilder(
         future: initializeFirebase(),
         builder: (context, snapshot) {
@@ -135,44 +104,4 @@ class MyApp extends StatelessWidget {
           GetIt.I.registerSingleton(SignInController());
         },
       );
-
-  ThemeData buildThemeData() {
-    return ThemeData(
-      scaffoldBackgroundColor: const Color(0xff1d1b26),
-      primarySwatch: Colors.grey,
-      colorScheme: ColorScheme.fromSeed(seedColor: Constants.primaryColor),
-      textTheme: TextTheme(
-        headline1: GoogleFonts.nunito(
-          fontWeight: FontWeight.w900,
-          color: Colors.grey,
-          fontSize: 50,
-        ),
-        headline6: GoogleFonts.nunito(
-          fontWeight: FontWeight.w500,
-          color: Colors.grey,
-          fontSize: 20,
-        ),
-        caption: GoogleFonts.nunito(
-          color: Colors.grey,
-          fontSize: 16,
-        ),
-        subtitle1: GoogleFonts.nunito(
-          color: Colors.white,
-          fontSize: 18,
-        ),
-        bodyText1: GoogleFonts.nunito(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-        bodyText2: GoogleFonts.nunito(
-          color: Colors.white,
-          fontSize: 15,
-        ),
-      ),
-      iconTheme: const IconThemeData(
-        color: Colors.white,
-      ),
-    );
-  }
 }

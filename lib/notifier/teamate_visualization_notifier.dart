@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image/image.dart' as image;
 import 'package:intl/intl.dart';
 import 'package:team_manager/openapi/api.dart';
 import 'package:team_manager/service/firebase_storage_service.dart';
 import 'package:team_manager/service/toast_service.dart';
+
+import '../domain/storage_file.dart';
 
 class TeamateVisualizeNotifier extends ChangeNotifier {
   final ToastService serviceToast = GetIt.I.get<ToastService>();
@@ -34,11 +34,11 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     return dateFormat.format(dateTime);
   }
 
-  void switchCompetencePanelExpanded() {
+  switchCompetencePanelExpanded() {
     isCompetencePanelExpanded = !isCompetencePanelExpanded;
   }
 
-  void changeSort(String s) {
+  changeSort(String s) {
     sort = s;
     notifyListeners();
   }
@@ -48,20 +48,20 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     return page!.content;
   }
 
-  void changeToCreationMode() {
+  changeToCreationMode() {
     isCreationMode = true;
     isReadOnly = false;
     teammateToVisualize = TeammateDto();
     notifyListeners();
   }
 
-  void changeReadOnly() {
+  changeReadOnly() {
     print('Change readOnly');
     isReadOnly = !isReadOnly;
     notifyListeners();
   }
 
-  void setBirthdateAsString(String value) {
+  setBirthdateAsString(String value) {
     try {
       final DateTime dateFinParsed = dateFormat.parse(value);
       teammateToVisualize!.dateNaissance = dateFinParsed;
@@ -109,7 +109,7 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     });
   }
 
-  void setNewTeamateToVisualize(int? idTeamate, {bool setToReadOnly = true, bool setToCreationMode = false}) {
+  setNewTeamateToVisualize(int? idTeamate, {bool setToReadOnly = true, bool setToCreationMode = false}) {
     isReadOnly = setToReadOnly;
     isCreationMode = setToCreationMode;
 
@@ -132,6 +132,10 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     teammateToVisualize?.prenom = newPrenom;
   }
 
+  setEmail(String? newEmail) {
+    teammateToVisualize?.email = newEmail;
+  }
+
   setBirthdate(DateTime? newBirthdate, TextEditingController birthdateController) {
     teammateToVisualize?.dateNaissance = newBirthdate;
     birthdateController.text = dateToString(newBirthdate!);
@@ -141,28 +145,15 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     teammateToVisualize?.description = value;
   }
 
-  Future<String> resizeImage(Uint8List data, {int resizeWidth = 120}) {
-    return Future(() {
-      final decodedImage = image.decodeImage(data) as image.Image;
-      final thumbnail = image.copyResize(decodedImage, width: 120);
-      final String base64 = base64Encode(thumbnail.getBytes());
-      return base64;
-    });
+  setPhotoUrl(StorageFile storageFile) {
+    if (storageFile.fileBytes != null) {
+      teammateToVisualize?.photo = base64Encode(storageFile.fileBytes!);
+    }
   }
 
-  Future<String> waitForResize(Uint8List data) {
-    final Completer<String> completer = Completer();
-    resizeImage(data).then((value) => completer.complete(value));
-    return completer.future;
-  }
-
-  void setPhotoUrl(String base64Image) {
-    teammateToVisualize?.photo = base64Image;
-  }
-
-  void deletePhotoUrl() {
+  deletePhotoUrl() {
     teammateToVisualize?.photo = null;
   }
 
-  void addDocument(String downloadUrl, String fileName) {}
+  addDocument(String downloadUrl, String fileName) {}
 }

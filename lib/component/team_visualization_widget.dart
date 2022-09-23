@@ -20,6 +20,7 @@ class TeammateDetailWidget extends StatelessWidget {
   final TextEditingController firstnameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController birthdateController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final MaskTextInputFormatter dateMaskFormatter =
       MaskTextInputFormatter(mask: '##/##/####', filter: {"#": RegExp(r'[0-9]')}, type: MaskAutoCompletionType.lazy);
@@ -54,204 +55,223 @@ class TeammateDetailWidget extends StatelessWidget {
             policy: OrderedTraversalPolicy(),
             child: Form(
               key: _formKey,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  PhotoStorageWidget(
-                    imageBase64: notifier.teammateToVisualize?.photo,
-                    onSaved: (storageFile) {
-                      notifier.waitForResize(storageFile.fileBytes!).then((value) => notifier.setPhotoUrl(value));
-                    },
-                    onDeleted: notifier.deletePhotoUrl,
-                    allowedExtensions: acceptedPhotoExtensions,
-                    borderRadius: Constants.borderRadius,
-                    emptyColor: Constants.secondaryColor,
-                    fit: BoxFit.cover,
-                    isReadOnly: notifier.isReadOnly,
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 16.0),
-                      child: Column(
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                notifier.isCreationMode
-                                    ? "create_title".i18n()
-                                    : notifier.isReadOnly
-                                        ? "visualize_title".i18n()
-                                        : "update_title".i18n(),
-                                style: Theme.of(context).textTheme.bodyText1,
-                              ),
-                              if (!notifier.isCreationMode)
-                                IconButton(
-                                  tooltip: 'update'.i18n(),
-                                  onPressed: notifier.changeReadOnly,
-                                  icon: const Icon(Icons.create),
-                                )
-                            ],
+              child: Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            notifier.isCreationMode
+                                ? "create_title".i18n()
+                                : notifier.isReadOnly
+                                    ? "visualize_title".i18n()
+                                    : "update_title".i18n(),
+                            style: Theme.of(context).textTheme.bodyText1,
                           ),
-                          TextFormField(
-                            maxLength: 255,
-                            readOnly: notifier.isReadOnly,
-                            onChanged: notifier.setLastname,
-                            controller: lastnameController,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
-                            decoration: InputDecoration(
-                              label: Text('lastname'.i18n()),
-                              labelStyle: Theme.of(context).textTheme.caption,
-                              counterStyle: Theme.of(context).textTheme.caption,
-                            ),
-                            validator: (String? value) {
-                              return (value == null || value.isEmpty) ? 'Le nom est obligatoire' : null;
-                            },
-                            onFieldSubmitted: (value) {
-                              notifier.setLastname(value);
-                              save(context, notifier);
-                            },
-                          ),
-                          TextFormField(
-                            maxLength: 255,
-                            readOnly: notifier.isReadOnly,
-                            onChanged: notifier.setFirstname,
-                            controller: firstnameController,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
-                            decoration: InputDecoration(
-                              label: Text('firstname'.i18n()),
-                              labelStyle: Theme.of(context).textTheme.caption,
-                              counterStyle: Theme.of(context).textTheme.caption,
-                            ),
-                            validator: (String? value) {
-                              return (value == null || value.isEmpty) ? 'Le prénom est obligatoire' : null;
-                            },
-                            onFieldSubmitted: (value) {
-                              notifier.setFirstname(value);
-                              save(context, notifier);
-                            },
-                          ),
-                          TextFormField(
-                            controller: birthdateController,
-                            onChanged: notifier.setBirthdateAsString,
-                            inputFormatters: [dateMaskFormatter],
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
-                            decoration: InputDecoration(
-                              label: Text("birth_date".i18n()),
-                              labelStyle: Theme.of(context).textTheme.caption,
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  showDatePicker(
-                                          context: context,
-                                          initialDate: notifier.teammateToVisualize?.dateNaissance ?? DateTime.now(),
-                                          firstDate: DateTime(1900),
-                                          lastDate: DateTime(2100))
-                                      .then((value) {
-                                    notifier.setBirthdate(value, birthdateController);
-                                  });
-                                },
-                                icon: const Icon(Icons.calendar_today),
-                              ),
-                            ),
-                            validator: (String? value) {
-                              if (value == null) {
-                                return 'Champ obligatoire.';
-                              }
-                              try {
-                                notifier.stringToDate(value);
-                              } catch (e) {
-                                return 'La date de naissance est mal formatée.';
-                              }
-                              return null;
-                            },
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 50.0),
-                            child: TextFormField(
-                              minLines: 6,
-                              keyboardType: TextInputType.multiline,
-                              maxLines: null,
-                              maxLength: 2000,
-                              readOnly: notifier.isReadOnly,
-                              onChanged: notifier.setDescription,
-                              controller: descriptionController,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyText2
-                                  ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
-                              decoration: InputDecoration(
-                                  label: Text('description'.i18n()),
-                                  labelStyle: Theme.of(context).textTheme.caption,
-                                  counterStyle: Theme.of(context).textTheme.caption,
-                                  border: const OutlineInputBorder()),
-                              onFieldSubmitted: (value) {
-                                notifier.setDescription(value);
-                                save(context, notifier);
-                              },
-                            ),
-                          ),
-                          if (!notifier.isCreationMode)
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Documents",
-                                    style: Theme.of(context).textTheme.bodyText1,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          Column(children: [
-                            DownloadFileWidget(
-                              radius: Constants.borderRadius,
-                              isReadOnly: notifier.isReadOnly,
-                              onUploadComplete: notifier.addDocument,
-                              width: double.infinity,
-                              height: defaultHeight,
-                              acceptedMimeTypes:
-                                  acceptedDocumentExtensions.map((e) => mimeFromExtension(e) ?? '').toList(),
-                              path: notifier.teammateToVisualize?.id?.toString() ?? '/documents/',
-                              buttonLabel: 'Télécharger un fichier',
-                              label: 'Déposez ici vos documents',
-                              acceptedExtensions: acceptedDocumentExtensions,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton.icon(
-                                  onPressed: notifier.changeReadOnly,
-                                  icon: const Icon(Icons.cancel_rounded),
-                                  label: Text(
-                                    "cancel".i18n(),
-                                  ),
-                                ),
-                                TextButton.icon(
-                                  onPressed: () => save(context, notifier),
-                                  icon: const Icon(Icons.save_alt_rounded),
-                                  label: Text(
-                                    "save".i18n(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ])
+                          if (notifier.isReadOnly)
+                            IconButton(
+                              tooltip: 'update'.i18n(),
+                              onPressed: notifier.changeReadOnly,
+                              icon: const Icon(Icons.create),
+                            )
                         ],
                       ),
-                    ),
+                      PhotoStorageWidget(
+                        width: 150,
+                        height: 150,
+                        imageBase64: notifier.teammateToVisualize?.photo,
+                        onSaved: notifier.setPhotoUrl,
+                        onDeleted: notifier.deletePhotoUrl,
+                        allowedExtensions: acceptedPhotoExtensions,
+                        borderRadius: BorderRadius.circular(100),
+                        emptyColor: Constants.secondaryColor,
+                        fit: BoxFit.cover,
+                        isReadOnly: notifier.isReadOnly,
+                      ),
+                      TextFormField(
+                        maxLength: 255,
+                        readOnly: notifier.isReadOnly,
+                        onChanged: notifier.setLastname,
+                        controller: lastnameController,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText2
+                            ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
+                        decoration: InputDecoration(
+                          label: Text('lastname'.i18n()),
+                          labelStyle: Theme.of(context).textTheme.caption,
+                          counterStyle: Theme.of(context).textTheme.caption,
+                        ),
+                        validator: (String? value) {
+                          return (value == null || value.isEmpty) ? 'Le nom est obligatoire' : null;
+                        },
+                        onFieldSubmitted: (value) {
+                          notifier.setLastname(value);
+                          save(context, notifier);
+                        },
+                      ),
+                      TextFormField(
+                        maxLength: 255,
+                        readOnly: notifier.isReadOnly,
+                        onChanged: notifier.setFirstname,
+                        controller: firstnameController,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText2
+                            ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
+                        decoration: InputDecoration(
+                          label: Text('firstname'.i18n()),
+                          labelStyle: Theme.of(context).textTheme.caption,
+                          counterStyle: Theme.of(context).textTheme.caption,
+                        ),
+                        validator: (String? value) {
+                          return (value == null || value.isEmpty) ? 'Le prénom est obligatoire' : null;
+                        },
+                        onFieldSubmitted: (value) {
+                          notifier.setFirstname(value);
+                          save(context, notifier);
+                        },
+                      ),
+                      TextFormField(
+                        maxLength: 255,
+                        readOnly: notifier.isReadOnly,
+                        onChanged: notifier.setEmail,
+                        controller: emailController,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText2
+                            ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
+                        decoration: InputDecoration(
+                          label: Text('email'.i18n()),
+                          labelStyle: Theme.of(context).textTheme.caption,
+                          counterStyle: Theme.of(context).textTheme.caption,
+                        ),
+                        validator: (String? value) {
+                          return (value == null || value.isEmpty) ? 'L\'email est obligatoire' : null;
+                        },
+                        onFieldSubmitted: (value) {
+                          notifier.setEmail(value);
+                          save(context, notifier);
+                        },
+                      ),
+                      TextFormField(
+                        controller: birthdateController,
+                        onChanged: notifier.setBirthdateAsString,
+                        inputFormatters: [dateMaskFormatter],
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText2
+                            ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
+                        decoration: InputDecoration(
+                          label: Text("birth_date".i18n()),
+                          labelStyle: Theme.of(context).textTheme.caption,
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              if (notifier.isReadOnly) {
+                                return;
+                              }
+                              showDatePicker(
+                                      context: context,
+                                      initialDate: notifier.teammateToVisualize?.dateNaissance ?? DateTime.now(),
+                                      firstDate: DateTime(1900),
+                                      lastDate: DateTime(2100))
+                                  .then((value) {
+                                notifier.setBirthdate(value, birthdateController);
+                              });
+                            },
+                            icon: const Icon(Icons.calendar_today),
+                          ),
+                        ),
+                        validator: (String? value) {
+                          if (value == null) {
+                            return 'Champ obligatoire.';
+                          }
+                          try {
+                            notifier.stringToDate(value);
+                          } catch (e) {
+                            return 'La date de naissance est mal formatée.';
+                          }
+                          return null;
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 50.0),
+                        child: TextFormField(
+                          minLines: 6,
+                          keyboardType: TextInputType.multiline,
+                          maxLines: null,
+                          maxLength: 2000,
+                          readOnly: notifier.isReadOnly,
+                          onChanged: notifier.setDescription,
+                          controller: descriptionController,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText2
+                              ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
+                          decoration: InputDecoration(
+                              label: Text('description'.i18n()),
+                              labelStyle: Theme.of(context).textTheme.caption,
+                              counterStyle: Theme.of(context).textTheme.caption,
+                              border: const OutlineInputBorder()),
+                          onFieldSubmitted: (value) {
+                            notifier.setDescription(value);
+                            save(context, notifier);
+                          },
+                        ),
+                      ),
+                      if (!notifier.isCreationMode)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Documents",
+                                style: Theme.of(context).textTheme.bodyText1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      Column(children: [
+                        DownloadFileWidget(
+                          radius: Constants.borderRadius,
+                          isReadOnly: notifier.isReadOnly,
+                          onUploadComplete: notifier.addDocument,
+                          width: double.infinity,
+                          height: defaultHeight,
+                          acceptedMimeTypes: acceptedDocumentExtensions.map((e) => mimeFromExtension(e) ?? '').toList(),
+                          path: notifier.teammateToVisualize?.id?.toString() ?? '/documents/',
+                          buttonLabel: 'Télécharger un fichier',
+                          label: 'Déposez ici vos documents',
+                          acceptedExtensions: acceptedDocumentExtensions,
+                        ),
+                        if (!notifier.isReadOnly)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton.icon(
+                                onPressed: notifier.changeReadOnly,
+                                icon: const Icon(Icons.cancel_rounded),
+                                label: Text(
+                                  "cancel".i18n(),
+                                ),
+                              ),
+                              TextButton.icon(
+                                onPressed: () => save(context, notifier),
+                                icon: const Icon(Icons.save_alt_rounded),
+                                label: Text(
+                                  "save".i18n(),
+                                ),
+                              ),
+                            ],
+                          ),
+                      ])
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -264,6 +284,7 @@ class TeammateDetailWidget extends StatelessWidget {
     lastnameController.text = teammate.nom ?? '';
     firstnameController.text = teammate.prenom ?? '';
     descriptionController.text = teammate.description ?? '';
+    emailController.text = teammate.email ?? '';
     birthdateController.text =
         (teammate.dateNaissance?.toString() != null) ? format.format(teammate.dateNaissance!) : '';
   }
