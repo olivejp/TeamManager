@@ -42,6 +42,7 @@ dependencies:
   flutter_colorpicker: ^1.0.3
   mask_text_input_formatter: ^2.4.0
   image: ^3.2.0
+  jwt_decoder: ^2.0.1
 dev_dependencies:
   analyzer: ^5.0.0
   build_runner: ^2.0.5

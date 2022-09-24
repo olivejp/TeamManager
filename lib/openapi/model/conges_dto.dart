@@ -183,15 +183,15 @@ class CongesDtoTypeCongesEnum {
 
   String toJson() => value;
 
-  static const AM = CongesDtoTypeCongesEnum._(r'AM');
-  static const PM = CongesDtoTypeCongesEnum._(r'PM');
-  static const ALL_DAY = CongesDtoTypeCongesEnum._(r'ALL_DAY');
+  static const CONGE_PAYE = CongesDtoTypeCongesEnum._(r'CONGE_PAYE');
+  static const MALADIE = CongesDtoTypeCongesEnum._(r'MALADIE');
+  static const SANS_SOLDE = CongesDtoTypeCongesEnum._(r'SANS_SOLDE');
 
   /// List of all possible values in this [enum][CongesDtoTypeCongesEnum].
   static const values = <CongesDtoTypeCongesEnum>[
-    AM,
-    PM,
-    ALL_DAY,
+    CONGE_PAYE,
+    MALADIE,
+    SANS_SOLDE,
   ];
 
   static CongesDtoTypeCongesEnum? fromJson(dynamic value) => CongesDtoTypeCongesEnumTypeTransformer().decode(value);
@@ -230,9 +230,9 @@ class CongesDtoTypeCongesEnumTypeTransformer {
   CongesDtoTypeCongesEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data.toString()) {
-        case r'AM': return CongesDtoTypeCongesEnum.AM;
-        case r'PM': return CongesDtoTypeCongesEnum.PM;
-        case r'ALL_DAY': return CongesDtoTypeCongesEnum.ALL_DAY;
+        case r'CONGE_PAYE': return CongesDtoTypeCongesEnum.CONGE_PAYE;
+        case r'MALADIE': return CongesDtoTypeCongesEnum.MALADIE;
+        case r'SANS_SOLDE': return CongesDtoTypeCongesEnum.SANS_SOLDE;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');

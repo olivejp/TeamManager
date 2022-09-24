@@ -32,6 +32,7 @@ part 'api/competence_controller_api.dart';
 part 'api/conges_controller_api.dart';
 part 'api/customer_controller_api.dart';
 part 'api/document_controller_api.dart';
+part 'api/jwt_controller_api.dart';
 part 'api/planning_controller_api.dart';
 part 'api/teammate_controller_api.dart';
 

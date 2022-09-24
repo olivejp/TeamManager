@@ -4,6 +4,6 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
   inputSpecFile: 'api-docs.json',
   generatorName: Generator.dart,
   outputDirectory: 'lib/generated/api',
-  additionalProperties: AdditionalProperties(pubVersion: '16', pubAuthor: 'JP OLIVE', pubName: 'resource'),
+  additionalProperties: AdditionalProperties(pubVersion: '27', pubAuthor: 'JP OLIVE', pubName: 'resource'),
 )
 class OpenApiGenerator extends OpenapiGeneratorConfig {}

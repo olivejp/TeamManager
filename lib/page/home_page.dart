@@ -28,7 +28,8 @@ class HomePage extends StatelessWidget {
             LeftBarWidget(iconVerticalPadding: iconVerticalPadding),
             Expanded(
               child: Builder(builder: (context) {
-                final String mainPageName = context.select<MainNavigationNotifier, String>((notifier) => notifier.mainPageName);
+                final String mainPageName =
+                    context.select<MainNavigationNotifier, String>((notifier) => notifier.mainPageName);
                 switch (mainPageName) {
                   case 'home':
                     return const LayoutHomeWidget();

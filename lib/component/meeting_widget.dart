@@ -27,7 +27,6 @@ class MeetingWidgetNotifier extends ChangeNotifier {
 
   MeetingWidgetNotifier(this.dateDebutController, this.dateFinController) {
     final UserConnectedService userConnectedService = GetIt.I.get();
-    userConnected = userConnectedService.user;
   }
 
   DateTime stringToDate(String dateAsString) {

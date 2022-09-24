@@ -47,6 +47,7 @@ class MyApp extends StatelessWidget {
         LocalJsonLocalization.delegate
       ],
       theme: Theming.buildThemeData(),
+      darkTheme: Theming.buildThemeDataDark(),
       home: FutureBuilder(
         future: initializeFirebase(),
         builder: (context, snapshot) {

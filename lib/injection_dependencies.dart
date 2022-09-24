@@ -13,6 +13,11 @@ class InjectionDependencies {
 
     GetIt.I.registerLazySingleton(() {
       final ApiClient apiClient = GetIt.I.get();
+      return JwtControllerApi(apiClient);
+    });
+
+    GetIt.I.registerLazySingleton(() {
+      final ApiClient apiClient = GetIt.I.get();
       return PlanningControllerApi(apiClient);
     });
 
