@@ -7,9 +7,12 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:team_manager/component/meeting_widget.dart';
 import 'package:team_manager/constants.dart';
 import 'package:team_manager/openapi/api.dart';
+import 'package:team_manager/service/user_connected_service.dart';
 
 class PlanningPageNotifier extends ChangeNotifier {
   final PlanningControllerApi planningControllerApi = GetIt.I.get();
+  final CongesControllerApi congesControllerApi = GetIt.I.get();
+  final UserConnectedService userConnectedService = GetIt.I.get();
   final CalendarController calendarController;
 
   PlanningPageNotifier(this.calendarController);
@@ -18,12 +21,12 @@ class PlanningPageNotifier extends ChangeNotifier {
     return calendarController.view;
   }
 
-  void changeView(CalendarView newView) {
+  changeView(CalendarView newView) {
     calendarController.view = newView;
     notifyListeners();
   }
 
-  void changeViewOnIndex(int index) {
+  changeViewOnIndex(int index) {
     switch (index) {
       case 0:
         changeView(CalendarView.day);
@@ -41,6 +44,19 @@ class PlanningPageNotifier extends ChangeNotifier {
         changeView(CalendarView.timelineMonth);
         break;
     }
+  }
+
+  onSaved(BuildContext context, Meeting meeting, MeetingDataSource dataSource) {
+    final CongesCreateDto dto = CongesCreateDto(
+      teammateId: userConnectedService.user!.id!,
+      dateDebut: meeting.from,
+      typeConges: meeting.typeConges!,
+      dateFin: meeting.to,
+    );
+    congesControllerApi.create2(dto).then((value) {
+      dataSource.addMeeting(meeting);
+      Navigator.of(context).pop();
+    });
   }
 }
 
@@ -76,8 +92,8 @@ class PlanningPage extends StatelessWidget {
                     builder: (alertContext) => AlertDialog(
                       content: MeetingWidget(
                         onSave: (meeting) {
-                          dataSource.addMeeting(meeting);
-                          Navigator.of(context).pop();
+                          Provider.of<PlanningPageNotifier>(context, listen: false)
+                              .onSaved(context, meeting, dataSource);
                         },
                         onExit: Navigator.of(context).pop,
                       ),
@@ -223,8 +239,8 @@ class PlanningPage extends StatelessWidget {
           from: calendarTapDetails.date!,
           to: calendarTapDetails.date!.add(const Duration(hours: 1)),
           background: Colors.blue,
-          isAllDay: false,
-          resources: []);
+          resources: [],
+          typeConges: CongesCreateDtoTypeCongesEnum.CONGE_PAYE);
     }
 
     showDialog(
@@ -232,10 +248,8 @@ class PlanningPage extends StatelessWidget {
       builder: (alertContext) => AlertDialog(
         content: MeetingWidget(
           initialMeeting: initialMeeting,
-          onSave: (meeting) {
-            dataSource.addMeeting(meeting);
-            Navigator.of(context).pop();
-          },
+          onSave: (meeting) =>
+              Provider.of<PlanningPageNotifier>(context, listen: false).onSaved(context, meeting, dataSource),
           onExit: Navigator.of(context).pop,
         ),
       ),
@@ -276,7 +290,7 @@ class MeetingDataSource extends CalendarDataSource {
 
   @override
   bool isAllDay(int index) {
-    return _getMeetingData(index).isAllDay;
+    return false;
   }
 
   @override
@@ -317,8 +331,8 @@ class Meeting {
     required this.from,
     required this.to,
     required this.background,
-    required this.isAllDay,
     required this.resources,
+    required this.typeConges,
     this.comment,
   });
 
@@ -326,7 +340,7 @@ class Meeting {
   DateTime from;
   DateTime to;
   Color background;
-  bool isAllDay;
   List<Object> resources;
   String? comment;
+  CongesCreateDtoTypeCongesEnum? typeConges;
 }

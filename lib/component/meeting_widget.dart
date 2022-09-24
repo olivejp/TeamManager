@@ -1,13 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/constants.dart';
+import 'package:team_manager/openapi/api.dart';
 import 'package:team_manager/page/planning_page.dart';
 import 'package:team_manager/service/user_connected_service.dart';
-
-enum TypeConges { conges, maladie, sansSolde }
 
 class MeetingWidgetNotifier extends ChangeNotifier {
   final DateFormat dateFormat = DateFormat('EEEE dd MMMM yyyy - HH:mm', 'fr_FR');
@@ -15,18 +13,18 @@ class MeetingWidgetNotifier extends ChangeNotifier {
   final TextEditingController dateDebutController;
   final TextEditingController dateFinController;
 
-  User? userConnected;
+  TeammateDto? teammateConnected;
   String? commentaire = '';
   List<bool> listToggleSelected = [true, false, false];
   List<bool> listToggleDebut = [true, false];
   List<bool> listToggleFin = [true, false];
-  TypeConges typeConges = TypeConges.conges;
+  CongesCreateDtoTypeCongesEnum typeConges = CongesCreateDtoTypeCongesEnum.CONGE_PAYE;
   DateTime? dateDebut = DateTime.now();
   DateTime? dateFin = DateTime.now();
-  bool? isAllDay = false;
 
   MeetingWidgetNotifier(this.dateDebutController, this.dateFinController) {
     final UserConnectedService userConnectedService = GetIt.I.get();
+    teammateConnected = userConnectedService.user;
   }
 
   DateTime stringToDate(String dateAsString) {
@@ -35,11 +33,6 @@ class MeetingWidgetNotifier extends ChangeNotifier {
 
   String dateToString(DateTime dateTime) {
     return dateFormat.format(dateTime);
-  }
-
-  setIsAllDay(bool? isAllDay) {
-    this.isAllDay = isAllDay;
-    notifyListeners();
   }
 
   setCommentaire(String? commentaire) {
@@ -85,13 +78,13 @@ class MeetingWidgetNotifier extends ChangeNotifier {
   Meeting? save(GlobalKey<FormState> formKey, Function(Meeting meeting) onSave) {
     if (formKey.currentState?.validate() == true) {
       Meeting meetingToSave = Meeting(
-          eventName: commentaire!,
+          typeConges: typeConges,
+          eventName: '',
           from: getDateDebut(),
           to: getDateFin(),
           background: const Color(0xff3D5FC7),
-          isAllDay: isAllDay!,
-          comment: commentaire!,
-          resources: [userConnected!.email!]);
+          comment: commentaire,
+          resources: [teammateConnected!.email!]);
       onSave(meetingToSave);
     } else {
       return null;
@@ -121,17 +114,7 @@ class MeetingWidgetNotifier extends ChangeNotifier {
   selectToggle(int index) {
     listToggleSelected = [false, false, false];
     listToggleSelected[index] = true;
-    switch (index) {
-      case 0:
-        typeConges = TypeConges.conges;
-        break;
-      case 1:
-        typeConges = TypeConges.maladie;
-        break;
-      case 2:
-        typeConges = TypeConges.sansSolde;
-        break;
-    }
+    typeConges = CongesCreateDtoTypeCongesEnum.values[index];
     notifyListeners();
   }
 
@@ -189,7 +172,7 @@ class MeetingWidget extends StatelessWidget {
               children: [
                 ToggleButtons(
                   onPressed: notifier.selectToggle,
-                  isSelected: notifier.listToggleSelected,
+                  isSelected: CongesCreateDtoTypeCongesEnum.values.map((e) => e == notifier.typeConges).toList(),
                   borderWidth: 0,
                   borderRadius: BorderRadius.circular(5),
                   textStyle: Theme.of(context).textTheme.subtitle2,

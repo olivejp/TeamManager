@@ -33,6 +33,7 @@ class AuthenticationNotifier extends ChangeNotifier {
           setDefaultHeader(jwt);
           final Map<String, dynamic> map = JwtDecoder.decode(jwt);
           final TeammateDto teammateDto = TeammateDto(
+            id: int.parse(map['jti']),
             email: map['sub'],
             nom: map['nom'],
             prenom: map['prenom'],
