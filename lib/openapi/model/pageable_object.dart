@@ -15,10 +15,10 @@ class PageableObject {
   PageableObject({
     this.offset,
     this.sort,
-    this.pageSize,
-    this.pageNumber,
     this.paged,
     this.unpaged,
+    this.pageNumber,
+    this.pageSize,
   });
 
   ///
@@ -43,7 +43,15 @@ class PageableObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? pageSize;
+  bool? paged;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  bool? unpaged;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -59,37 +67,29 @@ class PageableObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  bool? paged;
-
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  bool? unpaged;
+  int? pageSize;
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is PageableObject &&
      other.offset == offset &&
      other.sort == sort &&
-     other.pageSize == pageSize &&
-     other.pageNumber == pageNumber &&
      other.paged == paged &&
-     other.unpaged == unpaged;
+     other.unpaged == unpaged &&
+     other.pageNumber == pageNumber &&
+     other.pageSize == pageSize;
 
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
     (offset == null ? 0 : offset!.hashCode) +
     (sort == null ? 0 : sort!.hashCode) +
-    (pageSize == null ? 0 : pageSize!.hashCode) +
-    (pageNumber == null ? 0 : pageNumber!.hashCode) +
     (paged == null ? 0 : paged!.hashCode) +
-    (unpaged == null ? 0 : unpaged!.hashCode);
+    (unpaged == null ? 0 : unpaged!.hashCode) +
+    (pageNumber == null ? 0 : pageNumber!.hashCode) +
+    (pageSize == null ? 0 : pageSize!.hashCode);
 
   @override
-  String toString() => 'PageableObject[offset=$offset, sort=$sort, pageSize=$pageSize, pageNumber=$pageNumber, paged=$paged, unpaged=$unpaged]';
+  String toString() => 'PageableObject[offset=$offset, sort=$sort, paged=$paged, unpaged=$unpaged, pageNumber=$pageNumber, pageSize=$pageSize]';
 
   Map<String, dynamic> toJson() {
     final _json = <String, dynamic>{};
@@ -99,17 +99,17 @@ class PageableObject {
     if (sort != null) {
       _json[r'sort'] = sort;
     }
-    if (pageSize != null) {
-      _json[r'pageSize'] = pageSize;
-    }
-    if (pageNumber != null) {
-      _json[r'pageNumber'] = pageNumber;
-    }
     if (paged != null) {
       _json[r'paged'] = paged;
     }
     if (unpaged != null) {
       _json[r'unpaged'] = unpaged;
+    }
+    if (pageNumber != null) {
+      _json[r'pageNumber'] = pageNumber;
+    }
+    if (pageSize != null) {
+      _json[r'pageSize'] = pageSize;
     }
     return _json;
   }
@@ -135,10 +135,10 @@ class PageableObject {
       return PageableObject(
         offset: mapValueOfType<int>(json, r'offset'),
         sort: SortObject.fromJson(json[r'sort']),
-        pageSize: mapValueOfType<int>(json, r'pageSize'),
-        pageNumber: mapValueOfType<int>(json, r'pageNumber'),
         paged: mapValueOfType<bool>(json, r'paged'),
         unpaged: mapValueOfType<bool>(json, r'unpaged'),
+        pageNumber: mapValueOfType<int>(json, r'pageNumber'),
+        pageSize: mapValueOfType<int>(json, r'pageSize'),
       );
     }
     return null;

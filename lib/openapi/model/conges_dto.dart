@@ -18,6 +18,8 @@ class CongesDto {
     this.dateDebut,
     this.dateFin,
     this.typeConges,
+    this.portionDebut,
+    this.portionFin,
     this.commentaire,
   });
 
@@ -55,6 +57,10 @@ class CongesDto {
 
   CongesDtoTypeCongesEnum? typeConges;
 
+  CongesDtoPortionDebutEnum? portionDebut;
+
+  CongesDtoPortionFinEnum? portionFin;
+
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
   /// does not include a default value (using the "default:" property), however, the generated
@@ -70,6 +76,8 @@ class CongesDto {
      other.dateDebut == dateDebut &&
      other.dateFin == dateFin &&
      other.typeConges == typeConges &&
+     other.portionDebut == portionDebut &&
+     other.portionFin == portionFin &&
      other.commentaire == commentaire;
 
   @override
@@ -80,10 +88,12 @@ class CongesDto {
     (dateDebut == null ? 0 : dateDebut!.hashCode) +
     (dateFin == null ? 0 : dateFin!.hashCode) +
     (typeConges == null ? 0 : typeConges!.hashCode) +
+    (portionDebut == null ? 0 : portionDebut!.hashCode) +
+    (portionFin == null ? 0 : portionFin!.hashCode) +
     (commentaire == null ? 0 : commentaire!.hashCode);
 
   @override
-  String toString() => 'CongesDto[id=$id, teammate=$teammate, dateDebut=$dateDebut, dateFin=$dateFin, typeConges=$typeConges, commentaire=$commentaire]';
+  String toString() => 'CongesDto[id=$id, teammate=$teammate, dateDebut=$dateDebut, dateFin=$dateFin, typeConges=$typeConges, portionDebut=$portionDebut, portionFin=$portionFin, commentaire=$commentaire]';
 
   Map<String, dynamic> toJson() {
     final _json = <String, dynamic>{};
@@ -101,6 +111,12 @@ class CongesDto {
     }
     if (typeConges != null) {
       _json[r'typeConges'] = typeConges;
+    }
+    if (portionDebut != null) {
+      _json[r'portionDebut'] = portionDebut;
+    }
+    if (portionFin != null) {
+      _json[r'portionFin'] = portionFin;
     }
     if (commentaire != null) {
       _json[r'commentaire'] = commentaire;
@@ -132,6 +148,8 @@ class CongesDto {
         dateDebut: mapDateTime(json, r'dateDebut', ''),
         dateFin: mapDateTime(json, r'dateFin', ''),
         typeConges: CongesDtoTypeCongesEnum.fromJson(json[r'typeConges']),
+        portionDebut: CongesDtoPortionDebutEnum.fromJson(json[r'portionDebut']),
+        portionFin: CongesDtoPortionFinEnum.fromJson(json[r'portionFin']),
         commentaire: mapValueOfType<String>(json, r'commentaire'),
       );
     }
@@ -259,6 +277,154 @@ class CongesDtoTypeCongesEnumTypeTransformer {
 
   /// Singleton [CongesDtoTypeCongesEnumTypeTransformer] instance.
   static CongesDtoTypeCongesEnumTypeTransformer? _instance;
+}
+
+
+
+class CongesDtoPortionDebutEnum {
+  /// Instantiate a new enum with the provided [value].
+  const CongesDtoPortionDebutEnum._(this.value);
+
+  /// The underlying value of this enum member.
+  final String value;
+
+  @override
+  String toString() => value;
+
+  String toJson() => value;
+
+  static const MATIN = CongesDtoPortionDebutEnum._(r'MATIN');
+  static const APRES_MIDI = CongesDtoPortionDebutEnum._(r'APRES_MIDI');
+
+  /// List of all possible values in this [enum][CongesDtoPortionDebutEnum].
+  static const values = <CongesDtoPortionDebutEnum>[
+    MATIN,
+    APRES_MIDI,
+  ];
+
+  static CongesDtoPortionDebutEnum? fromJson(dynamic value) => CongesDtoPortionDebutEnumTypeTransformer().decode(value);
+
+  static List<CongesDtoPortionDebutEnum>? listFromJson(dynamic json, {bool growable = false,}) {
+    final result = <CongesDtoPortionDebutEnum>[];
+    if (json is List && json.isNotEmpty) {
+      for (final row in json) {
+        final value = CongesDtoPortionDebutEnum.fromJson(row);
+        if (value != null) {
+          result.add(value);
+        }
+      }
+    }
+    return result.toList(growable: growable);
+  }
+}
+
+/// Transformation class that can [encode] an instance of [CongesDtoPortionDebutEnum] to String,
+/// and [decode] dynamic data back to [CongesDtoPortionDebutEnum].
+class CongesDtoPortionDebutEnumTypeTransformer {
+  factory CongesDtoPortionDebutEnumTypeTransformer() => _instance ??= const CongesDtoPortionDebutEnumTypeTransformer._();
+
+  const CongesDtoPortionDebutEnumTypeTransformer._();
+
+  String encode(CongesDtoPortionDebutEnum data) => data.value;
+
+  /// Decodes a [dynamic value][data] to a CongesDtoPortionDebutEnum.
+  ///
+  /// If [allowNull] is true and the [dynamic value][data] cannot be decoded successfully,
+  /// then null is returned. However, if [allowNull] is false and the [dynamic value][data]
+  /// cannot be decoded successfully, then an [UnimplementedError] is thrown.
+  ///
+  /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
+  /// and users are still using an old app with the old code.
+  CongesDtoPortionDebutEnum? decode(dynamic data, {bool allowNull = true}) {
+    if (data != null) {
+      switch (data.toString()) {
+        case r'MATIN': return CongesDtoPortionDebutEnum.MATIN;
+        case r'APRES_MIDI': return CongesDtoPortionDebutEnum.APRES_MIDI;
+        default:
+          if (!allowNull) {
+            throw ArgumentError('Unknown enum value to decode: $data');
+          }
+      }
+    }
+    return null;
+  }
+
+  /// Singleton [CongesDtoPortionDebutEnumTypeTransformer] instance.
+  static CongesDtoPortionDebutEnumTypeTransformer? _instance;
+}
+
+
+
+class CongesDtoPortionFinEnum {
+  /// Instantiate a new enum with the provided [value].
+  const CongesDtoPortionFinEnum._(this.value);
+
+  /// The underlying value of this enum member.
+  final String value;
+
+  @override
+  String toString() => value;
+
+  String toJson() => value;
+
+  static const MATIN = CongesDtoPortionFinEnum._(r'MATIN');
+  static const APRES_MIDI = CongesDtoPortionFinEnum._(r'APRES_MIDI');
+
+  /// List of all possible values in this [enum][CongesDtoPortionFinEnum].
+  static const values = <CongesDtoPortionFinEnum>[
+    MATIN,
+    APRES_MIDI,
+  ];
+
+  static CongesDtoPortionFinEnum? fromJson(dynamic value) => CongesDtoPortionFinEnumTypeTransformer().decode(value);
+
+  static List<CongesDtoPortionFinEnum>? listFromJson(dynamic json, {bool growable = false,}) {
+    final result = <CongesDtoPortionFinEnum>[];
+    if (json is List && json.isNotEmpty) {
+      for (final row in json) {
+        final value = CongesDtoPortionFinEnum.fromJson(row);
+        if (value != null) {
+          result.add(value);
+        }
+      }
+    }
+    return result.toList(growable: growable);
+  }
+}
+
+/// Transformation class that can [encode] an instance of [CongesDtoPortionFinEnum] to String,
+/// and [decode] dynamic data back to [CongesDtoPortionFinEnum].
+class CongesDtoPortionFinEnumTypeTransformer {
+  factory CongesDtoPortionFinEnumTypeTransformer() => _instance ??= const CongesDtoPortionFinEnumTypeTransformer._();
+
+  const CongesDtoPortionFinEnumTypeTransformer._();
+
+  String encode(CongesDtoPortionFinEnum data) => data.value;
+
+  /// Decodes a [dynamic value][data] to a CongesDtoPortionFinEnum.
+  ///
+  /// If [allowNull] is true and the [dynamic value][data] cannot be decoded successfully,
+  /// then null is returned. However, if [allowNull] is false and the [dynamic value][data]
+  /// cannot be decoded successfully, then an [UnimplementedError] is thrown.
+  ///
+  /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
+  /// and users are still using an old app with the old code.
+  CongesDtoPortionFinEnum? decode(dynamic data, {bool allowNull = true}) {
+    if (data != null) {
+      switch (data.toString()) {
+        case r'MATIN': return CongesDtoPortionFinEnum.MATIN;
+        case r'APRES_MIDI': return CongesDtoPortionFinEnum.APRES_MIDI;
+        default:
+          if (!allowNull) {
+            throw ArgumentError('Unknown enum value to decode: $data');
+          }
+      }
+    }
+    return null;
+  }
+
+  /// Singleton [CongesDtoPortionFinEnumTypeTransformer] instance.
+  static CongesDtoPortionFinEnumTypeTransformer? _instance;
 }
 
 

@@ -21,8 +21,8 @@ class PageTeammateDto {
     this.content = const [],
     this.number,
     this.sort,
-    this.pageable,
     this.numberOfElements,
+    this.pageable,
     this.empty,
   });
 
@@ -90,7 +90,7 @@ class PageTeammateDto {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  PageableObject? pageable;
+  int? numberOfElements;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -98,7 +98,7 @@ class PageTeammateDto {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? numberOfElements;
+  PageableObject? pageable;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -118,8 +118,8 @@ class PageTeammateDto {
      other.content == content &&
      other.number == number &&
      other.sort == sort &&
-     other.pageable == pageable &&
      other.numberOfElements == numberOfElements &&
+     other.pageable == pageable &&
      other.empty == empty;
 
   @override
@@ -133,12 +133,12 @@ class PageTeammateDto {
     (content.hashCode) +
     (number == null ? 0 : number!.hashCode) +
     (sort == null ? 0 : sort!.hashCode) +
-    (pageable == null ? 0 : pageable!.hashCode) +
     (numberOfElements == null ? 0 : numberOfElements!.hashCode) +
+    (pageable == null ? 0 : pageable!.hashCode) +
     (empty == null ? 0 : empty!.hashCode);
 
   @override
-  String toString() => 'PageTeammateDto[totalPages=$totalPages, totalElements=$totalElements, first=$first, last=$last, size=$size, content=$content, number=$number, sort=$sort, pageable=$pageable, numberOfElements=$numberOfElements, empty=$empty]';
+  String toString() => 'PageTeammateDto[totalPages=$totalPages, totalElements=$totalElements, first=$first, last=$last, size=$size, content=$content, number=$number, sort=$sort, numberOfElements=$numberOfElements, pageable=$pageable, empty=$empty]';
 
   Map<String, dynamic> toJson() {
     final _json = <String, dynamic>{};
@@ -164,11 +164,11 @@ class PageTeammateDto {
     if (sort != null) {
       _json[r'sort'] = sort;
     }
-    if (pageable != null) {
-      _json[r'pageable'] = pageable;
-    }
     if (numberOfElements != null) {
       _json[r'numberOfElements'] = numberOfElements;
+    }
+    if (pageable != null) {
+      _json[r'pageable'] = pageable;
     }
     if (empty != null) {
       _json[r'empty'] = empty;
@@ -203,8 +203,8 @@ class PageTeammateDto {
         content: TeammateDto.listFromJson(json[r'content']) ?? const [],
         number: mapValueOfType<int>(json, r'number'),
         sort: SortObject.fromJson(json[r'sort']),
-        pageable: PageableObject.fromJson(json[r'pageable']),
         numberOfElements: mapValueOfType<int>(json, r'numberOfElements'),
+        pageable: PageableObject.fromJson(json[r'pageable']),
         empty: mapValueOfType<bool>(json, r'empty'),
       );
     }

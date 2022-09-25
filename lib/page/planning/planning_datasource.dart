@@ -14,6 +14,10 @@ import 'package:team_manager/service/user_connected_service.dart';
 class CongesDataSource extends CalendarDataSource {
   late int userConnectedId;
   late CongesControllerApi congesControllerApi;
+  final portionDebutCreateTr = CongesCreateDtoPortionDebutEnumTypeTransformer();
+  final portionFinCreateTr = CongesCreateDtoPortionFinEnumTypeTransformer();
+  final portionDebutTr = CongesDtoPortionDebutEnumTypeTransformer();
+  final portionFinTr = CongesDtoPortionFinEnumTypeTransformer();
 
   /// Creates a meeting data source, which used to set the appointment
   /// collection to the calendar
@@ -110,16 +114,16 @@ class CongesDataSource extends CalendarDataSource {
   }
 
   Conges _mapConges(CongesDto dto) {
-    Conges conges = Conges(
+    return Conges(
       id: dto.id,
       dateDebut: DateUtilsService.convertDate(dto.dateDebut!),
       dateFin: DateUtilsService.convertDate(dto.dateFin!),
       typeConges: _mapTypeConges(dto),
+      portionDebut: portionDebutTr.encode(dto.portionDebut!),
+      portionFin: portionFinTr.encode(dto.portionFin!),
       commentaire: dto.commentaire,
       resources: [dto.teammate!.email!],
     );
-    print(conges.toString());
-    return conges;
   }
 
   CongesCreateDtoTypeCongesEnum _mapTypeConges(CongesDto dto) {
@@ -173,8 +177,10 @@ class CongesDataSource extends CalendarDataSource {
       teammateId: userConnectedId,
       dateDebut: conges.dateDebut,
       dateFin: conges.dateFin,
-      typeConges: conges.typeConges!,
-      commentaire: conges.commentaire);
+      typeConges: conges.typeConges,
+      commentaire: conges.commentaire,
+      portionDebut: CongesCreateDtoPortionDebutEnum.fromJson(conges.portionDebut)!,
+      portionFin: CongesCreateDtoPortionFinEnum.fromJson(conges.portionFin)!);
 
   Conges? _getCongesData(int index) {
     if (index < 0) {

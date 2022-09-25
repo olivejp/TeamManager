@@ -198,11 +198,14 @@ class PlanningPage extends StatelessWidget {
     } else {
       // Sinon on va créer un nouveau Meeting.
       initialConges = Conges(
-          id: null,
-          dateDebut: calendarTapDetails?.date ?? DateTime.now(),
-          dateFin: calendarTapDetails?.date?.add(const Duration(hours: 1)) ?? DateTime.now(),
-          resources: [],
-          typeConges: CongesCreateDtoTypeCongesEnum.CONGE_PAYE);
+        id: null,
+        dateDebut: calendarTapDetails?.date ?? DateTime.now(),
+        dateFin: calendarTapDetails?.date?.add(const Duration(hours: 1)) ?? DateTime.now(),
+        resources: [],
+        typeConges: CongesCreateDtoTypeCongesEnum.CONGE_PAYE,
+        portionDebut: CongesCreateDtoPortionDebutEnum.MATIN,
+        portionFin: CongesCreateDtoPortionDebutEnum.MATIN,
+      );
     }
 
     showDialog(

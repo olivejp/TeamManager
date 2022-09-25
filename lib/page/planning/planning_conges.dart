@@ -1,21 +1,23 @@
 import 'package:team_manager/openapi/api.dart';
 
-/// Custom business object class which contains properties to hold the detailed
-/// information about the event data which will be rendered in calendar.
 class Conges {
   Conges({
+    this.id,
     required this.dateDebut,
     required this.dateFin,
-    required this.resources,
     required this.typeConges,
+    required this.portionDebut,
+    required this.portionFin,
+    required this.resources,
     this.commentaire,
-    this.id,
   });
 
   int? id;
   DateTime dateDebut;
   DateTime dateFin;
-  CongesCreateDtoTypeCongesEnum? typeConges;
-  String? commentaire;
+  CongesCreateDtoTypeCongesEnum typeConges;
+  String portionDebut;
+  String portionFin;
   List<Object> resources;
+  String? commentaire;
 }
