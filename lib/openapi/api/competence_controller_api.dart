@@ -211,10 +211,10 @@ class CompetenceControllerApi {
   /// Performs an HTTP 'PUT /api/competence/{id}' operation and returns the [Response].
   /// Parameters:
   ///
-  /// * [int] id (required):
-  ///
   /// * [Competence] competence (required):
-  Future<Response> update3WithHttpInfo(int id, Competence competence,) async {
+  ///
+  /// * [int] id (required):
+  Future<Response> update3WithHttpInfo(Competence competence, int id,) async {
     // ignore: prefer_const_declarations
     final path = r'/api/competence/{id}'
       .replaceAll('{id}', id.toString());
@@ -242,11 +242,11 @@ class CompetenceControllerApi {
 
   /// Parameters:
   ///
-  /// * [int] id (required):
-  ///
   /// * [Competence] competence (required):
-  Future<Competence?> update3(int id, Competence competence,) async {
-    final response = await update3WithHttpInfo(id, competence,);
+  ///
+  /// * [int] id (required):
+  Future<Competence?> update3(Competence competence, int id,) async {
+    final response = await update3WithHttpInfo(competence, id,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }

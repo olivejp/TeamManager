@@ -67,10 +67,10 @@ class TeammateControllerApi {
   /// Performs an HTTP 'PATCH /api/teammate/{id}' operation and returns the [Response].
   /// Parameters:
   ///
-  /// * [int] id (required):
-  ///
   /// * [Object] body (required):
-  Future<Response> callPatchWithHttpInfo(int id, Object body,) async {
+  ///
+  /// * [int] id (required):
+  Future<Response> callPatchWithHttpInfo(Object body, int id,) async {
     // ignore: prefer_const_declarations
     final path = r'/api/teammate/{id}'
       .replaceAll('{id}', id.toString());
@@ -98,11 +98,11 @@ class TeammateControllerApi {
 
   /// Parameters:
   ///
-  /// * [int] id (required):
-  ///
   /// * [Object] body (required):
-  Future<TeammateDto?> callPatch(int id, Object body,) async {
-    final response = await callPatchWithHttpInfo(id, body,);
+  ///
+  /// * [int] id (required):
+  Future<TeammateDto?> callPatch(Object body, int id,) async {
+    final response = await callPatchWithHttpInfo(body, id,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -361,10 +361,10 @@ class TeammateControllerApi {
   /// Performs an HTTP 'POST /api/teammate/{id}/documents' operation and returns the [Response].
   /// Parameters:
   ///
-  /// * [int] id (required):
-  ///
   /// * [MultipartFile] multipartFile (required):
-  Future<Response> uploadWithHttpInfo(int id, MultipartFile multipartFile,) async {
+  ///
+  /// * [int] id (required):
+  Future<Response> uploadWithHttpInfo(MultipartFile multipartFile, int id,) async {
     // ignore: prefer_const_declarations
     final path = r'/api/teammate/{id}/documents'
       .replaceAll('{id}', id.toString());
@@ -402,11 +402,11 @@ class TeammateControllerApi {
 
   /// Parameters:
   ///
-  /// * [int] id (required):
-  ///
   /// * [MultipartFile] multipartFile (required):
-  Future<Document?> upload(int id, MultipartFile multipartFile,) async {
-    final response = await uploadWithHttpInfo(id, multipartFile,);
+  ///
+  /// * [int] id (required):
+  Future<Document?> upload(MultipartFile multipartFile, int id,) async {
+    final response = await uploadWithHttpInfo(multipartFile, id,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }

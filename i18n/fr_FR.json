@@ -30,5 +30,14 @@
   "description": "Description",
   "filter": "Trier",
   "calendarView": "Type de vue",
-  "team": "Équipe"
+  "team": "Équipe",
+  "next": "Suivant",
+  "previous": "Précédent",
+  "day": "Jour",
+  "month": "Mois",
+  "from": "A partir du",
+  "to": "Jusqu'au",
+  "comment": "Commentaire",
+  "morning": "Matin",
+  "noon": "Après midi"
 }

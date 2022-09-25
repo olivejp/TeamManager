@@ -13,9 +13,11 @@ part of openapi.api;
 class Competence {
   /// Returns a new [Competence] instance.
   Competence({
-    this.id,
     required this.nom,
+    this.id,
   });
+
+  String nom;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -25,28 +27,26 @@ class Competence {
   ///
   int? id;
 
-  String nom;
-
   @override
   bool operator ==(Object other) => identical(this, other) || other is Competence &&
-     other.id == id &&
-     other.nom == nom;
+     other.nom == nom &&
+     other.id == id;
 
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
-    (id == null ? 0 : id!.hashCode) +
-    (nom.hashCode);
+    (nom.hashCode) +
+    (id == null ? 0 : id!.hashCode);
 
   @override
-  String toString() => 'Competence[id=$id, nom=$nom]';
+  String toString() => 'Competence[nom=$nom, id=$id]';
 
   Map<String, dynamic> toJson() {
     final _json = <String, dynamic>{};
+      _json[r'nom'] = nom;
     if (id != null) {
       _json[r'id'] = id;
     }
-      _json[r'nom'] = nom;
     return _json;
   }
 
@@ -69,8 +69,8 @@ class Competence {
       }());
 
       return Competence(
-        id: mapValueOfType<int>(json, r'id'),
         nom: mapValueOfType<String>(json, r'nom')!,
+        id: mapValueOfType<int>(json, r'id'),
       );
     }
     return null;

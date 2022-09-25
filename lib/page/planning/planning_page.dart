@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animations/loading_animations.dart';
+import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:team_manager/component/conges/conges_widget.dart';
@@ -12,13 +13,17 @@ import 'package:team_manager/page/planning/planning_datasource.dart';
 import 'package:team_manager/page/planning/planning_page_notifier.dart';
 
 class PlanningPage extends StatelessWidget {
-  const PlanningPage({Key? key}) : super(key: key);
+  final CongesCreateDtoPortionDebutEnumTypeTransformer portionDebutEnumTypeTransformer =
+      CongesCreateDtoPortionDebutEnumTypeTransformer();
+  final CongesCreateDtoPortionFinEnumTypeTransformer portionFinEnumTypeTransformer =
+      CongesCreateDtoPortionFinEnumTypeTransformer();
+
+  PlanningPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final CalendarController calendarCtl = CalendarController();
     final TeammateControllerApi teammateControllerApi = GetIt.I.get();
-
     calendarCtl.view = CalendarView.timelineMonth;
 
     return FutureBuilder<PageTeammateDto?>(
@@ -33,7 +38,7 @@ class PlanningPage extends StatelessWidget {
               return Scaffold(
                 floatingActionButton: FloatingActionButton(
                   isExtended: true,
-                  onPressed: () => openMeetingWidget(context, dataSource, null),
+                  onPressed: () => openMeetingWidget(context, dataSource),
                   child: const Icon(Icons.edit_calendar),
                 ),
                 body: Center(
@@ -54,9 +59,9 @@ class PlanningPage extends StatelessWidget {
                                 TextButton(
                                   onPressed: () => calendarCtl.backward!(),
                                   child: Row(
-                                    children: const [
-                                      Icon(Icons.arrow_back_ios_sharp),
-                                      Text('Précédent'),
+                                    children: [
+                                      const Icon(Icons.arrow_back_ios_sharp),
+                                      Text('previous'.i18n()),
                                     ],
                                   ),
                                 ),
@@ -103,9 +108,9 @@ class PlanningPage extends StatelessWidget {
                                     TextButton(
                                       onPressed: () => calendarCtl.forward!(),
                                       child: Row(
-                                        children: const [
-                                          Text('Suivant'),
-                                          Icon(Icons.arrow_forward_ios_sharp),
+                                        children: [
+                                          Text('next'.i18n()),
+                                          const Icon(Icons.arrow_forward_ios_sharp),
                                         ],
                                       ),
                                     ),
@@ -134,9 +139,9 @@ class PlanningPage extends StatelessWidget {
                                       appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
                                     ),
                                     blackoutDates: [DateTime(2022, 9, 24), DateTime(2022, 11, 1)],
-                                    timeSlotViewSettings: TimeSlotViewSettings(timeIntervalWidth: 50),
+                                    timeSlotViewSettings: const TimeSlotViewSettings(timeIntervalWidth: 50),
                                     onTap: (calendarTapDetails) =>
-                                        openMeetingWidget(context, dataSource, calendarTapDetails),
+                                        openMeetingWidget(context, dataSource, calendarTapDetails: calendarTapDetails),
                                     appointmentBuilder: appointmentBuilder,
                                   ),
                                 ),
@@ -189,7 +194,7 @@ class PlanningPage extends StatelessWidget {
     );
   }
 
-  openMeetingWidget(BuildContext context, CongesDataSource dataSource, CalendarTapDetails? calendarTapDetails) {
+  openMeetingWidget(BuildContext context, CongesDataSource dataSource, {CalendarTapDetails? calendarTapDetails}) {
     Conges initialConges;
     // TODO Ne pas récupérer le conges si on a pas cliquer dessus mais à coté sur la meme date.
     if (calendarTapDetails?.appointments?.isNotEmpty == true) {
@@ -197,14 +202,15 @@ class PlanningPage extends StatelessWidget {
       initialConges = calendarTapDetails!.appointments?.first;
     } else {
       // Sinon on va créer un nouveau Meeting.
+      final DateTime now = DateTime.now();
       initialConges = Conges(
         id: null,
-        dateDebut: calendarTapDetails?.date ?? DateTime.now(),
-        dateFin: calendarTapDetails?.date?.add(const Duration(hours: 1)) ?? DateTime.now(),
+        dateDebut: calendarTapDetails?.date ?? now,
+        dateFin: calendarTapDetails?.date ?? now,
         resources: [],
         typeConges: CongesCreateDtoTypeCongesEnum.CONGE_PAYE,
-        portionDebut: CongesCreateDtoPortionDebutEnum.MATIN,
-        portionFin: CongesCreateDtoPortionDebutEnum.MATIN,
+        portionDebut: portionDebutEnumTypeTransformer.encode(CongesCreateDtoPortionDebutEnum.MATIN),
+        portionFin: portionFinEnumTypeTransformer.encode(CongesCreateDtoPortionFinEnum.MATIN),
       );
     }
 

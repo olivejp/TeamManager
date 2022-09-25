@@ -38,7 +38,7 @@ class HomePage extends StatelessWidget {
                   case 'competences':
                     return const CompetencePage();
                   case 'planning':
-                    return const PlanningPage();
+                    return PlanningPage();
                   default:
                     return const LayoutHomeWidget();
                 }

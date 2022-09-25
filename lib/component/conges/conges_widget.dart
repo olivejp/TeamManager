@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
 import 'package:team_manager/component/conges/conges_notifier.dart';
 import 'package:team_manager/constants.dart';
@@ -14,6 +15,11 @@ class CongesWidget extends StatelessWidget {
   final TextEditingController commentaireController = TextEditingController();
   final TextEditingController dateDebutController = TextEditingController();
   final TextEditingController dateFinController = TextEditingController();
+
+  final CongesCreateDtoPortionDebutEnumTypeTransformer _portionDebutEnumTypeTransformer =
+      CongesCreateDtoPortionDebutEnumTypeTransformer();
+  final CongesCreateDtoPortionFinEnumTypeTransformer _portionFinEnumTypeTransformer =
+      CongesCreateDtoPortionFinEnumTypeTransformer();
 
   CongesWidget({
     Key? key,
@@ -82,7 +88,7 @@ class CongesWidget extends StatelessWidget {
                           readOnly: true,
                           style: Theme.of(context).textTheme.bodyText2?.copyWith(color: Colors.black),
                           decoration: InputDecoration(
-                              label: const Text("A partir du"),
+                              label: Text('from'.i18n()),
                               labelStyle: Theme.of(context).textTheme.caption?.copyWith(color: Colors.black),
                               suffixIcon: IconButton(
                                 onPressed: () {
@@ -113,18 +119,20 @@ class CongesWidget extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 8.0),
                           child: ToggleButtons(
                             onPressed: notifier.setToggleDebut,
-                            isSelected: notifier.listToggleDebut,
+                            isSelected: CongesCreateDtoPortionDebutEnum.values
+                                .map((e) => e == _portionDebutEnumTypeTransformer.decode(notifier.conges.portionDebut))
+                                .toList(),
                             borderWidth: 0,
                             borderRadius: BorderRadius.circular(5),
                             textStyle: Theme.of(context).textTheme.subtitle2,
-                            children: const [
+                            children: [
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text('Matin'),
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text('morning'.i18n()),
                               ),
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text('Après midi'),
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text('noon'.i18n()),
                               ),
                             ],
                           ),
@@ -144,7 +152,7 @@ class CongesWidget extends StatelessWidget {
                           readOnly: true,
                           style: Theme.of(context).textTheme.bodyText2?.copyWith(color: Colors.black),
                           decoration: InputDecoration(
-                            label: const Text("Jusqu'au"),
+                            label: Text('to'.i18n()),
                             labelStyle: Theme.of(context).textTheme.caption?.copyWith(color: Colors.black),
                             suffixIcon: IconButton(
                               onPressed: () {
@@ -169,6 +177,14 @@ class CongesWidget extends StatelessWidget {
                             }
                             DateTime dateDebut = notifier.conges.dateDebut;
                             DateTime dateFin = notifier.conges.dateFin;
+                            if (dateFin.isAtSameMomentAs(dateDebut) &&
+                                (CongesCreateDtoPortionDebutEnum.APRES_MIDI ==
+                                        _portionDebutEnumTypeTransformer.decode(notifier.conges.portionDebut) &&
+                                    CongesCreateDtoPortionFinEnum.MATIN ==
+                                        _portionFinEnumTypeTransformer.decode(notifier.conges.portionFin))) {
+                              return 'Date de fin antérieure à date de début.';
+                            }
+
                             if (dateFin.isBefore(dateDebut)) {
                               return 'Date de fin antérieure à date de début.';
                             }
@@ -180,19 +196,21 @@ class CongesWidget extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.only(left: 8.0),
                           child: ToggleButtons(
-                            isSelected: notifier.listToggleFin,
+                            isSelected: CongesCreateDtoPortionFinEnum.values
+                                .map((e) => e == _portionFinEnumTypeTransformer.decode(notifier.conges.portionFin))
+                                .toList(),
                             onPressed: notifier.setToggleFin,
                             borderWidth: 0,
                             borderRadius: BorderRadius.circular(5),
                             textStyle: Theme.of(context).textTheme.subtitle2,
-                            children: const [
+                            children: [
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text('Matin'),
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text('morning'.i18n()),
                               ),
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text('Après midi'),
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text('noon'.i18n()),
                               ),
                             ],
                           ),
@@ -212,7 +230,7 @@ class CongesWidget extends StatelessWidget {
                     maxLines: null,
                     maxLength: 2000,
                     decoration: InputDecoration(
-                        label: const Text('Commentaire'),
+                        label: Text('comment'.i18n()),
                         labelStyle: Theme.of(context).textTheme.caption?.copyWith(color: Colors.black),
                         counterStyle: Theme.of(context).textTheme.caption,
                         border: const OutlineInputBorder()),
@@ -236,7 +254,7 @@ class CongesWidget extends StatelessWidget {
                             overlayColor: MaterialStateProperty.all(Colors.red.shade50),
                           ),
                           child: Text(
-                            'Supprimer',
+                            'delete'.i18n(),
                             style: Theme.of(context).textTheme.subtitle2!.copyWith(color: Colors.red),
                           ),
                         ),
@@ -255,7 +273,7 @@ class CongesWidget extends StatelessWidget {
                                   RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                 ),
                               ),
-                              child: const Text('Annuler'),
+                              child: Text('cancel'.i18n()),
                             ),
                           ),
                           TextButton(
@@ -270,7 +288,7 @@ class CongesWidget extends StatelessWidget {
                                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                               ),
                             ),
-                            child: const Text('Enregistrer'),
+                            child: Text('save'.i18n()),
                           )
                         ],
                       ),

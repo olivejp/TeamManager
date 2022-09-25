@@ -174,6 +174,7 @@ class CongesDataSource extends CalendarDataSource {
   }
 
   CongesCreateDto _mapCongesToCreateDto(Conges conges) => CongesCreateDto(
+      id: conges.id,
       teammateId: userConnectedId,
       dateDebut: conges.dateDebut,
       dateFin: conges.dateFin,

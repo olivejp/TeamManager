@@ -19,6 +19,7 @@ class CongesCreateDto {
     required this.portionDebut,
     required this.portionFin,
     required this.typeConges,
+    this.id,
     this.commentaire,
   });
 
@@ -40,6 +41,14 @@ class CongesCreateDto {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
+  int? id;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
   String? commentaire;
 
   @override
@@ -50,6 +59,7 @@ class CongesCreateDto {
      other.portionDebut == portionDebut &&
      other.portionFin == portionFin &&
      other.typeConges == typeConges &&
+     other.id == id &&
      other.commentaire == commentaire;
 
   @override
@@ -61,10 +71,11 @@ class CongesCreateDto {
     (portionDebut.hashCode) +
     (portionFin.hashCode) +
     (typeConges.hashCode) +
+    (id == null ? 0 : id!.hashCode) +
     (commentaire == null ? 0 : commentaire!.hashCode);
 
   @override
-  String toString() => 'CongesCreateDto[teammateId=$teammateId, dateDebut=$dateDebut, dateFin=$dateFin, portionDebut=$portionDebut, portionFin=$portionFin, typeConges=$typeConges, commentaire=$commentaire]';
+  String toString() => 'CongesCreateDto[teammateId=$teammateId, dateDebut=$dateDebut, dateFin=$dateFin, portionDebut=$portionDebut, portionFin=$portionFin, typeConges=$typeConges, id=$id, commentaire=$commentaire]';
 
   Map<String, dynamic> toJson() {
     final _json = <String, dynamic>{};
@@ -74,6 +85,9 @@ class CongesCreateDto {
       _json[r'portionDebut'] = portionDebut;
       _json[r'portionFin'] = portionFin;
       _json[r'typeConges'] = typeConges;
+    if (id != null) {
+      _json[r'id'] = id;
+    }
     if (commentaire != null) {
       _json[r'commentaire'] = commentaire;
     }
@@ -105,6 +119,7 @@ class CongesCreateDto {
         portionDebut: CongesCreateDtoPortionDebutEnum.fromJson(json[r'portionDebut'])!,
         portionFin: CongesCreateDtoPortionFinEnum.fromJson(json[r'portionFin'])!,
         typeConges: CongesCreateDtoTypeCongesEnum.fromJson(json[r'typeConges'])!,
+        id: mapValueOfType<int>(json, r'id'),
         commentaire: mapValueOfType<String>(json, r'commentaire'),
       );
     }

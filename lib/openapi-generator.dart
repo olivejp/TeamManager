@@ -6,6 +6,12 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
   outputDirectory: 'lib/generated/api',
   alwaysRun: true,
   overwriteExistingFiles: true,
-  additionalProperties: AdditionalProperties(pubVersion: '29', pubAuthor: 'JP OLIVE', pubName: 'resource'),
+  additionalProperties: AdditionalProperties(
+    pubVersion: '31',
+    pubAuthor: 'JP OLIVE',
+    pubName: 'resource',
+    prependFormOrBodyParameters: true,
+    sortModelPropertiesByRequiredFlag: true,
+  ),
 )
 class OpenApiGenerator extends OpenapiGeneratorConfig {}
