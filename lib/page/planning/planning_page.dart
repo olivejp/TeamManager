@@ -219,7 +219,7 @@ class PlanningPage extends StatelessWidget {
       builder: (alertContext) => AlertDialog(
         content: CongesWidget(
           initialConges: initialConges,
-          onSave: (conges) => dataSource.saveConges(conges).then((value) => Navigator.of(context).pop()),
+          onSave: (conges) => dataSource.saveConges(conges).then((_) => Navigator.of(context).pop()),
           onDelete: (id) {
             dataSource.deleteById(id);
             Navigator.of(context).pop();

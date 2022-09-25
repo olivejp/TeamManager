@@ -227,6 +227,7 @@ class LeftBarWidget extends StatelessWidget {
                   child: IconButton(
                     onPressed: () => context.read<MainNavigationNotifier>().setMainPageName('planning'),
                     icon: const Icon(Icons.calendar_today_rounded),
+                    tooltip: 'Congés',
                   ),
                 ),
               ],

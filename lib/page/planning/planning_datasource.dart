@@ -70,7 +70,7 @@ class CongesDataSource extends CalendarDataSource {
     return _getCongesData(index)!.resources;
   }
 
-  Future<CongesDto?> saveConges(Conges conges) {
+  Future<void> saveConges(Conges conges) {
     if (appointments!.any((element) => element.id == conges.id)) {
       return _updateConges(conges);
     } else {
@@ -146,20 +146,17 @@ class CongesDataSource extends CalendarDataSource {
     return type;
   }
 
-  Future<CongesDto?> _createConges(Conges conges) {
-    final CongesCreateDto dto = _mapCongesToCreateDto(conges);
-    return congesControllerApi.create2(dto).then((congesDto) {
-      _addCongesToAppointments(_mapConges(congesDto!));
-      return congesDto;
-    });
+  Future<void> _createConges(Conges conges) {
+    return _mapCongesToCreateDto(conges)
+        .then((dto) => congesControllerApi.create2(dto))
+        .then((congesDto) => Future.value(_mapConges(congesDto!)))
+        .then((conges) => _addCongesToAppointments(conges));
   }
 
-  Future<CongesDto?> _updateConges(Conges conges) {
-    final CongesCreateDto dto = _mapCongesToCreateDto(conges);
-    return congesControllerApi.update2(dto).then((congesDto) {
+  Future<void> _updateConges(Conges conges) {
+    return _mapCongesToCreateDto(conges).then((dto) => congesControllerApi.update2(dto)).then((congesDto) {
       _removeCongesFromAppointments(conges);
       _addCongesToAppointments(_mapConges(congesDto!));
-      return congesDto;
     });
   }
 
@@ -176,19 +173,27 @@ class CongesDataSource extends CalendarDataSource {
     notifyListeners(CalendarDataSourceAction.add, [conges]);
   }
 
-  CongesCreateDto _mapCongesToCreateDto(Conges conges) {
-    print('_mapCongesToCreateDto $conges');
-    final int resourceId =
-        listTeammateDto!.firstWhere((element) => element.email == (conges.resources.first as String)).id!;
-    return CongesCreateDto(
-        id: conges.id,
-        teammateId: resourceId,
-        dateDebut: conges.dateDebut,
-        dateFin: conges.dateFin,
-        typeConges: conges.typeConges,
-        commentaire: conges.commentaire,
-        portionDebut: CongesCreateDtoPortionDebutEnum.fromJson(conges.portionDebut)!,
-        portionFin: CongesCreateDtoPortionFinEnum.fromJson(conges.portionFin)!);
+  Future<CongesCreateDto> _mapCongesToCreateDto(Conges conges) {
+    return Future(() {
+      print('_mapCongesToCreateDto $conges');
+
+      throwIf(conges.resources.isEmpty, Exception('Aucune ressource sélectionnée.'));
+
+      final String emailSelected = (conges.resources.first as String);
+      final int? teammateId = listTeammateDto!.firstWhere((teammate) => teammate.email == emailSelected).id;
+
+      throwIf(teammateId == null, Exception('Aucune resource trouvée pour l\'email'));
+
+      return CongesCreateDto(
+          id: conges.id,
+          teammateId: teammateId!,
+          dateDebut: conges.dateDebut,
+          dateFin: conges.dateFin,
+          typeConges: conges.typeConges,
+          commentaire: conges.commentaire,
+          portionDebut: CongesCreateDtoPortionDebutEnum.fromJson(conges.portionDebut)!,
+          portionFin: CongesCreateDtoPortionFinEnum.fromJson(conges.portionFin)!);
+    });
   }
 
   Conges? _getCongesData(int index) {
