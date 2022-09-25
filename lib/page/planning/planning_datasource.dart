@@ -6,27 +6,25 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:team_manager/openapi/api.dart';
 import 'package:team_manager/page/planning/planning_conges.dart';
 import 'package:team_manager/service/date_utils_service.dart';
-import 'package:team_manager/service/user_connected_service.dart';
 
 /// An object to set the appointment collection data source to calendar, which
 /// used to map the custom appointment data to the calendar appointment, and
 /// allows to add, remove or reset the appointment collection.
 class CongesDataSource extends CalendarDataSource {
-  late int userConnectedId;
   late CongesControllerApi congesControllerApi;
   final portionDebutCreateTr = CongesCreateDtoPortionDebutEnumTypeTransformer();
   final portionFinCreateTr = CongesCreateDtoPortionFinEnumTypeTransformer();
   final portionDebutTr = CongesDtoPortionDebutEnumTypeTransformer();
   final portionFinTr = CongesDtoPortionFinEnumTypeTransformer();
 
+  List<TeammateDto>? listTeammateDto;
+
   /// Creates a meeting data source, which used to set the appointment
   /// collection to the calendar
-  CongesDataSource(PageTeammateDto? dto) : super() {
-    final UserConnectedService userConnectedService = GetIt.I.get();
+  CongesDataSource(PageTeammateDto? pageDto) : super() {
     congesControllerApi = GetIt.I.get();
-    userConnectedId = userConnectedService.user!.id!;
     appointments = [];
-    _setResources(dto);
+    _setResources(pageDto);
     _fetch();
   }
 
@@ -91,8 +89,10 @@ class CongesDataSource extends CalendarDataSource {
 
   _setResources(PageTeammateDto? pageTeammateDto) {
     resources = [];
+    listTeammateDto = [];
 
     if (pageTeammateDto != null) {
+      listTeammateDto = pageTeammateDto.content;
       resources!.addAll(
         pageTeammateDto.content.map((e) => CalendarResource(
             id: e.email!,
@@ -114,6 +114,7 @@ class CongesDataSource extends CalendarDataSource {
   }
 
   Conges _mapConges(CongesDto dto) {
+    print('_mapConges $dto');
     return Conges(
       id: dto.id,
       dateDebut: DateUtilsService.convertDate(dto.dateDebut!),
@@ -127,6 +128,7 @@ class CongesDataSource extends CalendarDataSource {
   }
 
   CongesCreateDtoTypeCongesEnum _mapTypeConges(CongesDto dto) {
+    print('_mapTypeConges $dto');
     CongesCreateDtoTypeCongesEnum type;
     switch (dto.typeConges!) {
       case CongesDtoTypeCongesEnum.CONGE_PAYE:
@@ -169,19 +171,25 @@ class CongesDataSource extends CalendarDataSource {
   }
 
   void _addCongesToAppointments(Conges conges) {
+    print('_addCongesToAppointments $conges');
     appointments?.add(conges);
     notifyListeners(CalendarDataSourceAction.add, [conges]);
   }
 
-  CongesCreateDto _mapCongesToCreateDto(Conges conges) => CongesCreateDto(
-      id: conges.id,
-      teammateId: userConnectedId,
-      dateDebut: conges.dateDebut,
-      dateFin: conges.dateFin,
-      typeConges: conges.typeConges,
-      commentaire: conges.commentaire,
-      portionDebut: CongesCreateDtoPortionDebutEnum.fromJson(conges.portionDebut)!,
-      portionFin: CongesCreateDtoPortionFinEnum.fromJson(conges.portionFin)!);
+  CongesCreateDto _mapCongesToCreateDto(Conges conges) {
+    print('_mapCongesToCreateDto $conges');
+    final int resourceId =
+        listTeammateDto!.firstWhere((element) => element.email == (conges.resources.first as String)).id!;
+    return CongesCreateDto(
+        id: conges.id,
+        teammateId: resourceId,
+        dateDebut: conges.dateDebut,
+        dateFin: conges.dateFin,
+        typeConges: conges.typeConges,
+        commentaire: conges.commentaire,
+        portionDebut: CongesCreateDtoPortionDebutEnum.fromJson(conges.portionDebut)!,
+        portionFin: CongesCreateDtoPortionFinEnum.fromJson(conges.portionFin)!);
+  }
 
   Conges? _getCongesData(int index) {
     if (index < 0) {

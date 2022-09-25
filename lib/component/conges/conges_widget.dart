@@ -42,7 +42,6 @@ class CongesWidget extends StatelessWidget {
         return Consumer<CongesWidgetNotifier>(builder: (context, notifier, child) {
           dateDebutController.text = notifier.dateToString(notifier.conges.dateDebut);
           dateFinController.text = notifier.dateToString(notifier.conges.dateFin);
-
           return Form(
             key: formKey,
             autovalidateMode: AutovalidateMode.always,

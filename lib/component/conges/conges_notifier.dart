@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:team_manager/openapi/api.dart';
 import 'package:team_manager/page/planning/planning_conges.dart';
-import 'package:team_manager/service/user_connected_service.dart';
 
 class CongesWidgetNotifier extends ChangeNotifier {
   final DateFormat dateFormat = DateFormat('EEEE dd MMMM yyyy', 'fr_FR');
@@ -12,8 +10,6 @@ class CongesWidgetNotifier extends ChangeNotifier {
       CongesCreateDtoPortionDebutEnumTypeTransformer();
   final CongesCreateDtoPortionFinEnumTypeTransformer _portionFinEnumTypeTransformer =
       CongesCreateDtoPortionFinEnumTypeTransformer();
-
-  final UserConnectedService userConnectedService = GetIt.I.get();
 
   final Conges conges;
   final TextEditingController dateDebutController;
@@ -28,7 +24,6 @@ class CongesWidgetNotifier extends ChangeNotifier {
     this.dateFinController,
     this.commentaireController,
   ) {
-    teammateConnected = userConnectedService.user;
     dateDebutController.text = dateToString(conges.dateDebut);
     dateFinController.text = dateToString(conges.dateFin);
     commentaireController.text = conges.commentaire ?? '';
@@ -60,7 +55,6 @@ class CongesWidgetNotifier extends ChangeNotifier {
 
   save(GlobalKey<FormState> formKey, Function(Conges conges) onSave) {
     if (formKey.currentState?.validate() == true) {
-      conges.resources = [teammateConnected!.email!];
       onSave(conges);
     }
   }

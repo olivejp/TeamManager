@@ -30,8 +30,8 @@ class PlanningPage extends StatelessWidget {
       future: teammateControllerApi.getAll(Pageable()),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final dto = snapshot.data;
-          final CongesDataSource dataSource = CongesDataSource(dto);
+          final pageTeammateDto = snapshot.data;
+          final CongesDataSource dataSource = CongesDataSource(pageTeammateDto);
           return ChangeNotifierProvider(
             create: (_) => PlanningPageNotifier(calendarCtl),
             builder: (context, child) {
@@ -135,14 +135,14 @@ class PlanningPage extends StatelessWidget {
                                     firstDayOfWeek: 1,
                                     showCurrentTimeIndicator: true,
                                     dataSource: dataSource,
+                                    blackoutDates: [DateTime(2022, 9, 24), DateTime(2022, 11, 1)],
+                                    timeSlotViewSettings: const TimeSlotViewSettings(timeIntervalWidth: 50),
+                                    appointmentBuilder: appointmentBuilder,
                                     monthViewSettings: const MonthViewSettings(
                                       appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
                                     ),
-                                    blackoutDates: [DateTime(2022, 9, 24), DateTime(2022, 11, 1)],
-                                    timeSlotViewSettings: const TimeSlotViewSettings(timeIntervalWidth: 50),
                                     onTap: (calendarTapDetails) =>
                                         openMeetingWidget(context, dataSource, calendarTapDetails: calendarTapDetails),
-                                    appointmentBuilder: appointmentBuilder,
                                   ),
                                 ),
                               ),
@@ -207,7 +207,7 @@ class PlanningPage extends StatelessWidget {
         id: null,
         dateDebut: calendarTapDetails?.date ?? now,
         dateFin: calendarTapDetails?.date ?? now,
-        resources: [],
+        resources: (calendarTapDetails?.resource?.id != null) ? [calendarTapDetails!.resource!.id] : [],
         typeConges: CongesCreateDtoTypeCongesEnum.CONGE_PAYE,
         portionDebut: portionDebutEnumTypeTransformer.encode(CongesCreateDtoPortionDebutEnum.MATIN),
         portionFin: portionFinEnumTypeTransformer.encode(CongesCreateDtoPortionFinEnum.MATIN),
