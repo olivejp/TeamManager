@@ -17,6 +17,7 @@ class CongesCreateDto {
     required this.dateDebut,
     this.dateFin,
     required this.typeConges,
+    this.commentaire,
   });
 
   int teammateId;
@@ -33,12 +34,21 @@ class CongesCreateDto {
 
   CongesCreateDtoTypeCongesEnum typeConges;
 
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  String? commentaire;
+
   @override
   bool operator ==(Object other) => identical(this, other) || other is CongesCreateDto &&
      other.teammateId == teammateId &&
      other.dateDebut == dateDebut &&
      other.dateFin == dateFin &&
-     other.typeConges == typeConges;
+     other.typeConges == typeConges &&
+     other.commentaire == commentaire;
 
   @override
   int get hashCode =>
@@ -46,10 +56,11 @@ class CongesCreateDto {
     (teammateId.hashCode) +
     (dateDebut.hashCode) +
     (dateFin == null ? 0 : dateFin!.hashCode) +
-    (typeConges.hashCode);
+    (typeConges.hashCode) +
+    (commentaire == null ? 0 : commentaire!.hashCode);
 
   @override
-  String toString() => 'CongesCreateDto[teammateId=$teammateId, dateDebut=$dateDebut, dateFin=$dateFin, typeConges=$typeConges]';
+  String toString() => 'CongesCreateDto[teammateId=$teammateId, dateDebut=$dateDebut, dateFin=$dateFin, typeConges=$typeConges, commentaire=$commentaire]';
 
   Map<String, dynamic> toJson() {
     final _json = <String, dynamic>{};
@@ -59,6 +70,9 @@ class CongesCreateDto {
       _json[r'dateFin'] = dateFin!.toUtc().toIso8601String();
     }
       _json[r'typeConges'] = typeConges;
+    if (commentaire != null) {
+      _json[r'commentaire'] = commentaire;
+    }
     return _json;
   }
 
@@ -85,6 +99,7 @@ class CongesCreateDto {
         dateDebut: mapDateTime(json, r'dateDebut', '')!,
         dateFin: mapDateTime(json, r'dateFin', ''),
         typeConges: CongesCreateDtoTypeCongesEnum.fromJson(json[r'typeConges'])!,
+        commentaire: mapValueOfType<String>(json, r'commentaire'),
       );
     }
     return null;

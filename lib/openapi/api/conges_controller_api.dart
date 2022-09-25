@@ -10,7 +10,6 @@
 
 part of openapi.api;
 
-
 class CongesControllerApi {
   CongesControllerApi([ApiClient? apiClient]) : apiClient = apiClient ?? defaultApiClient;
 
@@ -20,7 +19,9 @@ class CongesControllerApi {
   /// Parameters:
   ///
   /// * [CongesCreateDto] congesCreateDto (required):
-  Future<Response> create2WithHttpInfo(CongesCreateDto congesCreateDto,) async {
+  Future<Response> create2WithHttpInfo(
+    CongesCreateDto congesCreateDto,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/conges';
 
@@ -32,7 +33,6 @@ class CongesControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>['application/json'];
-
 
     return apiClient.invokeAPI(
       path,
@@ -48,8 +48,12 @@ class CongesControllerApi {
   /// Parameters:
   ///
   /// * [CongesCreateDto] congesCreateDto (required):
-  Future<CongesDto?> create2(CongesCreateDto congesCreateDto,) async {
-    final response = await create2WithHttpInfo(congesCreateDto,);
+  Future<CongesDto?> create2(
+    CongesCreateDto congesCreateDto,
+  ) async {
+    final response = await create2WithHttpInfo(
+      congesCreateDto,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -57,8 +61,10 @@ class CongesControllerApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'CongesDto',) as CongesDto;
-    
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'CongesDto',
+      ) as CongesDto;
     }
     return null;
   }
@@ -67,10 +73,11 @@ class CongesControllerApi {
   /// Parameters:
   ///
   /// * [int] id (required):
-  Future<Response> delete3WithHttpInfo(int id,) async {
+  Future<Response> delete3WithHttpInfo(
+    int id,
+  ) async {
     // ignore: prefer_const_declarations
-    final path = r'/api/conges/{id}'
-      .replaceAll('{id}', id.toString());
+    final path = r'/api/conges/{id}'.replaceAll('{id}', id.toString());
 
     // ignore: prefer_final_locals
     Object? postBody;
@@ -80,7 +87,6 @@ class CongesControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -96,8 +102,12 @@ class CongesControllerApi {
   /// Parameters:
   ///
   /// * [int] id (required):
-  Future<Object?> delete3(int id,) async {
-    final response = await delete3WithHttpInfo(id,);
+  Future<Object?> delete3(
+    int id,
+  ) async {
+    final response = await delete3WithHttpInfo(
+      id,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -105,8 +115,10 @@ class CongesControllerApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'Object',) as Object;
-    
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'Object',
+      ) as Object;
     }
     return null;
   }
@@ -115,10 +127,11 @@ class CongesControllerApi {
   /// Parameters:
   ///
   /// * [int] id (required):
-  Future<Response> get2WithHttpInfo(int id,) async {
+  Future<Response> get2WithHttpInfo(
+    int id,
+  ) async {
     // ignore: prefer_const_declarations
-    final path = r'/api/conges/{id}'
-      .replaceAll('{id}', id.toString());
+    final path = r'/api/conges/{id}'.replaceAll('{id}', id.toString());
 
     // ignore: prefer_final_locals
     Object? postBody;
@@ -128,7 +141,6 @@ class CongesControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -144,8 +156,12 @@ class CongesControllerApi {
   /// Parameters:
   ///
   /// * [int] id (required):
-  Future<CongesDto?> get2(int id,) async {
-    final response = await get2WithHttpInfo(id,);
+  Future<CongesDto?> get2(
+    int id,
+  ) async {
+    final response = await get2WithHttpInfo(
+      id,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -153,8 +169,10 @@ class CongesControllerApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'CongesDto',) as CongesDto;
-    
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'CongesDto',
+      ) as CongesDto;
     }
     return null;
   }
@@ -163,7 +181,9 @@ class CongesControllerApi {
   /// Parameters:
   ///
   /// * [Pageable] pageable (required):
-  Future<Response> getAll2WithHttpInfo(Pageable pageable,) async {
+  Future<Response> getAll2WithHttpInfo(
+    Pageable pageable,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/conges';
 
@@ -174,10 +194,9 @@ class CongesControllerApi {
     final headerParams = <String, String>{};
     final formParams = <String, String>{};
 
-      queryParams.addAll(_queryParams('', 'pageable', pageable));
+    queryParams.addAll(_queryParams('', 'pageable', pageable));
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -193,8 +212,12 @@ class CongesControllerApi {
   /// Parameters:
   ///
   /// * [Pageable] pageable (required):
-  Future<PageCongesDto?> getAll2(Pageable pageable,) async {
-    final response = await getAll2WithHttpInfo(pageable,);
+  Future<PageCongesDto?> getAll2(
+    Pageable pageable,
+  ) async {
+    final response = await getAll2WithHttpInfo(
+      pageable,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -202,8 +225,10 @@ class CongesControllerApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'PageCongesDto',) as PageCongesDto;
-    
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'PageCongesDto',
+      ) as PageCongesDto;
     }
     return null;
   }
@@ -212,7 +237,9 @@ class CongesControllerApi {
   /// Parameters:
   ///
   /// * [CongesCreateDto] congesCreateDto (required):
-  Future<Response> update2WithHttpInfo(CongesCreateDto congesCreateDto,) async {
+  Future<Response> update2WithHttpInfo(
+    CongesCreateDto congesCreateDto,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/conges';
 
@@ -224,7 +251,6 @@ class CongesControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>['application/json'];
-
 
     return apiClient.invokeAPI(
       path,
@@ -240,8 +266,12 @@ class CongesControllerApi {
   /// Parameters:
   ///
   /// * [CongesCreateDto] congesCreateDto (required):
-  Future<CongesDto?> update2(CongesCreateDto congesCreateDto,) async {
-    final response = await update2WithHttpInfo(congesCreateDto,);
+  Future<CongesDto?> update2(
+    CongesCreateDto congesCreateDto,
+  ) async {
+    final response = await update2WithHttpInfo(
+      congesCreateDto,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -249,8 +279,10 @@ class CongesControllerApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'CongesDto',) as CongesDto;
-    
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'CongesDto',
+      ) as CongesDto;
     }
     return null;
   }

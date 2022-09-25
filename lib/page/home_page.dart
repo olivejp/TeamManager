@@ -7,7 +7,7 @@ import 'package:team_manager/component/toast_layout_widget.dart';
 import 'package:team_manager/constants.dart';
 import 'package:team_manager/notifier/main_navigation_notifier.dart';
 import 'package:team_manager/page/competence_page.dart';
-import 'package:team_manager/page/planning_page.dart';
+import 'package:team_manager/page/planning/planning_page.dart';
 import 'package:team_manager/page/team_creation_page.dart';
 import 'package:team_manager/service/firebase_authentication_service.dart';
 
