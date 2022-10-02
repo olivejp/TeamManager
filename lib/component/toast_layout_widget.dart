@@ -26,7 +26,6 @@ class ToastLayoutWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Rebuild ToastLayoutWidget');
     return Stack(
       children: [
         child,

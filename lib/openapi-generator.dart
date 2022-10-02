@@ -7,7 +7,7 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
   alwaysRun: true,
   overwriteExistingFiles: true,
   additionalProperties: AdditionalProperties(
-    pubVersion: '31',
+    pubVersion: '34',
     pubAuthor: 'JP OLIVE',
     pubName: 'resource',
     prependFormOrBodyParameters: true,

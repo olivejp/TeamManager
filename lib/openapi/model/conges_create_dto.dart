@@ -25,9 +25,9 @@ class CongesCreateDto {
 
   int teammateId;
 
-  DateTime dateDebut;
+  String dateDebut;
 
-  DateTime dateFin;
+  String dateFin;
 
   CongesCreateDtoPortionDebutEnum portionDebut;
 
@@ -80,8 +80,8 @@ class CongesCreateDto {
   Map<String, dynamic> toJson() {
     final _json = <String, dynamic>{};
       _json[r'teammateId'] = teammateId;
-      _json[r'dateDebut'] = dateDebut.toUtc().toIso8601String();
-      _json[r'dateFin'] = dateFin.toUtc().toIso8601String();
+      _json[r'dateDebut'] = dateDebut;
+      _json[r'dateFin'] = dateFin;
       _json[r'portionDebut'] = portionDebut;
       _json[r'portionFin'] = portionFin;
       _json[r'typeConges'] = typeConges;
@@ -114,8 +114,8 @@ class CongesCreateDto {
 
       return CongesCreateDto(
         teammateId: mapValueOfType<int>(json, r'teammateId')!,
-        dateDebut: mapDateTime(json, r'dateDebut', '')!,
-        dateFin: mapDateTime(json, r'dateFin', '')!,
+        dateDebut: mapValueOfType<String>(json, r'dateDebut')!,
+        dateFin: mapValueOfType<String>(json, r'dateFin')!,
         portionDebut: CongesCreateDtoPortionDebutEnum.fromJson(json[r'portionDebut'])!,
         portionFin: CongesCreateDtoPortionFinEnum.fromJson(json[r'portionFin'])!,
         typeConges: CongesCreateDtoTypeCongesEnum.fromJson(json[r'typeConges'])!,

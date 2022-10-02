@@ -9,6 +9,11 @@ class Theming {
       primarySwatch: Colors.grey,
       colorScheme: ColorScheme.fromSeed(seedColor: Constants.primaryColor),
       textTheme: TextTheme(
+        overline: GoogleFonts.nunito(
+          fontWeight: FontWeight.w500,
+          color: Colors.black87,
+          fontSize: 10,
+        ),
         headline1: GoogleFonts.nunito(
           fontWeight: FontWeight.w900,
           color: Colors.grey,

@@ -21,12 +21,14 @@ class AuthenticationNotifier extends ChangeNotifier {
   /// comme header par défaut dans le apiClient.
   AuthenticationNotifier() {
     authenticationService.listenAuthChanges().listen((user) {
+      print('listenAuthChange');
       this.user = user;
       setToken(this.user);
     });
   }
 
   void setToken(User? user) {
+    print('setToken');
     if (user != null) {
       user.getIdToken(true).then((firebaseToken) => jwtControllerApi.jwt(firebaseToken)).then((jwt) {
         if (jwt != null) {
@@ -42,9 +44,13 @@ class AuthenticationNotifier extends ChangeNotifier {
           userConnectedService.setUser(teammateDto);
           notifyListeners();
         }
-      }).catchError((error) => print('Erreur ' + error));
+      }).catchError((error) {
+        print('Erreur ' + error);
+        notifyListeners();
+      });
     } else {
       apiClient.defaultHeaderMap.update(headerAuthorization, (value) => '');
+      notifyListeners();
     }
   }
 

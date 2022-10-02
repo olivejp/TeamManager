@@ -67,6 +67,8 @@ class CongesWidgetNotifier extends ChangeNotifier {
   setToggleDebut(int index) {
     conges.portionDebut = _portionDebutEnumTypeTransformer
         .encode((index == 0) ? CongesCreateDtoPortionDebutEnum.MATIN : CongesCreateDtoPortionDebutEnum.APRES_MIDI);
+    conges.dateDebut = DateTime(
+        conges.dateDebut.year, conges.dateDebut.month, conges.dateDebut.day, index == 0 ? 0 : 11, index == 0 ? 0 : 59);
     dateDebutController.text = dateToString(conges.dateDebut);
     notifyListeners();
   }
@@ -74,6 +76,8 @@ class CongesWidgetNotifier extends ChangeNotifier {
   setToggleFin(int index) {
     conges.portionFin = _portionFinEnumTypeTransformer
         .encode((index == 0) ? CongesCreateDtoPortionFinEnum.MATIN : CongesCreateDtoPortionFinEnum.APRES_MIDI);
+    conges.dateFin = DateTime(
+        conges.dateFin.year, conges.dateFin.month, conges.dateFin.day, index == 0 ? 12 : 23, index == 0 ? 0 : 59);
     dateFinController.text = dateToString(conges.dateFin);
     notifyListeners();
   }

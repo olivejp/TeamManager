@@ -45,7 +45,7 @@ class CongesDto {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  DateTime? dateDebut;
+  String? dateDebut;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -53,7 +53,7 @@ class CongesDto {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  DateTime? dateFin;
+  String? dateFin;
 
   CongesDtoTypeCongesEnum? typeConges;
 
@@ -104,10 +104,10 @@ class CongesDto {
       _json[r'teammate'] = teammate;
     }
     if (dateDebut != null) {
-      _json[r'dateDebut'] = dateDebut!.toUtc().toIso8601String();
+      _json[r'dateDebut'] = dateDebut;
     }
     if (dateFin != null) {
-      _json[r'dateFin'] = dateFin!.toUtc().toIso8601String();
+      _json[r'dateFin'] = dateFin;
     }
     if (typeConges != null) {
       _json[r'typeConges'] = typeConges;
@@ -145,8 +145,8 @@ class CongesDto {
       return CongesDto(
         id: mapValueOfType<int>(json, r'id'),
         teammate: TeammateDto.fromJson(json[r'teammate']),
-        dateDebut: mapDateTime(json, r'dateDebut', ''),
-        dateFin: mapDateTime(json, r'dateFin', ''),
+        dateDebut: mapValueOfType<String>(json, r'dateDebut'),
+        dateFin: mapValueOfType<String>(json, r'dateFin'),
         typeConges: CongesDtoTypeCongesEnum.fromJson(json[r'typeConges']),
         portionDebut: CongesDtoPortionDebutEnum.fromJson(json[r'portionDebut']),
         portionFin: CongesDtoPortionFinEnum.fromJson(json[r'portionFin']),

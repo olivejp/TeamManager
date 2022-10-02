@@ -24,18 +24,9 @@ class PlanningPageNotifier extends ChangeNotifier {
   changeViewOnIndex(int index) {
     switch (index) {
       case 0:
-        changeView(CalendarView.day);
-        break;
-      case 1:
-        changeView(CalendarView.week);
-        break;
-      case 2:
-        changeView(CalendarView.month);
-        break;
-      case 3:
         changeView(CalendarView.timelineDay);
         break;
-      case 4:
+      case 1:
         changeView(CalendarView.timelineMonth);
         break;
     }

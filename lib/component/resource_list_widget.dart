@@ -12,8 +12,8 @@ import 'package:team_manager/service/toast_service.dart';
 
 import '../domain/view_dialog_action.dart';
 
-class TeamateListWidget extends StatelessWidget {
-  TeamateListWidget({Key? key}) : super(key: key);
+class ResourceListWidget extends StatelessWidget {
+  ResourceListWidget({Key? key}) : super(key: key);
 
   final ToastService serviceToast = GetIt.I.get();
 
@@ -122,9 +122,9 @@ class TeamateListWidget extends StatelessWidget {
                         shrinkWrap: true,
                         scrollDirection: Axis.vertical,
                         itemCount: snapshotListTeamate.data!.length,
-                        itemBuilder: (_, index) => TeammateTile(
-                          teammate: snapshotListTeamate.data!.elementAt(index),
-                        ),
+                        itemBuilder: (_, index) {
+                          return TeammateTile(teammate: snapshotListTeamate.data!.elementAt(index));
+                        },
                       );
                     }
                   }

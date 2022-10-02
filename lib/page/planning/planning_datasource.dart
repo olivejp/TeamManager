@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:team_manager/openapi/api.dart';
 import 'package:team_manager/page/planning/planning_conges.dart';
-import 'package:team_manager/service/date_utils_service.dart';
 
 /// An object to set the appointment collection data source to calendar, which
 /// used to map the custom appointment data to the calendar appointment, and
@@ -16,6 +16,7 @@ class CongesDataSource extends CalendarDataSource {
   final portionFinCreateTr = CongesCreateDtoPortionFinEnumTypeTransformer();
   final portionDebutTr = CongesDtoPortionDebutEnumTypeTransformer();
   final portionFinTr = CongesDtoPortionFinEnumTypeTransformer();
+  final dateFormat = DateFormat('dd-MM-yyyy HH:mm:ss');
 
   List<TeammateDto>? listTeammateDto;
 
@@ -78,8 +79,8 @@ class CongesDataSource extends CalendarDataSource {
     }
   }
 
-  deleteById(int id) {
-    congesControllerApi.delete3(id).then((_) {
+  Future<void> deleteById(int id) {
+    return congesControllerApi.delete3(id).then((_) {
       final int index = appointments!.indexWhere((element) => element.id == id);
       final Conges congesToDelete = appointments![index];
       appointments!.removeWhere((element) => element.id == id);
@@ -117,8 +118,8 @@ class CongesDataSource extends CalendarDataSource {
     print('_mapConges $dto');
     return Conges(
       id: dto.id,
-      dateDebut: DateUtilsService.convertDate(dto.dateDebut!),
-      dateFin: DateUtilsService.convertDate(dto.dateFin!),
+      dateDebut: dateFormat.parse(dto.dateDebut!, false),
+      dateFin: dateFormat.parse(dto.dateFin!, false),
       typeConges: _mapTypeConges(dto),
       portionDebut: portionDebutTr.encode(dto.portionDebut!),
       portionFin: portionFinTr.encode(dto.portionFin!),
@@ -187,8 +188,8 @@ class CongesDataSource extends CalendarDataSource {
       return CongesCreateDto(
           id: conges.id,
           teammateId: teammateId!,
-          dateDebut: conges.dateDebut,
-          dateFin: conges.dateFin,
+          dateDebut: dateFormat.format(conges.dateDebut),
+          dateFin: dateFormat.format(conges.dateFin),
           typeConges: conges.typeConges,
           commentaire: conges.commentaire,
           portionDebut: CongesCreateDtoPortionDebutEnum.fromJson(conges.portionDebut)!,

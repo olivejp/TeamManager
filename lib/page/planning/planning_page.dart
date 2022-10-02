@@ -6,17 +6,35 @@ import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:team_manager/component/conges/conges_widget.dart';
+import 'package:team_manager/component/left_bar.dart';
 import 'package:team_manager/constants.dart';
 import 'package:team_manager/openapi/api.dart';
 import 'package:team_manager/page/planning/planning_conges.dart';
 import 'package:team_manager/page/planning/planning_datasource.dart';
 import 'package:team_manager/page/planning/planning_page_notifier.dart';
 
+class ListCongesNotifier extends ChangeNotifier {
+  final CongesControllerApi congesControllerApi = GetIt.I.get();
+
+  List<CongesDto> listConges = [];
+
+  reload() {
+    congesControllerApi.getAll2(Pageable()).then((value) {
+      listConges = value!.content;
+      notifyListeners();
+    });
+  }
+}
+
 class PlanningPage extends StatelessWidget {
   final CongesCreateDtoPortionDebutEnumTypeTransformer portionDebutEnumTypeTransformer =
       CongesCreateDtoPortionDebutEnumTypeTransformer();
   final CongesCreateDtoPortionFinEnumTypeTransformer portionFinEnumTypeTransformer =
       CongesCreateDtoPortionFinEnumTypeTransformer();
+
+  final congesPayesColor = const Color(0xFF1B46D0);
+  final maladieColor = const Color(0xFF1B7FD0);
+  final sansSoldeColor = const Color(0xFF1BA6D0);
 
   PlanningPage({Key? key}) : super(key: key);
 
@@ -26,140 +44,177 @@ class PlanningPage extends StatelessWidget {
     final TeammateControllerApi teammateControllerApi = GetIt.I.get();
     calendarCtl.view = CalendarView.timelineMonth;
 
-    return FutureBuilder<PageTeammateDto?>(
-      future: teammateControllerApi.getAll(Pageable()),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final pageTeammateDto = snapshot.data;
-          final CongesDataSource dataSource = CongesDataSource(pageTeammateDto);
-          return ChangeNotifierProvider(
-            create: (_) => PlanningPageNotifier(calendarCtl),
-            builder: (context, child) {
-              return Scaffold(
-                floatingActionButton: FloatingActionButton(
-                  isExtended: true,
-                  onPressed: () => openMeetingWidget(context, dataSource),
-                  child: const Icon(Icons.edit_calendar),
-                ),
-                body: Center(
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Text(
-                          'Planning',
-                          style: GoogleFonts.nunito(fontSize: 20),
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => PlanningPageNotifier(calendarCtl)),
+          ChangeNotifierProvider(create: (_) => ListCongesNotifier()),
+        ],
+        child: Scaffold(
+          body: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const LeftBarWidget(),
+              Expanded(
+                child: FutureBuilder<PageTeammateDto?>(
+                    future: teammateControllerApi.getAll(Pageable()),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        final pageTeammateDto = snapshot.data;
+                        final CongesDataSource dataSource = CongesDataSource(pageTeammateDto);
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextButton(
-                                  onPressed: () => calendarCtl.backward!(),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.arrow_back_ios_sharp),
-                                      Text('previous'.i18n()),
-                                    ],
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Consumer<PlanningPageNotifier>(builder: (context, planningNotifier, child) {
-                                      return ToggleButtons(
-                                        color: Colors.white,
-                                        borderColor: Colors.white,
-                                        selectedBorderColor: Constants.primaryColor,
-                                        borderRadius: Constants.borderRadius,
-                                        onPressed: planningNotifier.changeViewOnIndex,
-                                        isSelected: [
-                                          calendarCtl.view == CalendarView.day,
-                                          calendarCtl.view == CalendarView.week,
-                                          calendarCtl.view == CalendarView.month,
-                                          calendarCtl.view == CalendarView.timelineDay,
-                                          calendarCtl.view == CalendarView.timelineMonth
-                                        ],
-                                        children: const [
-                                          Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                            child: Text('Jour'),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                            child: Text('Semaine'),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                            child: Text('Mois'),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                            child: Text('Timeline jour'),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                            child: Text('Timeline mois'),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                                    TextButton(
-                                      onPressed: () => calendarCtl.forward!(),
-                                      child: Row(
-                                        children: [
-                                          Text('next'.i18n()),
-                                          const Icon(Icons.arrow_forward_ios_sharp),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            Center(
+                              child: Text(
+                                'Planning',
+                                style: GoogleFonts.nunito(fontSize: 20),
+                              ),
                             ),
                             Expanded(
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: Constants.borderRadius,
-                                ),
-                                color: Colors.white,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: SfCalendar(
-                                    showDatePickerButton: true,
-                                    controller: calendarCtl,
-                                    allowAppointmentResize: true,
-                                    view: CalendarView.month,
-                                    backgroundColor: Colors.white,
-                                    firstDayOfWeek: 1,
-                                    showCurrentTimeIndicator: true,
-                                    dataSource: dataSource,
-                                    blackoutDates: [DateTime(2022, 9, 24), DateTime(2022, 11, 1)],
-                                    timeSlotViewSettings: const TimeSlotViewSettings(timeIntervalWidth: 50),
-                                    appointmentBuilder: appointmentBuilder,
-                                    monthViewSettings: const MonthViewSettings(
-                                      appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-                                    ),
-                                    onTap: (calendarTapDetails) =>
-                                        openMeetingWidget(context, dataSource, calendarTapDetails: calendarTapDetails),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () => calendarCtl.backward!(),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.arrow_back_ios_sharp),
+                                            Text('previous'.i18n()),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          Consumer<PlanningPageNotifier>(builder: (context, planningNotifier, child) {
+                                            return ToggleButtons(
+                                              color: Colors.white,
+                                              borderColor: Colors.white,
+                                              selectedBorderColor: Constants.primaryColor,
+                                              borderRadius: Constants.borderRadius,
+                                              onPressed: planningNotifier.changeViewOnIndex,
+                                              isSelected: [
+                                                calendarCtl.view == CalendarView.timelineDay,
+                                                calendarCtl.view == CalendarView.timelineMonth
+                                              ],
+                                              children: const [
+                                                Padding(
+                                                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                                  child: Text('Timeline jour'),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                                  child: Text('Timeline mois'),
+                                                ),
+                                              ],
+                                            );
+                                          }),
+                                          TextButton(
+                                            onPressed: () => calendarCtl.forward!(),
+                                            child: Row(
+                                              children: [
+                                                Text('next'.i18n()),
+                                                const Icon(Icons.arrow_forward_ios_sharp),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                ),
+                                  Expanded(
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: Constants.borderRadius,
+                                      ),
+                                      color: Colors.white,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SfCalendar(
+                                          showDatePickerButton: true,
+                                          controller: calendarCtl,
+                                          allowAppointmentResize: true,
+                                          view: CalendarView.month,
+                                          backgroundColor: Colors.white,
+                                          firstDayOfWeek: 1,
+                                          showCurrentTimeIndicator: true,
+                                          dataSource: dataSource,
+                                          resourceViewSettings: const ResourceViewSettings(size: 60),
+                                          resourceViewHeaderBuilder: resourceBuilder,
+                                          blackoutDates: [DateTime(2022, 9, 24), DateTime(2022, 11, 1)],
+                                          timeSlotViewSettings: const TimeSlotViewSettings(timeIntervalWidth: 50),
+                                          appointmentBuilder: appointmentBuilder,
+                                          monthViewSettings: const MonthViewSettings(
+                                            appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
+                                          ),
+                                          onTap: (calendarTapDetails) => openMeetingWidget(context, dataSource,
+                                              calendarTapDetails: calendarTapDetails),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
-                        ),
-                      ),
-                    ],
+                        );
+                      } else {
+                        return LoadingRotating.square();
+                      }
+                    }),
+              ),
+            ],
+          ),
+        ));
+  }
+
+  Widget resourceBuilder(BuildContext context, ResourceViewHeaderDetails details) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CircleAvatar(
+          foregroundImage: details.resource.image,
+          backgroundColor: details.resource.color,
+        ),
+        Text(
+          details.resource.displayName,
+          style: Theme.of(context).textTheme.overline!.copyWith(color: Colors.black87),
+        ),
+        Consumer<ListCongesNotifier>(builder: (_, notifier, __) {
+          final String email = details.resource.id as String;
+
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Container(
+                    color: congesPayesColor,
+                    child: const Center(child: Text('0')),
                   ),
                 ),
-              );
-            },
+                Expanded(
+                  child: Container(
+                    color: maladieColor,
+                    child: const Center(child: Text('0')),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    color: sansSoldeColor,
+                    child: const Center(child: Text('0')),
+                  ),
+                ),
+              ],
+            ),
           );
-        } else {
-          return LoadingRotating.square();
-        }
-      },
+        })
+      ],
     );
   }
 
@@ -169,16 +224,16 @@ class PlanningPage extends StatelessWidget {
     Color color;
     switch (conges.typeConges) {
       case CongesCreateDtoTypeCongesEnum.CONGE_PAYE:
-        color = const Color(0xFFA621F3);
+        color = congesPayesColor;
         break;
       case CongesCreateDtoTypeCongesEnum.MALADIE:
-        color = const Color(0xFF67F321);
+        color = maladieColor;
         break;
       case CongesCreateDtoTypeCongesEnum.SANS_SOLDE:
-        color = const Color(0xFFF32159);
+        color = sansSoldeColor;
         break;
       default:
-        color = const Color(0xFF2196F3);
+        color = congesPayesColor;
     }
 
     return Container(
@@ -219,10 +274,15 @@ class PlanningPage extends StatelessWidget {
       builder: (alertContext) => AlertDialog(
         content: CongesWidget(
           initialConges: initialConges,
-          onSave: (conges) => dataSource.saveConges(conges).then((_) => Navigator.of(context).pop()),
-          onDelete: (id) {
-            dataSource.deleteById(id);
+          onSave: (conges) => dataSource.saveConges(conges).then((_) {
+            // Provider.of<ListCongesNotifier>(context).reload();
             Navigator.of(context).pop();
+          }),
+          onDelete: (id) {
+            dataSource.deleteById(id).then((_) {
+              // Provider.of<ListCongesNotifier>(context).reload();
+              Navigator.of(context).pop();
+            });
           },
           onExit: Navigator.of(context).pop,
         ),
