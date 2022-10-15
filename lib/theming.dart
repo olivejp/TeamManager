@@ -58,6 +58,8 @@ class Theming {
       scaffoldBackgroundColor: const Color(0xff1d1b26),
       primarySwatch: Colors.grey,
       colorScheme: ColorScheme.fromSeed(seedColor: Constants.primaryColor),
+      cardTheme: const CardTheme(color: Constants.backgroundColor),
+      dialogTheme: const DialogTheme(backgroundColor: Constants.backgroundColor),
       textTheme: TextTheme(
         headline1: GoogleFonts.nunito(
           fontWeight: FontWeight.w900,

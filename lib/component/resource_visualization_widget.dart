@@ -174,7 +174,9 @@ class ResourceDetailWidget extends StatelessWidget {
                             }
                             showDatePicker(
                                     context: context,
-                                    initialDate: notifier.teammateToVisualize?.dateNaissance ?? DateTime.now(),
+                                    initialDate: (notifier.teammateToVisualize?.dateNaissance != null)
+                                        ? dateFormat.parse(notifier.teammateToVisualize!.dateNaissance!)
+                                        : DateTime.now(),
                                     firstDate: DateTime(1900),
                                     lastDate: DateTime(2100))
                                 .then((value) {
@@ -283,7 +285,6 @@ class ResourceDetailWidget extends StatelessWidget {
     firstnameController.text = teammate.prenom ?? '';
     descriptionController.text = teammate.description ?? '';
     emailController.text = teammate.email ?? '';
-    birthdateController.text =
-        (teammate.dateNaissance?.toString() != null) ? format.format(teammate.dateNaissance!) : '';
+    birthdateController.text = (teammate.dateNaissance != null) ? teammate.dateNaissance! : '';
   }
 }

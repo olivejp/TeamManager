@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -61,10 +60,10 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  setBirthdateAsString(String value) {
+  setBirthdateAsString(String dateAsString) {
     try {
-      final DateTime dateFinParsed = dateFormat.parse(value);
-      teammateToVisualize!.dateNaissance = dateFinParsed;
+      dateFormat.parse(dateAsString);
+      teammateToVisualize!.dateNaissance = dateAsString;
     } catch (exception) {
       print('Date impossible à formatter.');
     }
@@ -137,8 +136,9 @@ class TeamateVisualizeNotifier extends ChangeNotifier {
   }
 
   setBirthdate(DateTime? newBirthdate, TextEditingController birthdateController) {
-    teammateToVisualize?.dateNaissance = newBirthdate;
-    birthdateController.text = dateToString(newBirthdate!);
+    if (newBirthdate == null) return;
+    teammateToVisualize?.dateNaissance = dateFormat.format(newBirthdate);
+    birthdateController.text = dateToString(newBirthdate);
   }
 
   setDescription(String value) {

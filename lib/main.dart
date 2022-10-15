@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
+import 'package:team_manager/constants.dart';
 import 'package:team_manager/firebase_options.dart';
 import 'package:team_manager/injection_dependencies.dart';
 import 'package:team_manager/notifier/authentication_notifier.dart';
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthenticationNotifier()),
       ],
       builder: (context, child) => MaterialApp.router(
-        title: 'Team Manager',
+        title: Constants.appTitle,
         routerDelegate: TeammateRouterDelegate(),
         routeInformationParser: TeammateRouteInformationParser(),
         supportedLocales: const [

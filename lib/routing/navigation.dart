@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:team_manager/constants.dart';
 import 'package:team_manager/page/home_page.dart';
 import 'package:team_manager/page/not_found_page.dart';
 import 'package:team_manager/page/planning/planning_page.dart';
@@ -23,7 +24,7 @@ class TeammateRouterDelegate extends RouterDelegate<RoutePath>
     // Va écouter si l'utilisateur se déconnecte, on renvoie TOUJOURS vers la page SignIn.
     firebaseAuthenticationService.listenAuthChanges().listen((userOrNull) {
       if (userOrNull == null) {
-        navigationService.changePath('/signin');
+        navigationService.changePath('/${Constants.signInPath}');
       }
     });
 
@@ -41,7 +42,7 @@ class TeammateRouterDelegate extends RouterDelegate<RoutePath>
   @override
   RoutePath get currentConfiguration {
     if (FirebaseAuth.instance.currentUser == null) {
-      pathName = '/signin';
+      pathName = '/${Constants.signInPath}';
     }
     return RoutePath(pathName);
   }
@@ -52,16 +53,16 @@ class TeammateRouterDelegate extends RouterDelegate<RoutePath>
     Widget widget;
     if (uri.pathSegments.isNotEmpty) {
       switch (uri.pathSegments.elementAt(0)) {
-        case 'signin':
-          widget = const SignInPage(path: 'home');
+        case Constants.signInPath:
+          widget = const SignInPage(path: Constants.homePath);
           break;
-        case 'home' '':
+        case Constants.homePath:
           widget = const HomePage();
           break;
-        case 'resource':
+        case Constants.resourcePath:
           widget = const ResourcePage();
           break;
-        case 'planning':
+        case Constants.planningPath:
           widget = PlanningPage();
           break;
         default:

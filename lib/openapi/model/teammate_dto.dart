@@ -53,7 +53,7 @@ class TeammateDto {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  DateTime? dateNaissance;
+  String? dateNaissance;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -125,7 +125,7 @@ class TeammateDto {
       _json[r'prenom'] = prenom;
     }
     if (dateNaissance != null) {
-      _json[r'dateNaissance'] = dateNaissance!.toUtc().toIso8601String();
+      _json[r'dateNaissance'] = dateNaissance;
     }
     if (photo != null) {
       _json[r'photo'] = photo;
@@ -164,7 +164,7 @@ class TeammateDto {
         id: mapValueOfType<int>(json, r'id'),
         nom: mapValueOfType<String>(json, r'nom'),
         prenom: mapValueOfType<String>(json, r'prenom'),
-        dateNaissance: mapDateTime(json, r'dateNaissance', ''),
+        dateNaissance: mapValueOfType<String>(json, r'dateNaissance'),
         photo: mapValueOfType<String>(json, r'photo'),
         email: mapValueOfType<String>(json, r'email'),
         telephone: mapValueOfType<String>(json, r'telephone'),

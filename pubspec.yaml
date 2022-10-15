@@ -36,7 +36,8 @@ dependencies:
   mime_type: ^1.0.0
   multi_select_flutter: ^4.1.2
   flutter_rating_bar: ^4.0.0
-  syncfusion_flutter_calendar: ^20.2.49
+  syncfusion_flutter_core: ^20.3.47
+  syncfusion_flutter_calendar: ^20.3.47
 
   openapi_generator_annotations: ^4.0.0
   flutter_colorpicker: ^1.0.3

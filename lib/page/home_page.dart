@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:team_manager/component/left_bar.dart';
 import 'package:team_manager/constants.dart';
 import 'package:team_manager/page/route_page.dart';
+import 'package:team_manager/service/user_connected_service.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({
@@ -11,6 +13,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final UserConnectedService userConnectedService = GetIt.I.get();
     final DateTime now = DateTime.now();
     final DateFormat formatter = DateFormat('dd MMMM yyyy, HH:mm', 'fr_FR');
 
@@ -54,10 +57,13 @@ class HomePage extends StatelessWidget {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  const Icon(
-                                    Icons.calendar_today_rounded,
-                                    color: Constants.iconColor,
-                                    size: 16,
+                                  const Padding(
+                                    padding: EdgeInsets.only(right: 8.0),
+                                    child: Icon(
+                                      Icons.calendar_today_rounded,
+                                      color: Constants.iconColor,
+                                      size: 16,
+                                    ),
                                   ),
                                   Text(
                                     formatter.format(now),
@@ -66,7 +72,7 @@ class HomePage extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            const Text('Good Day, Dr. Nicholls'),
+                            Text('Good Day, ${userConnectedService.user?.email}'),
                             const Text('Have a Nice Monday!')
                           ],
                         ),

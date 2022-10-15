@@ -31,7 +31,7 @@ class LeftBarWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Team Manager',
+              Constants.appTitle,
               style: Theme.of(context).textTheme.subtitle1,
             ),
             Column(
@@ -39,14 +39,14 @@ class LeftBarWidget extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: iconVerticalPadding),
                   child: IconButton(
-                    onPressed: () => navigationService.changePath('/home'),
+                    onPressed: () => navigationService.changePath('/${Constants.homePath}'),
                     icon: const Icon(Icons.home),
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: iconVerticalPadding),
                   child: IconButton(
-                    onPressed: () => navigationService.changePath('/resource'),
+                    onPressed: () => navigationService.changePath('/${Constants.resourcePath}'),
                     icon: const Icon(Icons.account_box),
                     tooltip: 'team'.i18n(),
                   ),
@@ -54,21 +54,7 @@ class LeftBarWidget extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: iconVerticalPadding),
                   child: IconButton(
-                    onPressed: () => navigationService.changePath('/competences'),
-                    icon: const Icon(Icons.send_rounded),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: iconVerticalPadding),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.apps_rounded),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: iconVerticalPadding),
-                  child: IconButton(
-                    onPressed: () => navigationService.changePath('/planning'),
+                    onPressed: () => navigationService.changePath('/${Constants.planningPath}'),
                     icon: const Icon(Icons.calendar_today_rounded),
                     tooltip: 'Congés',
                   ),
