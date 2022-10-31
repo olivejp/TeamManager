@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:team_manager/openapi/api.dart';
-import 'package:team_manager/service/user_connected_service.dart';
 
 class PlanningPageNotifier extends ChangeNotifier {
   final PlanningControllerApi planningControllerApi = GetIt.I.get();
   final CongesControllerApi congesControllerApi = GetIt.I.get();
-  final UserConnectedService userConnectedService = GetIt.I.get();
   final CalendarController calendarController;
 
   PlanningPageNotifier(this.calendarController);

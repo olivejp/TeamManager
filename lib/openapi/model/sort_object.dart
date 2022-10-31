@@ -14,8 +14,8 @@ class SortObject {
   /// Returns a new [SortObject] instance.
   SortObject({
     this.empty,
-    this.unsorted,
     this.sorted,
+    this.unsorted,
   });
 
   ///
@@ -32,7 +32,7 @@ class SortObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  bool? unsorted;
+  bool? sorted;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -40,34 +40,34 @@ class SortObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  bool? sorted;
+  bool? unsorted;
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is SortObject &&
      other.empty == empty &&
-     other.unsorted == unsorted &&
-     other.sorted == sorted;
+     other.sorted == sorted &&
+     other.unsorted == unsorted;
 
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
     (empty == null ? 0 : empty!.hashCode) +
-    (unsorted == null ? 0 : unsorted!.hashCode) +
-    (sorted == null ? 0 : sorted!.hashCode);
+    (sorted == null ? 0 : sorted!.hashCode) +
+    (unsorted == null ? 0 : unsorted!.hashCode);
 
   @override
-  String toString() => 'SortObject[empty=$empty, unsorted=$unsorted, sorted=$sorted]';
+  String toString() => 'SortObject[empty=$empty, sorted=$sorted, unsorted=$unsorted]';
 
   Map<String, dynamic> toJson() {
     final _json = <String, dynamic>{};
     if (empty != null) {
       _json[r'empty'] = empty;
     }
-    if (unsorted != null) {
-      _json[r'unsorted'] = unsorted;
-    }
     if (sorted != null) {
       _json[r'sorted'] = sorted;
+    }
+    if (unsorted != null) {
+      _json[r'unsorted'] = unsorted;
     }
     return _json;
   }
@@ -92,8 +92,8 @@ class SortObject {
 
       return SortObject(
         empty: mapValueOfType<bool>(json, r'empty'),
-        unsorted: mapValueOfType<bool>(json, r'unsorted'),
         sorted: mapValueOfType<bool>(json, r'sorted'),
+        unsorted: mapValueOfType<bool>(json, r'unsorted'),
       );
     }
     return null;

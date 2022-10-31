@@ -9,40 +9,40 @@ class Theming {
       primarySwatch: Colors.grey,
       colorScheme: ColorScheme.fromSeed(seedColor: Constants.primaryColor),
       textTheme: TextTheme(
-        overline: GoogleFonts.nunito(
+        labelSmall: GoogleFonts.nunito(
           fontWeight: FontWeight.w500,
           color: Colors.black87,
           fontSize: 10,
         ),
-        headline1: GoogleFonts.nunito(
+        displayLarge: GoogleFonts.nunito(
           fontWeight: FontWeight.w900,
           color: Colors.grey,
           fontSize: 50,
         ),
-        headline6: GoogleFonts.nunito(
+        titleLarge: GoogleFonts.nunito(
           fontWeight: FontWeight.w500,
           color: Colors.grey,
           fontSize: 20,
         ),
-        caption: GoogleFonts.nunito(
+        bodySmall: GoogleFonts.nunito(
           color: Colors.grey,
           fontSize: 16,
         ),
-        subtitle1: GoogleFonts.nunito(
+        titleMedium: GoogleFonts.nunito(
           color: Colors.white,
           fontSize: 18,
         ),
-        subtitle2: GoogleFonts.roboto(
+        titleSmall: GoogleFonts.roboto(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.25,
         ),
-        bodyText1: GoogleFonts.nunito(
+        bodyLarge: GoogleFonts.nunito(
           color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-        bodyText2: GoogleFonts.nunito(
+        bodyMedium: GoogleFonts.nunito(
           color: Colors.white,
           fontSize: 15,
         ),
@@ -61,35 +61,35 @@ class Theming {
       cardTheme: const CardTheme(color: Constants.backgroundColor),
       dialogTheme: const DialogTheme(backgroundColor: Constants.backgroundColor),
       textTheme: TextTheme(
-        headline1: GoogleFonts.nunito(
+        displayLarge: GoogleFonts.nunito(
           fontWeight: FontWeight.w900,
           color: Colors.grey,
           fontSize: 50,
         ),
-        headline6: GoogleFonts.nunito(
+        titleLarge: GoogleFonts.nunito(
           fontWeight: FontWeight.w500,
           color: Colors.grey,
           fontSize: 20,
         ),
-        caption: GoogleFonts.nunito(
+        bodySmall: GoogleFonts.nunito(
           color: Colors.grey,
           fontSize: 16,
         ),
-        subtitle1: GoogleFonts.nunito(
+        titleMedium: GoogleFonts.nunito(
           color: Colors.white,
           fontSize: 18,
         ),
-        subtitle2: GoogleFonts.roboto(
+        titleSmall: GoogleFonts.roboto(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.25,
         ),
-        bodyText1: GoogleFonts.nunito(
+        bodyLarge: GoogleFonts.nunito(
           color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-        bodyText2: GoogleFonts.nunito(
+        bodyMedium: GoogleFonts.nunito(
           color: Colors.white,
           fontSize: 15,
         ),

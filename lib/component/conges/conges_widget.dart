@@ -16,10 +16,10 @@ class CongesWidget extends StatelessWidget {
   final TextEditingController dateDebutController = TextEditingController();
   final TextEditingController dateFinController = TextEditingController();
 
-  final CongesCreateDtoPortionDebutEnumTypeTransformer _portionDebutEnumTypeTransformer =
-      CongesCreateDtoPortionDebutEnumTypeTransformer();
-  final CongesCreateDtoPortionFinEnumTypeTransformer _portionFinEnumTypeTransformer =
-      CongesCreateDtoPortionFinEnumTypeTransformer();
+  final CongesPersistDtoPortionDebutEnumTypeTransformer _portionDebutEnumTypeTransformer =
+      CongesPersistDtoPortionDebutEnumTypeTransformer();
+  final CongesPersistDtoPortionFinEnumTypeTransformer _portionFinEnumTypeTransformer =
+      CongesPersistDtoPortionFinEnumTypeTransformer();
 
   CongesWidget({
     Key? key,
@@ -46,15 +46,16 @@ class CongesWidget extends StatelessWidget {
             key: formKey,
             autovalidateMode: AutovalidateMode.always,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ToggleButtons(
                   onPressed: notifier.selectToggle,
-                  isSelected: CongesCreateDtoTypeCongesEnum.values.map((e) => e == notifier.conges.typeConges).toList(),
+                  isSelected:
+                      CongesPersistDtoTypeCongesEnum.values.map((e) => e == notifier.conges.typeConges).toList(),
                   borderWidth: 0,
                   borderRadius: BorderRadius.circular(5),
-                  textStyle: Theme.of(context).textTheme.subtitle2,
+                  textStyle: Theme.of(context).textTheme.titleSmall,
                   children: const [
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -85,10 +86,10 @@ class CongesWidget extends StatelessWidget {
                         child: TextFormField(
                           controller: dateDebutController,
                           readOnly: true,
-                          style: Theme.of(context).textTheme.bodyText2?.copyWith(color: Colors.black),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black),
                           decoration: InputDecoration(
                               label: Text('from'.i18n()),
-                              labelStyle: Theme.of(context).textTheme.caption?.copyWith(color: Colors.black),
+                              labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black),
                               suffixIcon: IconButton(
                                 onPressed: () {
                                   showDatePicker(
@@ -118,12 +119,12 @@ class CongesWidget extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 8.0),
                           child: ToggleButtons(
                             onPressed: notifier.setToggleDebut,
-                            isSelected: CongesCreateDtoPortionDebutEnum.values
+                            isSelected: CongesPersistDtoPortionDebutEnum.values
                                 .map((e) => e == _portionDebutEnumTypeTransformer.decode(notifier.conges.portionDebut))
                                 .toList(),
                             borderWidth: 0,
                             borderRadius: BorderRadius.circular(5),
-                            textStyle: Theme.of(context).textTheme.subtitle2,
+                            textStyle: Theme.of(context).textTheme.titleSmall,
                             children: [
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -149,10 +150,10 @@ class CongesWidget extends StatelessWidget {
                         child: TextFormField(
                           controller: dateFinController,
                           readOnly: true,
-                          style: Theme.of(context).textTheme.bodyText2?.copyWith(color: Colors.black),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black),
                           decoration: InputDecoration(
                             label: Text('to'.i18n()),
-                            labelStyle: Theme.of(context).textTheme.caption?.copyWith(color: Colors.black),
+                            labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black),
                             suffixIcon: IconButton(
                               onPressed: () {
                                 showDatePicker(
@@ -177,9 +178,9 @@ class CongesWidget extends StatelessWidget {
                             DateTime dateDebut = notifier.conges.dateDebut;
                             DateTime dateFin = notifier.conges.dateFin;
                             if (dateFin.isAtSameMomentAs(dateDebut) &&
-                                (CongesCreateDtoPortionDebutEnum.APRES_MIDI ==
+                                (CongesPersistDtoPortionDebutEnum.APRES_MIDI ==
                                         _portionDebutEnumTypeTransformer.decode(notifier.conges.portionDebut) &&
-                                    CongesCreateDtoPortionFinEnum.MATIN ==
+                                    CongesPersistDtoPortionFinEnum.MATIN ==
                                         _portionFinEnumTypeTransformer.decode(notifier.conges.portionFin))) {
                               return 'Date de fin antérieure à date de début.';
                             }
@@ -195,13 +196,13 @@ class CongesWidget extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.only(left: 8.0),
                           child: ToggleButtons(
-                            isSelected: CongesCreateDtoPortionFinEnum.values
+                            isSelected: CongesPersistDtoPortionFinEnum.values
                                 .map((e) => e == _portionFinEnumTypeTransformer.decode(notifier.conges.portionFin))
                                 .toList(),
                             onPressed: notifier.setToggleFin,
                             borderWidth: 0,
                             borderRadius: BorderRadius.circular(5),
-                            textStyle: Theme.of(context).textTheme.subtitle2,
+                            textStyle: Theme.of(context).textTheme.titleSmall,
                             children: [
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -223,15 +224,15 @@ class CongesWidget extends StatelessWidget {
                   child: TextFormField(
                     controller: commentaireController,
                     onChanged: notifier.setCommentaire,
-                    style: Theme.of(context).textTheme.bodyText2?.copyWith(color: Colors.black),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black),
                     minLines: 2,
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
                     maxLength: 2000,
                     decoration: InputDecoration(
                         label: Text('comment'.i18n()),
-                        labelStyle: Theme.of(context).textTheme.caption?.copyWith(color: Colors.black),
-                        counterStyle: Theme.of(context).textTheme.caption,
+                        labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black),
+                        counterStyle: Theme.of(context).textTheme.bodySmall,
                         border: const OutlineInputBorder()),
                   ),
                 ),
@@ -254,7 +255,7 @@ class CongesWidget extends StatelessWidget {
                           ),
                           child: Text(
                             'delete'.i18n(),
-                            style: Theme.of(context).textTheme.subtitle2!.copyWith(color: Colors.red),
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.red),
                           ),
                         ),
                       Row(
@@ -265,7 +266,7 @@ class CongesWidget extends StatelessWidget {
                             child: TextButton(
                               onPressed: onExit,
                               style: ButtonStyle(
-                                textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.subtitle2),
+                                textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.titleSmall),
                                 padding:
                                     MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 20, horizontal: 20)),
                                 shape: MaterialStateProperty.all(
@@ -278,7 +279,7 @@ class CongesWidget extends StatelessWidget {
                           TextButton(
                             onPressed: () => notifier.save(formKey, onSave),
                             style: ButtonStyle(
-                              textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.subtitle2),
+                              textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.titleSmall),
                               backgroundColor: MaterialStateProperty.all(Constants.primaryColor),
                               foregroundColor: MaterialStateProperty.all(Colors.white),
                               padding:

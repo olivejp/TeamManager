@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animations/loading_animations.dart';
 import 'package:team_manager/component/left_bar.dart';
 import 'package:team_manager/constants.dart';
+import 'package:team_manager/openapi/api.dart';
 import 'package:team_manager/page/route_page.dart';
-import 'package:team_manager/service/user_connected_service.dart';
+import 'package:team_manager/service/firebase_authentication_service.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({
@@ -13,10 +15,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final UserConnectedService userConnectedService = GetIt.I.get();
+    final FirebaseAuthenticationService firebaseAuthenticationService = GetIt.I.get();
+    final DashboardControllerApi dashboardControllerApi = GetIt.I.get();
     final DateTime now = DateTime.now();
     final DateFormat formatter = DateFormat('dd MMMM yyyy, HH:mm', 'fr_FR');
-
     return Scaffold(
       body: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -67,13 +69,40 @@ class HomePage extends StatelessWidget {
                                   ),
                                   Text(
                                     formatter.format(now),
-                                    style: Theme.of(context).textTheme.bodyText2,
+                                    style: Theme.of(context).textTheme.bodyMedium,
                                   ),
                                 ],
                               ),
                             ),
-                            Text('Good Day, ${userConnectedService.user?.email}'),
-                            const Text('Have a Nice Monday!')
+                            StreamBuilder<TeammateDto?>(
+                                stream: firebaseAuthenticationService.teammateConnectedStr(),
+                                builder: (context, value) {
+                                  if (value.hasData) {
+                                    return Text('Good Day, ${value.data!.email}');
+                                  } else {
+                                    return const Text('Good Day');
+                                  }
+                                }),
+                            FutureBuilder<List<DashboardDto>?>(
+                              future: dashboardControllerApi.getDashboard(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  final List<DashboardDto> listDashboard = snapshot.data!;
+                                  return ListView.builder(
+                                    itemCount: listDashboard.length,
+                                    itemBuilder: (context, index) {
+                                      return Row(
+                                        children: [
+                                          Text(listDashboard.elementAt(index).type!.value),
+                                          Text(listDashboard.elementAt(index).nbJours as String),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
+                                return LoadingRotating.square();
+                              },
+                            ),
                           ],
                         ),
                       ],

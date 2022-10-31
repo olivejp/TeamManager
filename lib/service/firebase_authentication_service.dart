@@ -1,28 +1,42 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:team_manager/openapi/api.dart';
-import 'package:team_manager/service/user_connected_service.dart';
 
 class FirebaseAuthenticationService {
   final ApiClient apiClient = GetIt.I.get();
-  final UserConnectedService userConnectedService = GetIt.I.get();
   final JwtControllerApi jwtControllerApi = GetIt.I.get();
   final String headerAuthorization = 'Authorization';
+  final BehaviorSubject<bool> _isAuthenticatedSub = BehaviorSubject.seeded(false);
+  final BehaviorSubject<TeammateDto?> _teammateConnectedSub = BehaviorSubject.seeded(null);
 
   FirebaseAuthenticationService() {
-    listenAuthChanges().listen((userOrNull) {
+    print('FirebaseAuthenticationService constructor');
+    _listenAuthChanges().listen((userOrNull) {
       if (userOrNull != null) {
+        _isAuthenticatedSub.sink.add(true);
         setToken(FirebaseAuth.instance.currentUser!);
+      } else {
+        _isAuthenticatedSub.sink.add(false);
+        setToken(null);
       }
     });
+  }
+
+  Stream<TeammateDto?> teammateConnectedStr() {
+    return _teammateConnectedSub.stream;
+  }
+
+  Stream<bool> isAuthenticatedStr() {
+    return _isAuthenticatedSub.stream;
   }
 
   bool isAuthenticated() {
     return FirebaseAuth.instance.currentUser != null;
   }
 
-  Stream<User?> listenAuthChanges() {
+  Stream<User?> _listenAuthChanges() {
     print('listenAuthChanges');
     return FirebaseAuth.instance.authStateChanges();
   }
@@ -60,10 +74,11 @@ class FirebaseAuthenticationService {
           prenom: map['prenom'],
           telephone: map['telephone'],
         );
-        userConnectedService.setUser(teammateDto);
+        _teammateConnectedSub.sink.add(teammateDto);
       }
     } else {
       apiClient.defaultHeaderMap.update(headerAuthorization, (value) => '');
+      _teammateConnectedSub.sink.add(null);
     }
   }
 

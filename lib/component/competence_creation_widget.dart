@@ -46,12 +46,12 @@ class CompetenceCreationWidget extends StatelessWidget {
             TextFormField(
                 maxLength: 255,
                 controller: nomController,
-                style: Theme.of(context).textTheme.bodyText2?.copyWith(color: Colors.white),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
                 onChanged: notifier.setNom,
                 decoration: InputDecoration(
                   label: Text('name'.i18n()),
-                  labelStyle: Theme.of(context).textTheme.caption,
-                  counterStyle: Theme.of(context).textTheme.caption,
+                  labelStyle: Theme.of(context).textTheme.bodySmall,
+                  counterStyle: Theme.of(context).textTheme.bodySmall,
                 ),
                 validator: (String? value) {
                   return (value == null || value.isEmpty) ? 'Le nom est obligatoire' : null;

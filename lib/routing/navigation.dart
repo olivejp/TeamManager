@@ -21,9 +21,12 @@ class TeammateRouterDelegate extends RouterDelegate<RoutePath>
   final FirebaseAuthenticationService firebaseAuthenticationService = GetIt.I.get();
 
   TeammateRouterDelegate() {
+    print('TeammateRouterDelegate constructor');
+
     // Va écouter si l'utilisateur se déconnecte, on renvoie TOUJOURS vers la page SignIn.
-    firebaseAuthenticationService.listenAuthChanges().listen((userOrNull) {
+    firebaseAuthenticationService.teammateConnectedStr().listen((userOrNull) {
       if (userOrNull == null) {
+        print('User is null go to signIn page');
         navigationService.changePath('/${Constants.signInPath}');
       }
     });
@@ -49,6 +52,7 @@ class TeammateRouterDelegate extends RouterDelegate<RoutePath>
 
   @override
   Widget build(BuildContext context) {
+    print('navigation Build');
     final Uri uri = Uri.parse(pathName ?? '/');
     Widget widget;
     if (uri.pathSegments.isNotEmpty) {

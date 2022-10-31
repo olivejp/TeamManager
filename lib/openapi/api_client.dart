@@ -194,14 +194,16 @@ class ApiClient {
           return Appointment.fromJson(value);
         case 'Competence':
           return Competence.fromJson(value);
-        case 'CongesCreateDto':
-          return CongesCreateDto.fromJson(value);
         case 'CongesDto':
           return CongesDto.fromJson(value);
+        case 'CongesPersistDto':
+          return CongesPersistDto.fromJson(value);
         case 'ContraintsValidationError':
           return ContraintsValidationError.fromJson(value);
         case 'CustomerDto':
           return CustomerDto.fromJson(value);
+        case 'DashboardDto':
+          return DashboardDto.fromJson(value);
         case 'Document':
           return Document.fromJson(value);
         case 'PageCompetence':

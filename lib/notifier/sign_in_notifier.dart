@@ -18,7 +18,11 @@ class SignInNotifier extends ChangeNotifier {
   bool hidePassword = true;
 
   SignInNotifier(this.path) {
-    service.listenAuthChanges().where((user) => user != null).listen((user) => navigationService.changePath(path));
+    print('SignInNotifier constructor');
+    service.teammateConnectedStr().where((user) => user != null).listen((user) {
+      print('ChangePath');
+      navigationService.changePath(path);
+    });
   }
 
   changeLoading(bool isLoading) {

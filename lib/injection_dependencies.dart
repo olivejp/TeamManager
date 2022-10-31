@@ -39,6 +39,11 @@ class InjectionDependencies {
 
     GetIt.I.registerLazySingleton(() {
       final ApiClient apiClient = GetIt.I.get();
+      return DashboardControllerApi(apiClient);
+    });
+
+    GetIt.I.registerLazySingleton(() {
+      final ApiClient apiClient = GetIt.I.get();
       return CongesControllerApi(apiClient);
     });
 

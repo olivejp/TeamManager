@@ -15,7 +15,7 @@ class Conges {
   int? id;
   DateTime dateDebut;
   DateTime dateFin;
-  CongesCreateDtoTypeCongesEnum typeConges;
+  CongesPersistDtoTypeCongesEnum typeConges;
   String portionDebut;
   String portionFin;
   List<Object> resources;

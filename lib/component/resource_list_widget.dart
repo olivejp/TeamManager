@@ -41,7 +41,7 @@ class ResourceListWidget extends StatelessWidget {
                     flex: 6,
                     child: Text(
                       'Liste des ressources',
-                      style: Theme.of(context).textTheme.bodyText1,
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),
                   Row(children: [

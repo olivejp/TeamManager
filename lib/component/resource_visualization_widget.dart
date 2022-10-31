@@ -68,7 +68,7 @@ class ResourceDetailWidget extends StatelessWidget {
                               : notifier.isReadOnly
                                   ? "visualize_title".i18n()
                                   : "update_title".i18n(),
-                          style: Theme.of(context).textTheme.bodyText1,
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                         if (notifier.isReadOnly)
                           IconButton(
@@ -97,12 +97,12 @@ class ResourceDetailWidget extends StatelessWidget {
                       controller: lastnameController,
                       style: Theme.of(context)
                           .textTheme
-                          .bodyText2
+                          .bodyMedium
                           ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
                       decoration: InputDecoration(
                         label: Text('lastname'.i18n()),
-                        labelStyle: Theme.of(context).textTheme.caption,
-                        counterStyle: Theme.of(context).textTheme.caption,
+                        labelStyle: Theme.of(context).textTheme.bodySmall,
+                        counterStyle: Theme.of(context).textTheme.bodySmall,
                       ),
                       validator: (String? value) {
                         return (value == null || value.isEmpty) ? 'Le nom est obligatoire' : null;
@@ -119,12 +119,12 @@ class ResourceDetailWidget extends StatelessWidget {
                       controller: firstnameController,
                       style: Theme.of(context)
                           .textTheme
-                          .bodyText2
+                          .bodyMedium
                           ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
                       decoration: InputDecoration(
                         label: Text('firstname'.i18n()),
-                        labelStyle: Theme.of(context).textTheme.caption,
-                        counterStyle: Theme.of(context).textTheme.caption,
+                        labelStyle: Theme.of(context).textTheme.bodySmall,
+                        counterStyle: Theme.of(context).textTheme.bodySmall,
                       ),
                       validator: (String? value) {
                         return (value == null || value.isEmpty) ? 'Le prénom est obligatoire' : null;
@@ -141,12 +141,12 @@ class ResourceDetailWidget extends StatelessWidget {
                       controller: emailController,
                       style: Theme.of(context)
                           .textTheme
-                          .bodyText2
+                          .bodyMedium
                           ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
                       decoration: InputDecoration(
                         label: Text('email'.i18n()),
-                        labelStyle: Theme.of(context).textTheme.caption,
-                        counterStyle: Theme.of(context).textTheme.caption,
+                        labelStyle: Theme.of(context).textTheme.bodySmall,
+                        counterStyle: Theme.of(context).textTheme.bodySmall,
                       ),
                       validator: (String? value) {
                         return (value == null || value.isEmpty) ? 'L\'email est obligatoire' : null;
@@ -162,11 +162,11 @@ class ResourceDetailWidget extends StatelessWidget {
                       inputFormatters: [dateMaskFormatter],
                       style: Theme.of(context)
                           .textTheme
-                          .bodyText2
+                          .bodyMedium
                           ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
                       decoration: InputDecoration(
                         label: Text("birth_date".i18n()),
-                        labelStyle: Theme.of(context).textTheme.caption,
+                        labelStyle: Theme.of(context).textTheme.bodySmall,
                         suffixIcon: IconButton(
                           onPressed: () {
                             if (notifier.isReadOnly) {
@@ -210,12 +210,12 @@ class ResourceDetailWidget extends StatelessWidget {
                         controller: descriptionController,
                         style: Theme.of(context)
                             .textTheme
-                            .bodyText2
+                            .bodyMedium
                             ?.copyWith(color: notifier.isReadOnly ? Colors.grey : Colors.white),
                         decoration: InputDecoration(
                             label: Text('description'.i18n()),
-                            labelStyle: Theme.of(context).textTheme.caption,
-                            counterStyle: Theme.of(context).textTheme.caption,
+                            labelStyle: Theme.of(context).textTheme.bodySmall,
+                            counterStyle: Theme.of(context).textTheme.bodySmall,
                             border: const OutlineInputBorder()),
                         onFieldSubmitted: (value) {
                           notifier.setDescription(value);
@@ -231,7 +231,7 @@ class ResourceDetailWidget extends StatelessWidget {
                           children: [
                             Text(
                               "Documents",
-                              style: Theme.of(context).textTheme.bodyText1,
+                              style: Theme.of(context).textTheme.bodyLarge,
                             ),
                           ],
                         ),

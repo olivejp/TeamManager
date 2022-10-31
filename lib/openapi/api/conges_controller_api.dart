@@ -19,13 +19,13 @@ class CongesControllerApi {
   /// Performs an HTTP 'POST /api/conges' operation and returns the [Response].
   /// Parameters:
   ///
-  /// * [CongesCreateDto] congesCreateDto (required):
-  Future<Response> create2WithHttpInfo(CongesCreateDto congesCreateDto,) async {
+  /// * [CongesPersistDto] congesPersistDto (required):
+  Future<Response> create2WithHttpInfo(CongesPersistDto congesPersistDto,) async {
     // ignore: prefer_const_declarations
     final path = r'/api/conges';
 
     // ignore: prefer_final_locals
-    Object? postBody = congesCreateDto;
+    Object? postBody = congesPersistDto;
 
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
@@ -47,9 +47,9 @@ class CongesControllerApi {
 
   /// Parameters:
   ///
-  /// * [CongesCreateDto] congesCreateDto (required):
-  Future<CongesDto?> create2(CongesCreateDto congesCreateDto,) async {
-    final response = await create2WithHttpInfo(congesCreateDto,);
+  /// * [CongesPersistDto] congesPersistDto (required):
+  Future<CongesDto?> create2(CongesPersistDto congesPersistDto,) async {
+    final response = await create2WithHttpInfo(congesPersistDto,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -211,13 +211,13 @@ class CongesControllerApi {
   /// Performs an HTTP 'PUT /api/conges' operation and returns the [Response].
   /// Parameters:
   ///
-  /// * [CongesCreateDto] congesCreateDto (required):
-  Future<Response> update2WithHttpInfo(CongesCreateDto congesCreateDto,) async {
+  /// * [CongesPersistDto] congesPersistDto (required):
+  Future<Response> update2WithHttpInfo(CongesPersistDto congesPersistDto,) async {
     // ignore: prefer_const_declarations
     final path = r'/api/conges';
 
     // ignore: prefer_final_locals
-    Object? postBody = congesCreateDto;
+    Object? postBody = congesPersistDto;
 
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
@@ -239,9 +239,9 @@ class CongesControllerApi {
 
   /// Parameters:
   ///
-  /// * [CongesCreateDto] congesCreateDto (required):
-  Future<CongesDto?> update2(CongesCreateDto congesCreateDto,) async {
-    final response = await update2WithHttpInfo(congesCreateDto,);
+  /// * [CongesPersistDto] congesPersistDto (required):
+  Future<CongesDto?> update2(CongesPersistDto congesPersistDto,) async {
+    final response = await update2WithHttpInfo(congesPersistDto,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }

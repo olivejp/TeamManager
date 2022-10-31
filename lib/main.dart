@@ -3,12 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:localization/localization.dart';
-import 'package:provider/provider.dart';
 import 'package:team_manager/constants.dart';
 import 'package:team_manager/firebase_options.dart';
 import 'package:team_manager/injection_dependencies.dart';
-import 'package:team_manager/notifier/authentication_notifier.dart';
-import 'package:team_manager/notifier/competence_creation_notifier.dart';
 import 'package:team_manager/routing/navigation.dart';
 import 'package:team_manager/theming.dart';
 
@@ -30,28 +27,22 @@ class MyApp extends StatelessWidget {
     // Specify where we should look for the translations.
     LocalJsonLocalization.delegate.directories = ['i18n'];
 
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => CompetenceCreationNotifier()),
-        ChangeNotifierProvider(create: (_) => AuthenticationNotifier()),
+    return MaterialApp.router(
+      title: Constants.appTitle,
+      routerDelegate: TeammateRouterDelegate(),
+      routeInformationParser: TeammateRouteInformationParser(),
+      supportedLocales: const [
+        Locale('en', 'EN'),
+        Locale('fr', 'FR'),
       ],
-      builder: (context, child) => MaterialApp.router(
-        title: Constants.appTitle,
-        routerDelegate: TeammateRouterDelegate(),
-        routeInformationParser: TeammateRouteInformationParser(),
-        supportedLocales: const [
-          Locale('en', 'EN'),
-          Locale('fr', 'FR'),
-        ],
-        localizationsDelegates: [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          LocalJsonLocalization.delegate
-        ],
-        theme: Theming.buildThemeData(),
-        darkTheme: Theming.buildThemeDataDark(),
-      ),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        LocalJsonLocalization.delegate
+      ],
+      theme: Theming.buildThemeData(),
+      darkTheme: Theming.buildThemeDataDark(),
     );
   }
 }

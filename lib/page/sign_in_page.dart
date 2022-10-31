@@ -43,7 +43,7 @@ class SignInPage extends StatelessWidget {
                                 padding: const EdgeInsets.only(bottom: 30, left: 20),
                                 child: Text(
                                   Constants.appTitle,
-                                  style: Theme.of(context).textTheme.headline1,
+                                  style: Theme.of(context).textTheme.displayLarge,
                                 ),
                               ),
                               Card(
@@ -60,7 +60,7 @@ class SignInPage extends StatelessWidget {
                                       children: <Widget>[
                                         Text(
                                           'connectToYourAccount'.i18n(),
-                                          style: Theme.of(context).textTheme.caption,
+                                          style: Theme.of(context).textTheme.bodySmall,
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.only(top: 30),
@@ -159,7 +159,7 @@ class SignInPage extends StatelessWidget {
                                               },
                                               child: Text(
                                                 'connect'.i18n(),
-                                                style: Theme.of(context).textTheme.caption?.copyWith(
+                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                       color: Colors.white,
                                                     ),
                                               ),

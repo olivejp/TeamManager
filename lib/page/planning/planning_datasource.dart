@@ -12,8 +12,8 @@ import 'package:team_manager/page/planning/planning_conges.dart';
 /// allows to add, remove or reset the appointment collection.
 class CongesDataSource extends CalendarDataSource {
   late CongesControllerApi congesControllerApi;
-  final portionDebutCreateTr = CongesCreateDtoPortionDebutEnumTypeTransformer();
-  final portionFinCreateTr = CongesCreateDtoPortionFinEnumTypeTransformer();
+  final portionDebutCreateTr = CongesPersistDtoPortionDebutEnumTypeTransformer();
+  final portionFinCreateTr = CongesPersistDtoPortionFinEnumTypeTransformer();
   final portionDebutTr = CongesDtoPortionDebutEnumTypeTransformer();
   final portionFinTr = CongesDtoPortionFinEnumTypeTransformer();
   final dateFormat = DateFormat('dd-MM-yyyy HH:mm:ss');
@@ -22,11 +22,14 @@ class CongesDataSource extends CalendarDataSource {
 
   /// Creates a meeting data source, which used to set the appointment
   /// collection to the calendar
-  CongesDataSource(PageTeammateDto? pageDto) : super() {
+  CongesDataSource() : super() {
     congesControllerApi = GetIt.I.get();
+  }
+
+  setPage(PageTeammateDto? pageResourcesDto) {
     appointments = [];
-    _setResources(pageDto);
-    _fetch();
+    _setResources(pageResourcesDto);
+    _fetchConges();
   }
 
   @override
@@ -47,11 +50,11 @@ class CongesDataSource extends CalendarDataSource {
   @override
   Color getColor(int index) {
     switch (_getCongesData(index)!.typeConges) {
-      case CongesCreateDtoTypeCongesEnum.CONGE_PAYE:
+      case CongesPersistDtoTypeCongesEnum.CONGE_PAYE:
         return const Color(0xFFA621F3);
-      case CongesCreateDtoTypeCongesEnum.MALADIE:
+      case CongesPersistDtoTypeCongesEnum.MALADIE:
         return const Color(0xFF67F321);
-      case CongesCreateDtoTypeCongesEnum.SANS_SOLDE:
+      case CongesPersistDtoTypeCongesEnum.SANS_SOLDE:
         return const Color(0xFFF32159);
       default:
         return const Color(0xFF2196F3);
@@ -104,7 +107,7 @@ class CongesDataSource extends CalendarDataSource {
   }
 
   /// Va récupérer les datas depuis le back pour alimenter la datasource.
-  _fetch() {
+  _fetchConges() {
     appointments = [];
     notifyListeners(CalendarDataSourceAction.reset, []);
 
@@ -128,21 +131,21 @@ class CongesDataSource extends CalendarDataSource {
     );
   }
 
-  CongesCreateDtoTypeCongesEnum _mapTypeConges(CongesDto dto) {
+  CongesPersistDtoTypeCongesEnum _mapTypeConges(CongesDto dto) {
     print('_mapTypeConges $dto');
-    CongesCreateDtoTypeCongesEnum type;
+    CongesPersistDtoTypeCongesEnum type;
     switch (dto.typeConges!) {
       case CongesDtoTypeCongesEnum.CONGE_PAYE:
-        type = CongesCreateDtoTypeCongesEnum.CONGE_PAYE;
+        type = CongesPersistDtoTypeCongesEnum.CONGE_PAYE;
         break;
       case CongesDtoTypeCongesEnum.MALADIE:
-        type = CongesCreateDtoTypeCongesEnum.MALADIE;
+        type = CongesPersistDtoTypeCongesEnum.MALADIE;
         break;
       case CongesDtoTypeCongesEnum.SANS_SOLDE:
-        type = CongesCreateDtoTypeCongesEnum.SANS_SOLDE;
+        type = CongesPersistDtoTypeCongesEnum.SANS_SOLDE;
         break;
       default:
-        type = CongesCreateDtoTypeCongesEnum.CONGE_PAYE;
+        type = CongesPersistDtoTypeCongesEnum.CONGE_PAYE;
     }
     return type;
   }
@@ -174,7 +177,7 @@ class CongesDataSource extends CalendarDataSource {
     notifyListeners(CalendarDataSourceAction.add, [conges]);
   }
 
-  Future<CongesCreateDto> _mapCongesToCreateDto(Conges conges) {
+  Future<CongesPersistDto> _mapCongesToCreateDto(Conges conges) {
     return Future(() {
       print('_mapCongesToCreateDto $conges');
 
@@ -185,15 +188,15 @@ class CongesDataSource extends CalendarDataSource {
 
       throwIf(teammateId == null, Exception('Aucune resource trouvée pour l\'email'));
 
-      return CongesCreateDto(
+      return CongesPersistDto(
           id: conges.id,
           teammateId: teammateId!,
           dateDebut: dateFormat.format(conges.dateDebut),
           dateFin: dateFormat.format(conges.dateFin),
           typeConges: conges.typeConges,
           commentaire: conges.commentaire,
-          portionDebut: CongesCreateDtoPortionDebutEnum.fromJson(conges.portionDebut)!,
-          portionFin: CongesCreateDtoPortionFinEnum.fromJson(conges.portionFin)!);
+          portionDebut: CongesPersistDtoPortionDebutEnum.fromJson(conges.portionDebut)!,
+          portionFin: CongesPersistDtoPortionFinEnum.fromJson(conges.portionFin)!);
     });
   }
 

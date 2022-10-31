@@ -26,7 +26,6 @@ class DownloadFileNotifier extends ChangeNotifier {
   final String path;
   final void Function(String downloadUrl, String fileName) onUploadComplete;
 
-
   bool isLoading;
   int? byteTransferred;
   int? totalBytes;
@@ -88,22 +87,22 @@ class DownloadFileNotifier extends ChangeNotifier {
 }
 
 class DownloadFileWidget extends StatelessWidget {
-  const DownloadFileWidget({
-    Key? key,
-    required this.onUploadComplete,
-    required this.width,
-    required this.height,
-    required this.acceptedMimeTypes,
-    required this.acceptedExtensions,
-    required this.path,
-    required this.label,
-    required this.buttonLabel,
-    this.downloadUrl,
-    this.filename,
-    this.onDelete,
-    this.isReadOnly = false,
-    this.radius
-  }) : super(key: key);
+  const DownloadFileWidget(
+      {Key? key,
+      required this.onUploadComplete,
+      required this.width,
+      required this.height,
+      required this.acceptedMimeTypes,
+      required this.acceptedExtensions,
+      required this.path,
+      required this.label,
+      required this.buttonLabel,
+      this.downloadUrl,
+      this.filename,
+      this.onDelete,
+      this.isReadOnly = false,
+      this.radius})
+      : super(key: key);
 
   final String path;
   final double width;
@@ -171,8 +170,8 @@ class DownloadFileWidget extends StatelessWidget {
                     children: [
                       Text(label,
                           style: (isReadOnly)
-                              ? Theme.of(context).textTheme.caption?.copyWith(color: Colors.grey)
-                              : Theme.of(context).textTheme.caption?.copyWith(color: Colors.white)),
+                              ? Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)
+                              : Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white)),
                       TextButton.icon(
                         icon: const Icon(Icons.upload_file),
                         label: Text(buttonLabel),

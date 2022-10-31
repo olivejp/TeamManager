@@ -13,6 +13,95 @@ import 'package:team_manager/page/planning/planning_conges.dart';
 import 'package:team_manager/page/planning/planning_datasource.dart';
 import 'package:team_manager/page/planning/planning_page_notifier.dart';
 
+class RightPlanningDrawer extends StatelessWidget {
+  final CongesDataSource dataSource;
+
+  const RightPlanningDrawer({Key? key, required this.dataSource}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      width: 700,
+      backgroundColor: Colors.white,
+      elevation: 10,
+      child: Consumer<RightDrawerNotifier>(builder: (context, notifier, child) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              color: Constants.primaryColor,
+              height: 150,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      notifier.creation ? 'Création' : 'Mise à jour',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white),
+                    ),
+                    IconButton(
+                      onPressed: () => context.read<RightDrawerNotifier>().closeDrawer(),
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: CongesWidget(
+                initialConges: notifier.conges!,
+                onSave: (conges) => dataSource.saveConges(conges).then((_) {
+                  // Provider.of<ListCongesNotifier>(context).reload();
+                  Navigator.of(context).pop();
+                }),
+                onDelete: (id) {
+                  dataSource.deleteById(id).then((_) {
+                    // Provider.of<ListCongesNotifier>(context).reload();
+                    Navigator.of(context).pop();
+                  });
+                },
+                onExit: Navigator.of(context).pop,
+              ),
+            )
+          ],
+        );
+      }),
+    );
+  }
+}
+
+class RightDrawerNotifier extends ChangeNotifier {
+  final GlobalKey<ScaffoldState> key;
+  Conges? conges;
+  bool creation = false;
+
+  RightDrawerNotifier(this.key);
+
+  setConges(bool creation, Conges? conges) {
+    this.creation = creation;
+    this.conges = conges;
+    if (key.currentState?.isEndDrawerOpen == false) {
+      openDrawer();
+    }
+    notifyListeners();
+  }
+
+  openDrawer() {
+    if (key.currentState?.isEndDrawerOpen == false) {
+      key.currentState?.openEndDrawer();
+    }
+  }
+
+  closeDrawer() {
+    key.currentState?.closeEndDrawer();
+  }
+}
+
 class ListCongesNotifier extends ChangeNotifier {
   final CongesControllerApi congesControllerApi = GetIt.I.get();
 
@@ -27,10 +116,10 @@ class ListCongesNotifier extends ChangeNotifier {
 }
 
 class PlanningPage extends StatelessWidget {
-  final CongesCreateDtoPortionDebutEnumTypeTransformer portionDebutEnumTypeTransformer =
-      CongesCreateDtoPortionDebutEnumTypeTransformer();
-  final CongesCreateDtoPortionFinEnumTypeTransformer portionFinEnumTypeTransformer =
-      CongesCreateDtoPortionFinEnumTypeTransformer();
+  final CongesPersistDtoPortionDebutEnumTypeTransformer portionDebutEnumTypeTransformer =
+      CongesPersistDtoPortionDebutEnumTypeTransformer();
+  final CongesPersistDtoPortionFinEnumTypeTransformer portionFinEnumTypeTransformer =
+      CongesPersistDtoPortionFinEnumTypeTransformer();
 
   final congesPayesColor = const Color(0xFF1B46D0);
   final maladieColor = const Color(0xFF1B7FD0);
@@ -42,14 +131,23 @@ class PlanningPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final CalendarController calendarCtl = CalendarController();
     final TeammateControllerApi teammateControllerApi = GetIt.I.get();
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+    final CongesDataSource dataSource = CongesDataSource();
     calendarCtl.view = CalendarView.timelineMonth;
 
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => PlanningPageNotifier(calendarCtl)),
           ChangeNotifierProvider(create: (_) => ListCongesNotifier()),
+          ChangeNotifierProvider(create: (_) => RightDrawerNotifier(scaffoldKey)),
         ],
         child: Scaffold(
+          key: scaffoldKey,
+          endDrawer: RightPlanningDrawer(
+            dataSource: dataSource,
+          ),
+          drawerScrimColor: Colors.transparent,
+          endDrawerEnableOpenDragGesture: false,
           body: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -59,8 +157,7 @@ class PlanningPage extends StatelessWidget {
                     future: teammateControllerApi.getAll(Pageable()),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        final pageTeammateDto = snapshot.data;
-                        final CongesDataSource dataSource = CongesDataSource(pageTeammateDto);
+                        dataSource.setPage(snapshot.data);
                         return Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -183,13 +280,13 @@ class PlanningPage extends StatelessWidget {
 
     Color color;
     switch (conges.typeConges) {
-      case CongesCreateDtoTypeCongesEnum.CONGE_PAYE:
+      case CongesPersistDtoTypeCongesEnum.CONGE_PAYE:
         color = congesPayesColor;
         break;
-      case CongesCreateDtoTypeCongesEnum.MALADIE:
+      case CongesPersistDtoTypeCongesEnum.MALADIE:
         color = maladieColor;
         break;
-      case CongesCreateDtoTypeCongesEnum.SANS_SOLDE:
+      case CongesPersistDtoTypeCongesEnum.SANS_SOLDE:
         color = sansSoldeColor;
         break;
       default:
@@ -211,42 +308,27 @@ class PlanningPage extends StatelessWidget {
 
   openMeetingWidget(BuildContext context, CongesDataSource dataSource, {CalendarTapDetails? calendarTapDetails}) {
     Conges initialConges;
-    // TODO Ne pas récupérer le conges si on a pas cliquer dessus mais à coté sur la meme date.
+    bool creation = false;
+    // TODO Ne pas récupérer le conges si on a pas cliqué dessus mais à coté sur la meme date.
     if (calendarTapDetails?.appointments?.isNotEmpty == true) {
-      // Si on a cliqué sur un Meeting qui existait, on va le réouvrir.
+      // Si on a cliqué sur un Conges qui existait, on va le réouvrir.
+      creation = false;
       initialConges = calendarTapDetails!.appointments?.first;
     } else {
-      // Sinon on va créer un nouveau Meeting.
+      // Sinon on va créer un nouveau Conges.
+      creation = true;
       final DateTime now = DateTime.now();
       initialConges = Conges(
         id: null,
         dateDebut: calendarTapDetails?.date ?? now,
         dateFin: calendarTapDetails?.date ?? now,
         resources: (calendarTapDetails?.resource?.id != null) ? [calendarTapDetails!.resource!.id] : [],
-        typeConges: CongesCreateDtoTypeCongesEnum.CONGE_PAYE,
-        portionDebut: portionDebutEnumTypeTransformer.encode(CongesCreateDtoPortionDebutEnum.MATIN),
-        portionFin: portionFinEnumTypeTransformer.encode(CongesCreateDtoPortionFinEnum.MATIN),
+        typeConges: CongesPersistDtoTypeCongesEnum.CONGE_PAYE,
+        portionDebut: portionDebutEnumTypeTransformer.encode(CongesPersistDtoPortionDebutEnum.MATIN),
+        portionFin: portionFinEnumTypeTransformer.encode(CongesPersistDtoPortionFinEnum.MATIN),
       );
     }
 
-    showDialog(
-      context: context,
-      builder: (alertContext) => AlertDialog(
-        content: CongesWidget(
-          initialConges: initialConges,
-          onSave: (conges) => dataSource.saveConges(conges).then((_) {
-            // Provider.of<ListCongesNotifier>(context).reload();
-            Navigator.of(context).pop();
-          }),
-          onDelete: (id) {
-            dataSource.deleteById(id).then((_) {
-              // Provider.of<ListCongesNotifier>(context).reload();
-              Navigator.of(context).pop();
-            });
-          },
-          onExit: Navigator.of(context).pop,
-        ),
-      ),
-    );
+    context.read<RightDrawerNotifier>().setConges(creation, initialConges);
   }
 }
